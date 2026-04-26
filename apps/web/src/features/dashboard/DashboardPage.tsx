@@ -1,0 +1,110 @@
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  Legend,
+  Line,
+  LineChart,
+  Pie,
+  PieChart,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts";
+
+import { PageHeader } from "@/components/layout/PageHeader";
+import { formatBRL } from "@/lib/utils";
+import { useEvolucaoSaldo, useGastosPorCategoria, useResumo } from "./api";
+
+export function DashboardPage() {
+  const { data: resumo } = useResumo();
+  const { data: gastos } = useGastosPorCategoria();
+  const { data: evolucao } = useEvolucaoSaldo(6);
+
+  return (
+    <div className="p-8 max-w-6xl mx-auto">
+      <PageHeader title="Dashboard" description="Visão geral das suas finanças" />
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+        <Kpi title="Saldo total" value={formatBRL(resumo?.saldo_total)} accent="brand" />
+        <Kpi title="Receitas (mês)" value={formatBRL(resumo?.receitas_mes)} accent="emerald" />
+        <Kpi title="Despesas (mês)" value={formatBRL(resumo?.despesas_mes)} accent="red" />
+        <Kpi title="Faturas em aberto" value={formatBRL(resumo?.faturas_em_aberto)} accent="amber" />
+      </div>
+
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+        <div className="card p-5">
+          <h3 className="font-semibold mb-3">Evolução do saldo</h3>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <LineChart data={evolucao?.map((p) => ({ mes: p.mes, saldo: Number(p.saldo) })) ?? []}>
+                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
+                <XAxis dataKey="mes" fontSize={12} />
+                <YAxis fontSize={12} tickFormatter={(v) => `R$${(v / 1000).toFixed(0)}k`} />
+                <Tooltip formatter={(v: number) => formatBRL(v)} />
+                <Line type="monotone" dataKey="saldo" stroke="#16a34a" strokeWidth={2} />
+              </LineChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+
+        <div className="card p-5">
+          <h3 className="font-semibold mb-3">Gastos por categoria (mês)</h3>
+          <div className="h-64">
+            <ResponsiveContainer width="100%" height="100%">
+              <PieChart>
+                <Pie
+                  data={gastos?.map((g) => ({ name: g.nome, value: Number(g.total), cor: g.cor })) ?? []}
+                  dataKey="value"
+                  nameKey="name"
+                  outerRadius={80}
+                  label={(e) => e.name}
+                >
+                  {gastos?.map((g, i) => <Cell key={i} fill={g.cor ?? "#64748b"} />)}
+                </Pie>
+                <Tooltip formatter={(v: number) => formatBRL(v)} />
+              </PieChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+
+      <div className="card p-5">
+        <h3 className="font-semibold mb-3">Patrimônio investido</h3>
+        <div className="grid grid-cols-3 gap-3">
+          <div>
+            <div className="text-xs text-slate-500">Investido</div>
+            <div className="text-lg font-semibold">{formatBRL(resumo?.valor_investido)}</div>
+          </div>
+          <div>
+            <div className="text-xs text-slate-500">Atual</div>
+            <div className="text-lg font-semibold">{formatBRL(resumo?.patrimonio_investido)}</div>
+          </div>
+          <div>
+            <div className="text-xs text-slate-500">Variação</div>
+            <div className={`text-lg font-semibold ${Number(resumo?.variacao_carteira ?? 0) >= 0 ? "text-emerald-600" : "text-red-600"}`}>
+              {formatBRL(resumo?.variacao_carteira)}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function Kpi({ title, value, accent }: { title: string; value: string; accent: string }) {
+  const colors: Record<string, string> = {
+    brand: "border-l-brand-500",
+    emerald: "border-l-emerald-500",
+    red: "border-l-red-500",
+    amber: "border-l-amber-500",
+  };
+  return (
+    <div className={`card p-5 border-l-4 ${colors[accent]}`}>
+      <div className="text-xs text-slate-500">{title}</div>
+      <div className="text-xl font-bold mt-1">{value}</div>
+    </div>
+  );
+}

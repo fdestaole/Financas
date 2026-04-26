@@ -1,0 +1,296 @@
+from datetime import date
+from decimal import Decimal, ROUND_HALF_UP
+
+from dateutil.relativedelta import relativedelta
+from sqlalchemy import and_, or_, select
+from sqlalchemy.orm import Session
+
+from app.core.errors import BusinessRuleError, NotFoundError
+from app.db.enums import SentidoTransferencia, StatusTransacao, TipoTransacao
+from app.db.models import BankAccount, CreditCard, Transaction
+from app.modules.invoices.service import upsert_invoice
+from app.modules.transactions.schemas import (
+    CompraCartaoIn,
+    DespesaIn,
+    ReceitaIn,
+    TransactionIn,
+    TransactionUpdate,
+    TransferenciaIn,
+)
+
+
+def _ensure_account(db: Session, user_id: str, account_id: str) -> BankAccount:
+    acc = db.scalar(
+        select(BankAccount).where(BankAccount.id == account_id, BankAccount.user_id == user_id)
+    )
+    if not acc:
+        raise BusinessRuleError("Conta não encontrada")
+    return acc
+
+
+def _ensure_card(db: Session, user_id: str, card_id: str) -> CreditCard:
+    card = db.scalar(
+        select(CreditCard).where(CreditCard.id == card_id, CreditCard.user_id == user_id)
+    )
+    if not card:
+        raise BusinessRuleError("Cartão não encontrado")
+    return card
+
+
+def _q2(value: Decimal) -> Decimal:
+    return value.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
+
+
+def criar_receita(db: Session, user_id: str, data: ReceitaIn) -> list[Transaction]:
+    _ensure_account(db, user_id, data.bank_account_id)
+    tx = Transaction(
+        user_id=user_id,
+        tipo=TipoTransacao.RECEITA,
+        descricao=data.descricao,
+        valor=data.valor,
+        data_competencia=data.data,
+        data_efetivacao=data.data,
+        status=StatusTransacao.EFETIVADA,
+        category_id=data.category_id,
+        bank_account_id=data.bank_account_id,
+        observacao=data.observacao,
+    )
+    db.add(tx)
+    db.commit()
+    db.refresh(tx)
+    return [tx]
+
+
+def criar_despesa(db: Session, user_id: str, data: DespesaIn) -> list[Transaction]:
+    _ensure_account(db, user_id, data.bank_account_id)
+    tx = Transaction(
+        user_id=user_id,
+        tipo=TipoTransacao.DESPESA,
+        descricao=data.descricao,
+        valor=data.valor,
+        data_competencia=data.data,
+        data_efetivacao=data.data,
+        status=StatusTransacao.EFETIVADA,
+        category_id=data.category_id,
+        bank_account_id=data.bank_account_id,
+        observacao=data.observacao,
+    )
+    db.add(tx)
+    db.commit()
+    db.refresh(tx)
+    return [tx]
+
+
+def criar_transferencia(db: Session, user_id: str, data: TransferenciaIn) -> list[Transaction]:
+    if data.bank_account_origem_id == data.bank_account_destino_id:
+        raise BusinessRuleError("Conta de origem e destino devem ser diferentes")
+    _ensure_account(db, user_id, data.bank_account_origem_id)
+    _ensure_account(db, user_id, data.bank_account_destino_id)
+
+    origem = Transaction(
+        user_id=user_id,
+        tipo=TipoTransacao.TRANSFERENCIA,
+        descricao=data.descricao,
+        valor=data.valor,
+        data_competencia=data.data,
+        data_efetivacao=data.data,
+        status=StatusTransacao.EFETIVADA,
+        bank_account_id=data.bank_account_origem_id,
+        sentido_transferencia=SentidoTransferencia.ORIGEM,
+        observacao=data.observacao,
+    )
+    destino = Transaction(
+        user_id=user_id,
+        tipo=TipoTransacao.TRANSFERENCIA,
+        descricao=data.descricao,
+        valor=data.valor,
+        data_competencia=data.data,
+        data_efetivacao=data.data,
+        status=StatusTransacao.EFETIVADA,
+        bank_account_id=data.bank_account_destino_id,
+        sentido_transferencia=SentidoTransferencia.DESTINO,
+        observacao=data.observacao,
+    )
+    db.add_all([origem, destino])
+    db.flush()
+    origem.transferencia_par_id = destino.id
+    destino.transferencia_par_id = origem.id
+    db.commit()
+    db.refresh(origem)
+    db.refresh(destino)
+    return [origem, destino]
+
+
+def criar_compra_cartao(db: Session, user_id: str, data: CompraCartaoIn) -> list[Transaction]:
+    card = _ensure_card(db, user_id, data.credit_card_id)
+    parcelas = max(data.parcelas, 1)
+    valor_parcela = _q2(data.valor / parcelas)
+    diferenca = data.valor - (valor_parcela * parcelas)
+
+    primeira: Transaction | None = None
+    criadas: list[Transaction] = []
+
+    for i in range(parcelas):
+        data_parcela = data.data + relativedelta(months=i)
+        invoice = upsert_invoice(db, card, data_parcela)
+        valor_atual = valor_parcela + (diferenca if i == parcelas - 1 else Decimal("0"))
+        tx = Transaction(
+            user_id=user_id,
+            tipo=TipoTransacao.COMPRA_CARTAO,
+            descricao=data.descricao if parcelas == 1 else f"{data.descricao} ({i + 1}/{parcelas})",
+            valor=_q2(valor_atual),
+            data_competencia=data_parcela,
+            status=StatusTransacao.EFETIVADA,
+            category_id=data.category_id,
+            credit_card_id=card.id,
+            invoice_id=invoice.id,
+            parcela_atual=i + 1 if parcelas > 1 else None,
+            total_parcelas=parcelas if parcelas > 1 else None,
+            observacao=data.observacao,
+        )
+        db.add(tx)
+        db.flush()
+        if primeira is None:
+            primeira = tx
+        else:
+            tx.compra_original_id = primeira.id
+        criadas.append(tx)
+
+    db.commit()
+    for tx in criadas:
+        db.refresh(tx)
+    return criadas
+
+
+def criar_transacao(db: Session, user_id: str, data: TransactionIn) -> list[Transaction]:
+    if isinstance(data, ReceitaIn):
+        return criar_receita(db, user_id, data)
+    if isinstance(data, DespesaIn):
+        return criar_despesa(db, user_id, data)
+    if isinstance(data, TransferenciaIn):
+        return criar_transferencia(db, user_id, data)
+    if isinstance(data, CompraCartaoIn):
+        return criar_compra_cartao(db, user_id, data)
+    raise BusinessRuleError("Tipo de transação inválido")
+
+
+def listar_transacoes(
+    db: Session,
+    user_id: str,
+    *,
+    bank_account_id: str | None = None,
+    credit_card_id: str | None = None,
+    category_id: str | None = None,
+    tipo: TipoTransacao | None = None,
+    data_inicio: date | None = None,
+    data_fim: date | None = None,
+    q: str | None = None,
+    page: int = 1,
+    page_size: int = 50,
+) -> tuple[list[Transaction], int]:
+    base = select(Transaction).where(Transaction.user_id == user_id)
+    if bank_account_id:
+        base = base.where(Transaction.bank_account_id == bank_account_id)
+    if credit_card_id:
+        base = base.where(Transaction.credit_card_id == credit_card_id)
+    if category_id:
+        base = base.where(Transaction.category_id == category_id)
+    if tipo:
+        base = base.where(Transaction.tipo == tipo)
+    if data_inicio:
+        base = base.where(Transaction.data_competencia >= data_inicio)
+    if data_fim:
+        base = base.where(Transaction.data_competencia <= data_fim)
+    if q:
+        like = f"%{q}%"
+        base = base.where(or_(Transaction.descricao.ilike(like), Transaction.observacao.ilike(like)))
+
+    total = db.scalar(select(Transaction).with_only_columns(Transaction.id).where(base.whereclause).order_by(None))
+    # Conta corretamente:
+    from sqlalchemy import func as sa_func
+
+    count_stmt = select(sa_func.count()).select_from(base.subquery())
+    total = db.scalar(count_stmt) or 0
+
+    items = list(
+        db.scalars(
+            base.order_by(Transaction.data_competencia.desc(), Transaction.created_at.desc())
+            .offset((page - 1) * page_size)
+            .limit(page_size)
+        )
+    )
+    return items, int(total)
+
+
+def get_transacao(db: Session, user_id: str, tx_id: str) -> Transaction:
+    tx = db.scalar(
+        select(Transaction).where(Transaction.id == tx_id, Transaction.user_id == user_id)
+    )
+    if not tx:
+        raise NotFoundError("Transação não encontrada")
+    return tx
+
+
+def atualizar(db: Session, user_id: str, tx_id: str, data: TransactionUpdate) -> Transaction:
+    tx = get_transacao(db, user_id, tx_id)
+    payload = data.model_dump(exclude_unset=True)
+    if "data" in payload:
+        tx.data_competencia = payload.pop("data")
+    for field, value in payload.items():
+        setattr(tx, field, value)
+
+    if tx.tipo == TipoTransacao.TRANSFERENCIA and tx.transferencia_par_id:
+        par = db.get(Transaction, tx.transferencia_par_id)
+        if par:
+            for field in ("descricao", "valor", "observacao"):
+                if field in payload:
+                    setattr(par, field, payload[field])
+            if "data" in data.model_dump(exclude_unset=True):
+                par.data_competencia = tx.data_competencia
+    db.commit()
+    db.refresh(tx)
+    return tx
+
+
+def deletar(db: Session, user_id: str, tx_id: str, *, escopo: str = "apenas") -> int:
+    tx = get_transacao(db, user_id, tx_id)
+    deletadas = 0
+    if tx.tipo == TipoTransacao.TRANSFERENCIA and tx.transferencia_par_id:
+        par = db.get(Transaction, tx.transferencia_par_id)
+        if par:
+            db.delete(par)
+            deletadas += 1
+        db.delete(tx)
+        deletadas += 1
+    elif tx.tipo == TipoTransacao.COMPRA_CARTAO and (tx.compra_original_id or tx.parcela_atual):
+        original_id = tx.compra_original_id or tx.id
+        if escopo == "todas":
+            irmas = db.scalars(
+                select(Transaction).where(
+                    or_(Transaction.id == original_id, Transaction.compra_original_id == original_id),
+                    Transaction.user_id == user_id,
+                )
+            )
+            for s in irmas:
+                db.delete(s)
+                deletadas += 1
+        elif escopo == "todasFuturas":
+            hoje = date.today()
+            irmas = db.scalars(
+                select(Transaction).where(
+                    or_(Transaction.id == original_id, Transaction.compra_original_id == original_id),
+                    Transaction.user_id == user_id,
+                    Transaction.data_competencia >= hoje,
+                )
+            )
+            for s in irmas:
+                db.delete(s)
+                deletadas += 1
+        else:
+            db.delete(tx)
+            deletadas += 1
+    else:
+        db.delete(tx)
+        deletadas += 1
+    db.commit()
+    return deletadas

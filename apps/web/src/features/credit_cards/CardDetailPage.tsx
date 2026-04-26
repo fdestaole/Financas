@@ -1,0 +1,175 @@
+import { useState } from "react";
+import { useParams } from "react-router-dom";
+import { toast } from "sonner";
+
+import { PageHeader } from "@/components/layout/PageHeader";
+import { Modal } from "@/components/ui/Modal";
+import { MoneyInput } from "@/components/ui/MoneyInput";
+import { formatBRL, formatDate, todayISO } from "@/lib/utils";
+import { errorMessage } from "@/lib/api";
+import { useBankAccounts } from "@/features/bank_accounts/api";
+import {
+  useCard,
+  useInvoices,
+  useInvoiceTransactions,
+  usePayInvoice,
+  type Invoice,
+} from "./api";
+
+const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
+
+const STATUS_COLORS: Record<Invoice["status"], string> = {
+  ABERTA: "bg-blue-100 text-blue-700",
+  FECHADA: "bg-amber-100 text-amber-700",
+  PAGA: "bg-emerald-100 text-emerald-700",
+  PAGA_PARCIAL: "bg-yellow-100 text-yellow-700",
+  VENCIDA: "bg-red-100 text-red-700",
+};
+
+export function CardDetailPage() {
+  const { id } = useParams<{ id: string }>();
+  const { data: card } = useCard(id);
+  const { data: invoices } = useInvoices(id);
+  const { data: accounts } = useBankAccounts();
+  const [openInvoice, setOpenInvoice] = useState<Invoice | null>(null);
+  const [payOpen, setPayOpen] = useState<Invoice | null>(null);
+  const pay = usePayInvoice(id || "");
+
+  const { data: txs } = useInvoiceTransactions(id || "", openInvoice?.id);
+
+  const [payForm, setPayForm] = useState({ valor: 0, data: todayISO(), bank_account_id: "" });
+
+  const openPay = (invoice: Invoice) => {
+    setPayForm({
+      valor: Number(invoice.valor_aberto),
+      data: todayISO(),
+      bank_account_id: card?.bank_account_id || "",
+    });
+    setPayOpen(invoice);
+  };
+
+  const submitPay = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!payOpen) return;
+    try {
+      await pay.mutateAsync({ invoiceId: payOpen.id, ...payForm });
+      toast.success("Fatura paga");
+      setPayOpen(null);
+    } catch (err) {
+      toast.error(errorMessage(err));
+    }
+  };
+
+  return (
+    <div className="p-8 max-w-5xl mx-auto">
+      <PageHeader
+        title={card?.nome ?? "Cartão"}
+        description={card ? `${card.bandeira} · Fecha dia ${card.dia_fechamento} · Vence dia ${card.dia_vencimento}` : ""}
+      />
+
+      {card && (
+        <div className="grid grid-cols-3 gap-4 mb-6">
+          <Stat label="Limite" value={formatBRL(card.limite)} />
+          <Stat label="Disponível" value={formatBRL(card.limite_disponivel)} />
+          <Stat label="Fatura atual" value={formatBRL(card.fatura_atual)} />
+        </div>
+      )}
+
+      <div className="card">
+        <div className="px-5 py-3 border-b border-slate-200 font-semibold">Faturas</div>
+        {!invoices?.length ? (
+          <p className="p-5 text-sm text-slate-500">Nenhuma fatura ainda. Adicione uma compra.</p>
+        ) : (
+          <table className="w-full text-sm">
+            <thead className="text-left text-slate-500 text-xs uppercase">
+              <tr>
+                <th className="px-5 py-2">Período</th>
+                <th className="px-5 py-2">Fechamento</th>
+                <th className="px-5 py-2">Vencimento</th>
+                <th className="px-5 py-2 text-right">Total</th>
+                <th className="px-5 py-2 text-right">Aberto</th>
+                <th className="px-5 py-2">Status</th>
+                <th />
+              </tr>
+            </thead>
+            <tbody>
+              {invoices.map((inv) => (
+                <tr key={inv.id} className="border-t border-slate-100">
+                  <td className="px-5 py-3 font-medium">
+                    <button onClick={() => setOpenInvoice(inv)} className="hover:text-brand-600">
+                      {MESES[inv.mes_referencia - 1]}/{inv.ano_referencia}
+                    </button>
+                  </td>
+                  <td className="px-5 py-3">{formatDate(inv.data_fechamento)}</td>
+                  <td className="px-5 py-3">{formatDate(inv.data_vencimento)}</td>
+                  <td className="px-5 py-3 text-right">{formatBRL(inv.valor_total)}</td>
+                  <td className="px-5 py-3 text-right">{formatBRL(inv.valor_aberto)}</td>
+                  <td className="px-5 py-3">
+                    <span className={`badge ${STATUS_COLORS[inv.status]}`}>{inv.status}</span>
+                  </td>
+                  <td className="px-5 py-3 text-right">
+                    {inv.status !== "PAGA" && Number(inv.valor_aberto) > 0 && (
+                      <button onClick={() => openPay(inv)} className="text-brand-600 text-xs font-medium hover:underline">
+                        Pagar
+                      </button>
+                    )}
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+
+      <Modal open={!!openInvoice} onClose={() => setOpenInvoice(null)} title={openInvoice ? `Fatura ${MESES[openInvoice.mes_referencia - 1]}/${openInvoice.ano_referencia}` : ""} maxWidth="max-w-2xl">
+        {!txs?.length ? (
+          <p className="text-sm text-slate-500">Sem lançamentos nesta fatura.</p>
+        ) : (
+          <ul className="divide-y divide-slate-100">
+            {txs.map((t) => (
+              <li key={t.id} className="py-2 flex justify-between text-sm">
+                <div>
+                  <div className="font-medium">{t.descricao}</div>
+                  <div className="text-xs text-slate-500">{formatDate(t.data_competencia)}</div>
+                </div>
+                <div className="font-semibold">{formatBRL(t.valor)}</div>
+              </li>
+            ))}
+          </ul>
+        )}
+      </Modal>
+
+      <Modal open={!!payOpen} onClose={() => setPayOpen(null)} title="Pagar fatura">
+        <form onSubmit={submitPay} className="space-y-4">
+          <div>
+            <label className="label">Valor</label>
+            <MoneyInput value={payForm.valor} onChange={(v) => setPayForm({ ...payForm, valor: v })} />
+          </div>
+          <div>
+            <label className="label">Data</label>
+            <input type="date" className="input" value={payForm.data} onChange={(e) => setPayForm({ ...payForm, data: e.target.value })} />
+          </div>
+          <div>
+            <label className="label">Pagar com</label>
+            <select className="input" value={payForm.bank_account_id} onChange={(e) => setPayForm({ ...payForm, bank_account_id: e.target.value })}>
+              {accounts?.map((a) => <option key={a.id} value={a.id}>{a.nome} ({formatBRL(a.saldo_atual)})</option>)}
+            </select>
+          </div>
+          <div className="flex justify-end gap-2">
+            <button type="button" onClick={() => setPayOpen(null)} className="btn btn-secondary">Cancelar</button>
+            <button type="submit" className="btn btn-primary">Confirmar pagamento</button>
+          </div>
+        </form>
+      </Modal>
+    </div>
+  );
+}
+
+function Stat({ label, value }: { label: string; value: string }) {
+  return (
+    <div className="card p-5">
+      <div className="text-xs text-slate-500">{label}</div>
+      <div className="text-xl font-bold mt-1">{value}</div>
+    </div>
+  );
+}
