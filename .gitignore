@@ -32,6 +32,7 @@ Thumbs.db
 pgdata/
 
 .claude/
+.superpowers/
 .playwright-mcp/
 *.db
 *.sqlite
