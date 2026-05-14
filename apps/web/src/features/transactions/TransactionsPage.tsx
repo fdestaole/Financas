@@ -40,7 +40,7 @@ export function TransactionsPage() {
       <PageHeader
         title="Transações"
         description="Receitas, despesas, transferências e compras"
-        action={
+        actions={
           <Button onClick={() => setOpen(true)}>
             <Plus size={16} /> Nova
           </Button>

@@ -96,7 +96,7 @@ export function BankAccountsPage() {
       <PageHeader
         title="Contas bancárias"
         description="Gerencie suas contas e visualize saldos atualizados"
-        action={
+        actions={
           <Button onClick={() => open()}>
             <Plus size={16} /> Nova conta
           </Button>

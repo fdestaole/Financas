@@ -23,7 +23,7 @@ export function InvestmentsPage() {
       <PageHeader
         title="Investimentos"
         description="Carteira de ações e FIIs com cotação em tempo real"
-        action={
+        actions={
           <div className="flex gap-2">
             <Button variant="secondary" onClick={() => refresh.mutate()} disabled={refresh.isPending}>
               <RefreshCw size={16} className={refresh.isPending ? "animate-spin" : ""} /> Atualizar cotações

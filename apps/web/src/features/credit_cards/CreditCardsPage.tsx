@@ -70,7 +70,7 @@ export function CreditCardsPage() {
       <PageHeader
         title="Cartões de crédito"
         description="Gerencie seus cartões e acompanhe faturas"
-        action={
+        actions={
           <Button
             onClick={() => {
               if (!accounts?.length) {
