@@ -5,14 +5,21 @@ import { toast } from "sonner";
 
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
 import { Modal } from "@/components/ui/Modal";
 import { MoneyInput } from "@/components/ui/MoneyInput";
 import { Input, Select, Label } from "@/components/ui/Input";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { ProgressBar } from "@/components/ui/ProgressBar";
 import { formatBRL } from "@/lib/utils";
 import { errorMessage } from "@/lib/api";
 import { useBankAccounts } from "@/features/bank_accounts/api";
-import { useCreateCard, useCreditCards, useDeleteCard, type Bandeira } from "./api";
+import {
+  useCreateCard,
+  useCreditCards,
+  useDeleteCard,
+  type Bandeira,
+  type CreditCard,
+} from "./api";
 
 const BANDEIRAS: Bandeira[] = ["VISA", "MASTERCARD", "ELO", "AMEX", "HIPERCARD", "OUTRA"];
 
@@ -24,8 +31,18 @@ const initial = {
   limite: 0,
   dia_fechamento: 10,
   dia_vencimento: 20,
-  cor: "#3b82f6",
+  cor: "#a78bfa",
 };
+
+function darken(hex: string | null | undefined, amount = 0.3): string {
+  if (!hex) return "#6d28d9";
+  const h = hex.replace("#", "");
+  if (h.length !== 6) return hex;
+  const r = Math.max(0, parseInt(h.slice(0, 2), 16) * (1 - amount)) | 0;
+  const g = Math.max(0, parseInt(h.slice(2, 4), 16) * (1 - amount)) | 0;
+  const b = Math.max(0, parseInt(h.slice(4, 6), 16) * (1 - amount)) | 0;
+  return `rgb(${r}, ${g}, ${b})`;
+}
 
 export function CreditCardsPage() {
   const { data: cards, isLoading } = useCreditCards();
@@ -65,71 +82,51 @@ export function CreditCardsPage() {
     }
   };
 
+  const openModal = () => {
+    if (!accounts?.length) {
+      toast.error("Cadastre uma conta bancária primeiro");
+      return;
+    }
+    setForm({ ...initial, bank_account_id: accounts[0].id });
+    setOpen(true);
+  };
+
   return (
-    <div className="p-8 max-w-6xl mx-auto">
+    <div className="p-6 md:p-8 max-w-7xl mx-auto">
       <PageHeader
         title="Cartões de crédito"
         description="Gerencie seus cartões e acompanhe faturas"
         actions={
-          <Button
-            onClick={() => {
-              if (!accounts?.length) {
-                toast.error("Cadastre uma conta bancária primeiro");
-                return;
-              }
-              setForm({ ...initial, bank_account_id: accounts[0].id });
-              setOpen(true);
-            }}
-          >
-            <Plus size={16} /> Novo cartão
+          <Button onClick={openModal}>
+            <Plus size={14} /> Novo cartão
           </Button>
         }
       />
 
       {isLoading ? (
-        <p className="text-slate-500 dark:text-slate-400">Carregando...</p>
+        <p className="text-sm text-text-3">Carregando…</p>
       ) : !cards?.length ? (
-        <Card padding="none" className="p-12 text-center text-slate-500 dark:text-slate-400">
-          <CardIcon className="mx-auto mb-3" size={32} />
-          <p>Nenhum cartão cadastrado.</p>
-        </Card>
+        <EmptyState
+          icon={CardIcon}
+          title="Nenhum cartão cadastrado"
+          description="Adicione seu primeiro cartão de crédito para acompanhar faturas."
+          action={<Button onClick={openModal}><Plus size={14} /> Novo cartão</Button>}
+        />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {cards.map((card) => {
-            const account = accounts?.find((a) => a.id === card.bank_account_id);
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          {cards.map((card: CreditCard) => {
+            const limite = Number(card.limite);
+            const fatura = Number(card.fatura_atual);
+            const baseColor = card.cor ?? "#a78bfa";
             return (
-              <Card key={card.id} padding="lg">
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-center gap-3">
-                    <div
-                      className="h-10 w-10 rounded-lg flex items-center justify-center text-white"
-                      style={{ backgroundColor: card.cor ?? "#3b82f6" }}
-                    >
-                      <CardIcon size={18} />
-                    </div>
-                    <div>
-                      <Link to={`/cartoes/${card.id}`} className="font-semibold hover:text-brand-600 dark:hover:text-brand-500">
-                        {card.nome}
-                      </Link>
-                      <div className="text-xs text-slate-500 dark:text-slate-400">
-                        {card.bandeira}
-                        {card.ultimos_quatro_digitos && ` •••• ${card.ultimos_quatro_digitos}`}
-                      </div>
-                    </div>
-                  </div>
-                  <button onClick={() => handleDelete(card.id)} className="text-slate-400 hover:text-red-600 dark:text-slate-500 dark:hover:text-red-400 p-1">
-                    <Trash2 size={14} />
-                  </button>
-                </div>
-                <div className="text-xs text-slate-500 dark:text-slate-400">
-                  Conta: {account?.nome ?? "—"} · Fecha dia {card.dia_fechamento} · Vence dia {card.dia_vencimento}
-                </div>
-                <div className="grid grid-cols-3 gap-3 mt-3 pt-3 border-t border-slate-100 dark:border-slate-800">
-                  <Stat label="Limite" value={formatBRL(card.limite)} />
-                  <Stat label="Disponível" value={formatBRL(card.limite_disponivel)} />
-                  <Stat label="Fatura atual" value={formatBRL(card.fatura_atual)} />
-                </div>
-              </Card>
+              <CreditCardItem
+                key={card.id}
+                card={card}
+                limite={limite}
+                fatura={fatura}
+                baseColor={baseColor}
+                onDelete={handleDelete}
+              />
             );
           })}
         </div>
@@ -187,11 +184,62 @@ export function CreditCardsPage() {
   );
 }
 
-function Stat({ label, value }: { label: string; value: string }) {
+interface CardItemProps {
+  card: CreditCard;
+  limite: number;
+  fatura: number;
+  baseColor: string;
+  onDelete: (id: string) => void;
+}
+
+function CreditCardItem({ card, limite, fatura, baseColor, onDelete }: CardItemProps) {
   return (
-    <div>
-      <div className="text-xs text-slate-500 dark:text-slate-400">{label}</div>
-      <div className="font-semibold">{value}</div>
+    <div className="group relative aspect-[1.6/1] rounded-xl overflow-hidden shadow-sm">
+      <div
+        className="absolute inset-0"
+        style={{
+          background: `linear-gradient(135deg, ${baseColor} 0%, ${darken(baseColor, 0.35)} 100%)`,
+        }}
+      />
+      <div className="relative h-full p-5 flex flex-col justify-between text-white">
+        <div className="flex justify-between items-start">
+          <div>
+            <div className="text-[10px] uppercase tracking-wider opacity-70">{card.bandeira}</div>
+            <Link to={`/cartoes/${card.id}`} className="font-semibold hover:underline">
+              {card.nome}
+            </Link>
+          </div>
+          <div className="flex items-center gap-2">
+            <CardIcon size={22} className="opacity-80" />
+            <button
+              onClick={() => onDelete(card.id)}
+              className="text-white/60 hover:text-white opacity-0 group-hover:opacity-100 transition-opacity p-1"
+              aria-label="Arquivar cartão"
+            >
+              <Trash2 size={14} />
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <div className="font-mono tracking-[0.2em] text-sm opacity-90 mb-3">
+            •••• {card.ultimos_quatro_digitos ?? "0000"}
+          </div>
+          <div className="flex justify-between items-end mb-2">
+            <div>
+              <div className="text-[10px] uppercase tracking-wider opacity-70">Fatura</div>
+              <div className="tnum font-semibold">{formatBRL(fatura)}</div>
+            </div>
+            <div className="text-right">
+              <div className="text-[10px] uppercase tracking-wider opacity-70">Vence dia</div>
+              <div className="font-semibold">{card.dia_vencimento}</div>
+            </div>
+          </div>
+          {limite > 0 && (
+            <ProgressBar value={fatura} max={limite} color="rgba(255,255,255,0.85)" />
+          )}
+        </div>
+      </div>
     </div>
   );
 }
