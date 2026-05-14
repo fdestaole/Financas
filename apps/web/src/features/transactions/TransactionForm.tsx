@@ -156,7 +156,7 @@ export function TransactionForm({ onSuccess, initialTipo }: Props) {
             </div>
           </div>
           {parcelas > 1 && valor > 0 && (
-            <p className="text-xs text-slate-500 dark:text-slate-400">
+            <p className="text-xs text-text-3">
               {parcelas}x de aproximadamente R$ {(valor / parcelas).toFixed(2).replace(".", ",")}
             </p>
           )}
