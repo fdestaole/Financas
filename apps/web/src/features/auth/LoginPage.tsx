@@ -44,50 +44,57 @@ export function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 bg-slate-50 dark:bg-slate-950">
-      <Card padding="none" className="w-full max-w-md p-8">
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-1">Entrar</h1>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">Acesse sua conta para gerenciar suas finanças</p>
-        <form onSubmit={submit} className="space-y-4">
-          <div>
-            <Label>E-mail</Label>
-            <Input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
+    <div className="min-h-screen flex items-center justify-center px-4 bg-bg">
+      <div className="w-full max-w-md">
+        <div className="flex flex-col items-center mb-8">
+          <div className="h-16 w-16 rounded-2xl bg-accent-gradient flex items-center justify-center text-white text-2xl font-bold shadow-glow">
+            F
           </div>
-          <div>
-            <Label>Senha</Label>
-            <Input
-              type="password"
-              required
-              value={senha}
-              onChange={(e) => setSenha(e.target.value)}
-            />
-          </div>
-          <Button type="submit" disabled={loading} className="w-full">
-            {loading ? "Entrando..." : "Entrar"}
-          </Button>
-        </form>
-        {import.meta.env.VITE_DEV_AUTO_LOGIN === "true" && (
-          <button
-            type="button"
-            disabled={loading}
-            onClick={loginTeste}
-            className="mt-3 w-full rounded-lg border border-dashed border-slate-300 px-4 py-2 text-sm text-slate-500 hover:border-slate-400 hover:text-slate-700 dark:border-slate-600 dark:text-slate-400 dark:hover:border-slate-500 dark:hover:text-slate-200 disabled:opacity-50 transition-colors"
-          >
-            Entrar como conta de teste
-          </button>
-        )}
-        <p className="text-sm text-slate-500 dark:text-slate-400 mt-6 text-center">
-          Não tem conta?{" "}
-          <Link to="/registrar" className="text-brand-600 dark:text-brand-500 font-medium hover:underline">
-            Criar conta
-          </Link>
-        </p>
-      </Card>
+          <h1 className="mt-4 text-display text-text">Finanças</h1>
+          <p className="mt-1 text-sm text-text-2">Acesse sua conta</p>
+        </div>
+        <Card padding="lg">
+          <form onSubmit={submit} className="space-y-4">
+            <div>
+              <Label>E-mail</Label>
+              <Input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <div>
+              <Label>Senha</Label>
+              <Input
+                type="password"
+                required
+                value={senha}
+                onChange={(e) => setSenha(e.target.value)}
+              />
+            </div>
+            <Button type="submit" disabled={loading} className="w-full">
+              {loading ? "Entrando…" : "Entrar"}
+            </Button>
+          </form>
+          {import.meta.env.VITE_DEV_AUTO_LOGIN === "true" && (
+            <button
+              type="button"
+              disabled={loading}
+              onClick={loginTeste}
+              className="mt-3 w-full rounded-md border border-dashed border-border px-4 py-2 text-sm text-text-3 hover:border-border-strong hover:text-text-2 disabled:opacity-50 transition-colors"
+            >
+              Entrar como conta de teste
+            </button>
+          )}
+          <p className="text-sm text-text-3 mt-6 text-center">
+            Não tem conta?{" "}
+            <Link to="/registrar" className="text-accent font-medium hover:underline">
+              Criar conta
+            </Link>
+          </p>
+        </Card>
+      </div>
     </div>
   );
 }

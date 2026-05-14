@@ -37,49 +37,56 @@ export function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4 bg-slate-50 dark:bg-slate-950">
-      <Card padding="none" className="w-full max-w-md p-8">
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-1">Criar conta</h1>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">Comece a controlar suas finanças agora</p>
-        <form onSubmit={submit} className="space-y-4">
-          <div>
-            <Label>Nome</Label>
-            <Input
-              required
-              value={nome}
-              onChange={(e) => setNome(e.target.value)}
-            />
+    <div className="min-h-screen flex items-center justify-center px-4 bg-bg">
+      <div className="w-full max-w-md">
+        <div className="flex flex-col items-center mb-8">
+          <div className="h-16 w-16 rounded-2xl bg-accent-gradient flex items-center justify-center text-white text-2xl font-bold shadow-glow">
+            F
           </div>
-          <div>
-            <Label>E-mail</Label>
-            <Input
-              type="email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-            />
-          </div>
-          <div>
-            <Label>Senha</Label>
-            <Input
-              type="password"
-              required
-              minLength={6}
-              value={senha}
-              onChange={(e) => setSenha(e.target.value)}
-            />
-          </div>
-          <Button type="submit" disabled={loading} className="w-full">
-            {loading ? "Criando..." : "Criar conta"}
-          </Button>
-        </form>
-        <p className="text-sm text-slate-500 dark:text-slate-400 mt-6 text-center">
-          Já tem conta?{" "}
-          <Link to="/login" className="text-brand-600 dark:text-brand-500 font-medium hover:underline">
-            Entrar
-          </Link>
-        </p>
-      </Card>
+          <h1 className="mt-4 text-display text-text">Criar conta</h1>
+          <p className="mt-1 text-sm text-text-2">Comece a controlar suas finanças agora</p>
+        </div>
+        <Card padding="lg">
+          <form onSubmit={submit} className="space-y-4">
+            <div>
+              <Label>Nome</Label>
+              <Input
+                required
+                value={nome}
+                onChange={(e) => setNome(e.target.value)}
+              />
+            </div>
+            <div>
+              <Label>E-mail</Label>
+              <Input
+                type="email"
+                required
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+            </div>
+            <div>
+              <Label>Senha</Label>
+              <Input
+                type="password"
+                required
+                minLength={6}
+                value={senha}
+                onChange={(e) => setSenha(e.target.value)}
+              />
+            </div>
+            <Button type="submit" disabled={loading} className="w-full">
+              {loading ? "Criando…" : "Criar conta"}
+            </Button>
+          </form>
+          <p className="text-sm text-text-3 mt-6 text-center">
+            Já tem conta?{" "}
+            <Link to="/login" className="text-accent font-medium hover:underline">
+              Entrar
+            </Link>
+          </p>
+        </Card>
+      </div>
     </div>
   );
 }
