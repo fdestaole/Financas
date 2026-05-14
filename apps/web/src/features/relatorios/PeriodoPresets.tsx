@@ -74,8 +74,8 @@ export function PeriodoPresets({ value, onChange }: Props) {
             className={
               "px-3 py-1 rounded-full text-xs font-medium transition-colors " +
               (active
-                ? "bg-brand-600 text-white"
-                : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700")
+                ? "bg-accent text-white"
+                : "bg-surface-2 text-text-2 hover:bg-border border border-border")
             }
           >
             {labels[k]}

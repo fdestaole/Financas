@@ -78,32 +78,32 @@ export function MultiSelect({
         className={cn(FIELD_BASE, "w-full flex items-center gap-1 flex-wrap min-h-[2.5rem] text-left cursor-pointer")}
       >
         {selecionadas.length === 0 ? (
-          <span className="text-slate-400 dark:text-slate-500 text-sm">{placeholder}</span>
+          <span className="text-text-3 text-sm">{placeholder}</span>
         ) : (
           selecionadas.map((opt) => (
             <span
               key={opt.value}
-              className="inline-flex items-center gap-1 bg-brand-50 text-brand-700 dark:bg-brand-500/15 dark:text-brand-300 text-xs rounded-full px-2 py-0.5"
+              className="inline-flex items-center gap-1 bg-accent-soft text-accent text-xs rounded-full px-2 py-0.5"
             >
               {opt.label}
               <span
                 role="button"
                 tabIndex={0}
                 onClick={(e) => remover(opt.value, e)}
-                className="hover:text-brand-900 dark:hover:text-white"
+                className="hover:text-text"
               >
                 <X size={12} />
               </span>
             </span>
           ))
         )}
-        <span className="ml-auto flex items-center gap-1 text-slate-400">
+        <span className="ml-auto flex items-center gap-1 text-text-3">
           {selecionadas.length > 0 && (
             <span
               role="button"
               tabIndex={0}
               onClick={limpar}
-              className="hover:text-slate-700 dark:hover:text-slate-200"
+              className="hover:text-text"
               title="Limpar"
             >
               <X size={14} />
@@ -114,8 +114,8 @@ export function MultiSelect({
       </button>
 
       {open && (
-        <div className="absolute z-20 mt-1 w-full max-h-72 overflow-auto rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-lg">
-          <div className="p-2 sticky top-0 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800">
+        <div className="absolute z-20 mt-1 w-full max-h-72 overflow-auto rounded-md bg-surface border border-border shadow-modal">
+          <div className="p-2 sticky top-0 bg-surface border-b border-border">
             <Input
               type="text"
               autoFocus
@@ -126,7 +126,7 @@ export function MultiSelect({
             />
           </div>
           {filtradas.length === 0 ? (
-            <div className="p-3 text-sm text-slate-500 dark:text-slate-400 text-center">
+            <div className="p-3 text-sm text-text-3 text-center">
               {emptyLabel}
             </div>
           ) : (
@@ -138,22 +138,24 @@ export function MultiSelect({
                     <button
                       type="button"
                       onClick={() => toggle(opt.value)}
-                      className={`w-full flex items-center gap-2 px-3 py-1.5 text-sm text-left hover:bg-slate-50 dark:hover:bg-slate-800 ${
-                        selected ? "text-brand-700 dark:text-brand-300" : "text-slate-700 dark:text-slate-200"
-                      }`}
+                      className={cn(
+                        "w-full flex items-center gap-2 px-3 py-1.5 text-sm text-left hover:bg-surface-2",
+                        selected ? "text-accent" : "text-text",
+                      )}
                     >
                       <span
-                        className={`w-4 h-4 rounded border flex items-center justify-center ${
+                        className={cn(
+                          "w-4 h-4 rounded border flex items-center justify-center",
                           selected
-                            ? "bg-brand-600 border-brand-600 text-white"
-                            : "border-slate-300 dark:border-slate-600"
-                        }`}
+                            ? "bg-accent border-accent text-white"
+                            : "border-border-strong",
+                        )}
                       >
                         {selected && <Check size={12} />}
                       </span>
                       <span className="flex-1">{opt.label}</span>
                       {opt.hint && (
-                        <span className="text-xs text-slate-400 dark:text-slate-500">{opt.hint}</span>
+                        <span className="text-xs text-text-3">{opt.hint}</span>
                       )}
                     </button>
                   </li>

@@ -99,7 +99,7 @@ function GranularidadeToggle({
   onChange: (g: Granularidade) => void;
 }) {
   const base = "px-2.5 py-1 text-xs font-medium rounded-md transition-colors";
-  const activeCls = "bg-surface shadow text-brand-600 dark:text-brand-400";
+  const activeCls = "bg-surface shadow-sm text-accent";
   return (
     <div className="inline-flex bg-surface-2 rounded-md p-0.5">
       <button
