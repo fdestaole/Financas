@@ -12,6 +12,7 @@ import { useBankAccounts } from "@/features/bank_accounts/api";
 import { useCreditCards } from "@/features/credit_cards/api";
 import { useDeleteTransaction, useTransactions, type ListFilters, type TipoTransacao } from "./api";
 import { TransactionForm } from "./TransactionForm";
+import { Input, Select } from "@/components/ui/Input";
 
 const TIPO_LABELS: Record<TipoTransacao, string> = {
   RECEITA: "Receita",
@@ -63,40 +64,35 @@ export function TransactionsPage() {
       />
 
       <Card padding="md" className="mb-4 grid grid-cols-2 md:grid-cols-5 gap-3">
-        <select
-          className="input"
+        <Select
           value={filters.tipo ?? ""}
           onChange={(e) => setFilters({ ...filters, tipo: (e.target.value || undefined) as TipoTransacao | undefined, page: 1 })}
         >
           <option value="">Todos os tipos</option>
           {Object.entries(TIPO_LABELS).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-        </select>
-        <select
-          className="input"
+        </Select>
+        <Select
           value={filters.bank_account_id ?? ""}
           onChange={(e) => setFilters({ ...filters, bank_account_id: e.target.value || undefined, page: 1 })}
         >
           <option value="">Todas as contas</option>
           {accounts?.map((a) => <option key={a.id} value={a.id}>{a.nome}</option>)}
-        </select>
-        <select
-          className="input"
+        </Select>
+        <Select
           value={filters.credit_card_id ?? ""}
           onChange={(e) => setFilters({ ...filters, credit_card_id: e.target.value || undefined, page: 1 })}
         >
           <option value="">Todos os cartões</option>
           {cards?.map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}
-        </select>
-        <input
+        </Select>
+        <Input
           type="date"
-          className="input"
           value={filters.data_inicio ?? ""}
           onChange={(e) => setFilters({ ...filters, data_inicio: e.target.value || undefined, page: 1 })}
           placeholder="De"
         />
-        <input
+        <Input
           type="date"
-          className="input"
           value={filters.data_fim ?? ""}
           onChange={(e) => setFilters({ ...filters, data_fim: e.target.value || undefined, page: 1 })}
         />

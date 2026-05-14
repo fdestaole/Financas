@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Modal } from "@/components/ui/Modal";
 import { MoneyInput } from "@/components/ui/MoneyInput";
+import { Input, Select, Label } from "@/components/ui/Input";
 import { formatBRL } from "@/lib/utils";
 import { errorMessage } from "@/lib/api";
 import { useBankAccounts } from "@/features/bank_accounts/api";
@@ -137,43 +138,43 @@ export function CreditCardsPage() {
       <Modal open={open} onClose={() => setOpen(false)} title="Novo cartão">
         <form onSubmit={submit} className="space-y-4">
           <div>
-            <label className="label">Apelido</label>
-            <input className="input" required value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} />
+            <Label>Apelido</Label>
+            <Input required value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} />
           </div>
           <div>
-            <label className="label">Conta vinculada</label>
-            <select className="input" value={form.bank_account_id} onChange={(e) => setForm({ ...form, bank_account_id: e.target.value })}>
+            <Label>Conta vinculada</Label>
+            <Select value={form.bank_account_id} onChange={(e) => setForm({ ...form, bank_account_id: e.target.value })}>
               {accounts?.map((a) => <option key={a.id} value={a.id}>{a.nome}</option>)}
-            </select>
+            </Select>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="label">Bandeira</label>
-              <select className="input" value={form.bandeira} onChange={(e) => setForm({ ...form, bandeira: e.target.value as Bandeira })}>
+              <Label>Bandeira</Label>
+              <Select value={form.bandeira} onChange={(e) => setForm({ ...form, bandeira: e.target.value as Bandeira })}>
                 {BANDEIRAS.map((b) => <option key={b}>{b}</option>)}
-              </select>
+              </Select>
             </div>
             <div>
-              <label className="label">Últimos 4 dígitos</label>
-              <input className="input" maxLength={4} value={form.ultimos_quatro_digitos} onChange={(e) => setForm({ ...form, ultimos_quatro_digitos: e.target.value })} />
+              <Label>Últimos 4 dígitos</Label>
+              <Input maxLength={4} value={form.ultimos_quatro_digitos} onChange={(e) => setForm({ ...form, ultimos_quatro_digitos: e.target.value })} />
             </div>
           </div>
           <div>
-            <label className="label">Limite</label>
+            <Label>Limite</Label>
             <MoneyInput value={form.limite} onChange={(v) => setForm({ ...form, limite: v })} />
           </div>
           <div className="grid grid-cols-3 gap-3">
             <div>
-              <label className="label">Dia fechamento</label>
-              <input type="number" min={1} max={31} className="input" value={form.dia_fechamento} onChange={(e) => setForm({ ...form, dia_fechamento: Number(e.target.value) })} />
+              <Label>Dia fechamento</Label>
+              <Input type="number" min={1} max={31} value={form.dia_fechamento} onChange={(e) => setForm({ ...form, dia_fechamento: Number(e.target.value) })} />
             </div>
             <div>
-              <label className="label">Dia vencimento</label>
-              <input type="number" min={1} max={31} className="input" value={form.dia_vencimento} onChange={(e) => setForm({ ...form, dia_vencimento: Number(e.target.value) })} />
+              <Label>Dia vencimento</Label>
+              <Input type="number" min={1} max={31} value={form.dia_vencimento} onChange={(e) => setForm({ ...form, dia_vencimento: Number(e.target.value) })} />
             </div>
             <div>
-              <label className="label">Cor</label>
-              <input type="color" className="input h-10" value={form.cor} onChange={(e) => setForm({ ...form, cor: e.target.value })} />
+              <Label>Cor</Label>
+              <Input type="color" className="h-10 p-1" value={form.cor} onChange={(e) => setForm({ ...form, cor: e.target.value })} />
             </div>
           </div>
           <div className="flex justify-end gap-2 pt-2">

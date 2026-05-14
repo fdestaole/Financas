@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { NumericFormat } from "react-number-format";
 import { CalculatorPopup } from "./CalculatorPopup";
+import { FIELD_BASE } from "./Input";
 
 interface Props {
   value: number | string | null | undefined;
@@ -27,7 +28,7 @@ export function MoneyInput({ value, onChange, placeholder }: Props) {
   return (
     <div ref={wrapperRef} className="relative">
       <NumericFormat
-        className="input"
+        className={FIELD_BASE}
         value={value ?? ""}
         thousandSeparator="."
         decimalSeparator=","

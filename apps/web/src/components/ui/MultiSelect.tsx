@@ -1,5 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Check, ChevronDown, X } from "lucide-react";
+import { FIELD_BASE } from "./Input";
+import { cn } from "@/lib/cn";
+import { Input } from "./Input";
 
 export interface MultiSelectOption {
   value: string;
@@ -72,7 +75,7 @@ export function MultiSelect({
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="input w-full flex items-center gap-1 flex-wrap min-h-[2.5rem] text-left cursor-pointer"
+        className={cn(FIELD_BASE, "w-full flex items-center gap-1 flex-wrap min-h-[2.5rem] text-left cursor-pointer")}
       >
         {selecionadas.length === 0 ? (
           <span className="text-slate-400 dark:text-slate-500 text-sm">{placeholder}</span>
@@ -113,13 +116,13 @@ export function MultiSelect({
       {open && (
         <div className="absolute z-20 mt-1 w-full max-h-72 overflow-auto rounded-lg bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-lg">
           <div className="p-2 sticky top-0 bg-white dark:bg-slate-900 border-b border-slate-100 dark:border-slate-800">
-            <input
+            <Input
               type="text"
               autoFocus
               placeholder="Filtrar..."
               value={busca}
               onChange={(e) => setBusca(e.target.value)}
-              className="input w-full text-sm"
+              className="text-sm"
             />
           </div>
           {filtradas.length === 0 ? (

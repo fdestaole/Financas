@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Modal } from "@/components/ui/Modal";
 import { MoneyInput } from "@/components/ui/MoneyInput";
+import { Input, Select, Label } from "@/components/ui/Input";
 import { formatBRL, formatDate, todayISO } from "@/lib/utils";
 import { errorMessage } from "@/lib/api";
 import { useBankAccounts } from "@/features/bank_accounts/api";
@@ -144,18 +145,18 @@ export function CardDetailPage() {
       <Modal open={!!payOpen} onClose={() => setPayOpen(null)} title="Pagar fatura">
         <form onSubmit={submitPay} className="space-y-4">
           <div>
-            <label className="label">Valor</label>
+            <Label>Valor</Label>
             <MoneyInput value={payForm.valor} onChange={(v) => setPayForm({ ...payForm, valor: v })} />
           </div>
           <div>
-            <label className="label">Data</label>
-            <input type="date" className="input" value={payForm.data} onChange={(e) => setPayForm({ ...payForm, data: e.target.value })} />
+            <Label>Data</Label>
+            <Input type="date" value={payForm.data} onChange={(e) => setPayForm({ ...payForm, data: e.target.value })} />
           </div>
           <div>
-            <label className="label">Pagar com</label>
-            <select className="input" value={payForm.bank_account_id} onChange={(e) => setPayForm({ ...payForm, bank_account_id: e.target.value })}>
+            <Label>Pagar com</Label>
+            <Select value={payForm.bank_account_id} onChange={(e) => setPayForm({ ...payForm, bank_account_id: e.target.value })}>
               {accounts?.map((a) => <option key={a.id} value={a.id}>{a.nome} ({formatBRL(a.saldo_atual)})</option>)}
-            </select>
+            </Select>
           </div>
           <div className="flex justify-end gap-2">
             <Button type="button" variant="secondary" onClick={() => setPayOpen(null)}>Cancelar</Button>

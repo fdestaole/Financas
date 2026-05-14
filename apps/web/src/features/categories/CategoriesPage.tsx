@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Modal } from "@/components/ui/Modal";
 import { errorMessage } from "@/lib/api";
+import { Input, Select, Label } from "@/components/ui/Input";
 import { useCategories, useCreateCategory, useDeleteCategory, type TipoCategoria } from "./api";
 
 export function CategoriesPage() {
@@ -65,20 +66,20 @@ export function CategoriesPage() {
       <Modal open={open} onClose={() => setOpen(false)} title="Nova categoria">
         <form onSubmit={submit} className="space-y-4">
           <div>
-            <label className="label">Nome</label>
-            <input className="input" required value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} />
+            <Label>Nome</Label>
+            <Input required value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="label">Tipo</label>
-              <select className="input" value={form.tipo} onChange={(e) => setForm({ ...form, tipo: e.target.value as TipoCategoria })}>
+              <Label>Tipo</Label>
+              <Select value={form.tipo} onChange={(e) => setForm({ ...form, tipo: e.target.value as TipoCategoria })}>
                 <option value="RECEITA">Receita</option>
                 <option value="DESPESA">Despesa</option>
-              </select>
+              </Select>
             </div>
             <div>
-              <label className="label">Cor</label>
-              <input type="color" className="input h-10" value={form.cor} onChange={(e) => setForm({ ...form, cor: e.target.value })} />
+              <Label>Cor</Label>
+              <Input type="color" className="h-10 p-1" value={form.cor} onChange={(e) => setForm({ ...form, cor: e.target.value })} />
             </div>
           </div>
           <div className="flex justify-end gap-2">

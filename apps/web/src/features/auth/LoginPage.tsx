@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { errorMessage } from "@/lib/api";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
+import { Input, Label } from "@/components/ui/Input";
 import { authApi } from "./api";
 import { useAuthStore } from "./store";
 
@@ -49,21 +50,19 @@ export function LoginPage() {
         <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">Acesse sua conta para gerenciar suas finanças</p>
         <form onSubmit={submit} className="space-y-4">
           <div>
-            <label className="label">E-mail</label>
-            <input
+            <Label>E-mail</Label>
+            <Input
               type="email"
               required
-              className="input"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
           </div>
           <div>
-            <label className="label">Senha</label>
-            <input
+            <Label>Senha</Label>
+            <Input
               type="password"
               required
-              className="input"
               value={senha}
               onChange={(e) => setSenha(e.target.value)}
             />

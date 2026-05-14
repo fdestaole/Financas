@@ -3,6 +3,7 @@ import { Filter, X } from "lucide-react";
 
 import { Card } from "@/components/ui/Card";
 import { MultiSelect } from "@/components/ui/MultiSelect";
+import { Input, Select } from "@/components/ui/Input";
 import { useBankAccounts } from "@/features/bank_accounts/api";
 import { useCategories } from "@/features/categories/api";
 import { useCreditCards } from "@/features/credit_cards/api";
@@ -78,9 +79,8 @@ export function FiltrosPanel({ filtros, preset, onPresetChange, onFiltrosChange,
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
         <div>
           <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">De</label>
-          <input
+          <Input
             type="date"
-            className="input w-full"
             value={filtros.data_inicio ?? ""}
             onChange={(e) => {
               onPresetChange("personalizado");
@@ -90,9 +90,8 @@ export function FiltrosPanel({ filtros, preset, onPresetChange, onFiltrosChange,
         </div>
         <div>
           <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Até</label>
-          <input
+          <Input
             type="date"
-            className="input w-full"
             value={filtros.data_fim ?? ""}
             onChange={(e) => {
               onPresetChange("personalizado");
@@ -104,9 +103,8 @@ export function FiltrosPanel({ filtros, preset, onPresetChange, onFiltrosChange,
           <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">
             Buscar por nome/observação
           </label>
-          <input
+          <Input
             type="text"
-            className="input w-full"
             placeholder="Ex.: Mercado, Uber, Salário..."
             value={buscaLocal}
             onChange={(e) => setBuscaLocal(e.target.value)}
@@ -115,8 +113,7 @@ export function FiltrosPanel({ filtros, preset, onPresetChange, onFiltrosChange,
 
         <div>
           <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Tipo</label>
-          <select
-            className="input w-full"
+          <Select
             value={filtros.tipo ?? ""}
             onChange={(e) => setField("tipo", e.target.value || undefined)}
           >
@@ -125,7 +122,7 @@ export function FiltrosPanel({ filtros, preset, onPresetChange, onFiltrosChange,
                 {t.label}
               </option>
             ))}
-          </select>
+          </Select>
         </div>
 
         <div>
@@ -143,8 +140,7 @@ export function FiltrosPanel({ filtros, preset, onPresetChange, onFiltrosChange,
 
         <div>
           <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Conta</label>
-          <select
-            className="input w-full"
+          <Select
             value={filtros.bank_account_id ?? ""}
             onChange={(e) => setField("bank_account_id", e.target.value || undefined)}
           >
@@ -154,13 +150,12 @@ export function FiltrosPanel({ filtros, preset, onPresetChange, onFiltrosChange,
                 {c.nome}
               </option>
             ))}
-          </select>
+          </Select>
         </div>
 
         <div>
           <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Cartão</label>
-          <select
-            className="input w-full"
+          <Select
             value={filtros.credit_card_id ?? ""}
             onChange={(e) => setField("credit_card_id", e.target.value || undefined)}
           >
@@ -170,7 +165,7 @@ export function FiltrosPanel({ filtros, preset, onPresetChange, onFiltrosChange,
                 {c.nome}
               </option>
             ))}
-          </select>
+          </Select>
         </div>
       </div>
 

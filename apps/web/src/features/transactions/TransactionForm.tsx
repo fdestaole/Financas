@@ -3,6 +3,7 @@ import { toast } from "sonner";
 
 import { Button } from "@/components/ui/Button";
 import { MoneyInput } from "@/components/ui/MoneyInput";
+import { Input, Select, Label } from "@/components/ui/Input";
 import { errorMessage } from "@/lib/api";
 import { todayISO } from "@/lib/utils";
 import { useBankAccounts } from "@/features/bank_accounts/api";
@@ -74,41 +75,41 @@ export function TransactionForm({ onSuccess, initialTipo }: Props) {
   return (
     <form onSubmit={submit} className="space-y-4">
       <div>
-        <label className="label">Tipo</label>
-        <select className="input" value={tipo} onChange={(e) => setTipo(e.target.value as TipoTransacao)}>
+        <Label>Tipo</Label>
+        <Select value={tipo} onChange={(e) => setTipo(e.target.value as TipoTransacao)}>
           {TIPOS.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
-        </select>
+        </Select>
       </div>
       <div>
-        <label className="label">Descrição</label>
-        <input className="input" required value={descricao} onChange={(e) => setDescricao(e.target.value)} />
+        <Label>Descrição</Label>
+        <Input required value={descricao} onChange={(e) => setDescricao(e.target.value)} />
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="label">Valor</label>
+          <Label>Valor</Label>
           <MoneyInput value={valor} onChange={setValor} />
         </div>
         <div>
-          <label className="label">Data</label>
-          <input type="date" className="input" value={data} onChange={(e) => setData(e.target.value)} />
+          <Label>Data</Label>
+          <Input type="date" value={data} onChange={(e) => setData(e.target.value)} />
         </div>
       </div>
 
       {(tipo === "RECEITA" || tipo === "DESPESA") && (
         <>
           <div>
-            <label className="label">Conta</label>
-            <select className="input" value={bankAccountId} onChange={(e) => setBankAccountId(e.target.value)}>
+            <Label>Conta</Label>
+            <Select value={bankAccountId} onChange={(e) => setBankAccountId(e.target.value)}>
               <option value="">Selecione...</option>
               {accounts?.map((a) => <option key={a.id} value={a.id}>{a.nome}</option>)}
-            </select>
+            </Select>
           </div>
           <div>
-            <label className="label">Categoria</label>
-            <select className="input" value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
+            <Label>Categoria</Label>
+            <Select value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
               <option value="">Sem categoria</option>
               {cats?.map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}
-            </select>
+            </Select>
           </div>
         </>
       )}
@@ -116,18 +117,18 @@ export function TransactionForm({ onSuccess, initialTipo }: Props) {
       {tipo === "TRANSFERENCIA" && (
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="label">De</label>
-            <select className="input" value={origemId} onChange={(e) => setOrigemId(e.target.value)}>
+            <Label>De</Label>
+            <Select value={origemId} onChange={(e) => setOrigemId(e.target.value)}>
               <option value="">Selecione...</option>
               {accounts?.map((a) => <option key={a.id} value={a.id}>{a.nome}</option>)}
-            </select>
+            </Select>
           </div>
           <div>
-            <label className="label">Para</label>
-            <select className="input" value={destinoId} onChange={(e) => setDestinoId(e.target.value)}>
+            <Label>Para</Label>
+            <Select value={destinoId} onChange={(e) => setDestinoId(e.target.value)}>
               <option value="">Selecione...</option>
               {accounts?.map((a) => <option key={a.id} value={a.id}>{a.nome}</option>)}
-            </select>
+            </Select>
           </div>
         </div>
       )}
@@ -135,23 +136,23 @@ export function TransactionForm({ onSuccess, initialTipo }: Props) {
       {tipo === "COMPRA_CARTAO" && (
         <>
           <div>
-            <label className="label">Cartão</label>
-            <select className="input" value={cardId} onChange={(e) => setCardId(e.target.value)}>
+            <Label>Cartão</Label>
+            <Select value={cardId} onChange={(e) => setCardId(e.target.value)}>
               <option value="">Selecione...</option>
               {cards?.map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}
-            </select>
+            </Select>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="label">Parcelas</label>
-              <input type="number" min={1} max={120} className="input" value={parcelas} onChange={(e) => setParcelas(Number(e.target.value))} />
+              <Label>Parcelas</Label>
+              <Input type="number" min={1} max={120} value={parcelas} onChange={(e) => setParcelas(Number(e.target.value))} />
             </div>
             <div>
-              <label className="label">Categoria</label>
-              <select className="input" value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
+              <Label>Categoria</Label>
+              <Select value={categoryId} onChange={(e) => setCategoryId(e.target.value)}>
                 <option value="">Sem categoria</option>
                 {categories?.filter((c) => c.tipo === "DESPESA").map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}
-              </select>
+              </Select>
             </div>
           </div>
           {parcelas > 1 && valor > 0 && (
@@ -163,8 +164,8 @@ export function TransactionForm({ onSuccess, initialTipo }: Props) {
       )}
 
       <div>
-        <label className="label">Observação</label>
-        <input className="input" value={observacao} onChange={(e) => setObservacao(e.target.value)} />
+        <Label>Observação</Label>
+        <Input value={observacao} onChange={(e) => setObservacao(e.target.value)} />
       </div>
 
       <div className="flex justify-end gap-2 pt-2">

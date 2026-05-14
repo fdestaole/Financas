@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Modal } from "@/components/ui/Modal";
 import { MoneyInput } from "@/components/ui/MoneyInput";
+import { Input, Select, Label } from "@/components/ui/Input";
 import { formatBRL } from "@/lib/utils";
 import { errorMessage } from "@/lib/api";
 import {
@@ -145,37 +146,37 @@ export function BankAccountsPage() {
       <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editing ? "Editar conta" : "Nova conta"}>
         <form onSubmit={submit} className="space-y-4">
           <div>
-            <label className="label">Apelido</label>
-            <input className="input" required value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} />
+            <Label>Apelido</Label>
+            <Input required value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} />
           </div>
           <div>
-            <label className="label">Instituição</label>
-            <input className="input" required value={form.instituicao} onChange={(e) => setForm({ ...form, instituicao: e.target.value })} />
+            <Label>Instituição</Label>
+            <Input required value={form.instituicao} onChange={(e) => setForm({ ...form, instituicao: e.target.value })} />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="label">Agência</label>
-              <input className="input" value={form.agencia} onChange={(e) => setForm({ ...form, agencia: e.target.value })} />
+              <Label>Agência</Label>
+              <Input value={form.agencia} onChange={(e) => setForm({ ...form, agencia: e.target.value })} />
             </div>
             <div>
-              <label className="label">Conta</label>
-              <input className="input" value={form.numero} onChange={(e) => setForm({ ...form, numero: e.target.value })} />
+              <Label>Conta</Label>
+              <Input value={form.numero} onChange={(e) => setForm({ ...form, numero: e.target.value })} />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="label">Tipo</label>
-              <select className="input" value={form.tipo} onChange={(e) => setForm({ ...form, tipo: e.target.value as TipoConta })}>
+              <Label>Tipo</Label>
+              <Select value={form.tipo} onChange={(e) => setForm({ ...form, tipo: e.target.value as TipoConta })}>
                 {TIPOS.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
-              </select>
+              </Select>
             </div>
             <div>
-              <label className="label">Cor</label>
-              <input type="color" className="input h-10" value={form.cor} onChange={(e) => setForm({ ...form, cor: e.target.value })} />
+              <Label>Cor</Label>
+              <Input type="color" className="h-10 p-1" value={form.cor} onChange={(e) => setForm({ ...form, cor: e.target.value })} />
             </div>
           </div>
           <div>
-            <label className="label">Saldo inicial</label>
+            <Label>Saldo inicial</Label>
             <MoneyInput value={form.saldo_inicial} onChange={(v) => setForm({ ...form, saldo_inicial: v })} />
           </div>
           <div className="flex justify-end gap-2 pt-2">
