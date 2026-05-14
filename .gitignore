@@ -5,6 +5,9 @@ build/
 .cache/
 coverage/
 
+# tsc -b artifacts in TypeScript-only src trees
+apps/web/src/**/*.js
+
 __pycache__/
 *.py[cod]
 *$py.class
