@@ -40,7 +40,7 @@
     --color-border-strong: #2a2a30;
     --color-text: #fafafa;
     --color-text-2: #a1a1aa;
-    --color-text-3: #71717a;
+    --color-text-3: #8e8e98;
     --color-accent: #a78bfa;
     --color-accent-2: #8b5cf6;
     --color-accent-soft: rgba(167, 139, 250, 0.12);
@@ -81,7 +81,7 @@
 
 @layer utilities {
   .tnum {
-    font-feature-settings: "tnum", "lnum";
+    font-feature-settings: "cv11", "ss01", "ss03", "tnum", "lnum";
     font-variant-numeric: tabular-nums lining-nums;
   }
 }
