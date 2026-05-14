@@ -3,11 +3,13 @@ import { Plus, Wallet, Trash2, Edit } from "lucide-react";
 import { toast } from "sonner";
 
 import { PageHeader } from "@/components/layout/PageHeader";
-import { Button } from "@/components/ui/Button";
-import { Card } from "@/components/ui/Card";
 import { Modal } from "@/components/ui/Modal";
 import { MoneyInput } from "@/components/ui/MoneyInput";
-import { Input, Select, Label } from "@/components/ui/Input";
+import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
+import { Input, Label, Select } from "@/components/ui/Input";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { Badge } from "@/components/ui/Badge";
 import { formatBRL } from "@/lib/utils";
 import { errorMessage } from "@/lib/api";
 import {
@@ -33,7 +35,7 @@ const initialForm = {
   numero: "",
   tipo: "CORRENTE" as TipoConta,
   saldo_inicial: 0,
-  cor: "#16a34a",
+  cor: "#a78bfa",
 };
 
 export function BankAccountsPage() {
@@ -56,7 +58,7 @@ export function BankAccountsPage() {
         numero: acc.numero ?? "",
         tipo: acc.tipo,
         saldo_inicial: Number(acc.saldo_inicial),
-        cor: acc.cor ?? "#16a34a",
+        cor: acc.cor ?? "#a78bfa",
       });
     } else {
       setEditing(null);
@@ -92,52 +94,58 @@ export function BankAccountsPage() {
   };
 
   return (
-    <div className="p-8 max-w-6xl mx-auto">
+    <div className="p-6 md:p-8 max-w-7xl mx-auto">
       <PageHeader
         title="Contas bancárias"
         description="Gerencie suas contas e visualize saldos atualizados"
         actions={
           <Button onClick={() => open()}>
-            <Plus size={16} /> Nova conta
+            <Plus size={14} /> Nova conta
           </Button>
         }
       />
 
       {isLoading ? (
-        <p className="text-slate-500 dark:text-slate-400">Carregando...</p>
+        <p className="text-sm text-text-3">Carregando…</p>
       ) : !accounts?.length ? (
-        <Card padding="none" className="p-12 text-center text-slate-500 dark:text-slate-400">
-          <Wallet className="mx-auto mb-3" size={32} />
-          <p>Nenhuma conta cadastrada ainda.</p>
-        </Card>
+        <EmptyState
+          icon={Wallet}
+          title="Nenhuma conta cadastrada"
+          description="Adicione sua primeira conta bancária para começar."
+          action={<Button onClick={() => open()}><Plus size={14} /> Nova conta</Button>}
+        />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {accounts.map((acc) => (
-            <Card key={acc.id} padding="lg">
+            <Card key={acc.id} padding="lg" className="group relative">
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3">
                   <div
-                    className="h-10 w-10 rounded-lg flex items-center justify-center text-white"
-                    style={{ backgroundColor: acc.cor ?? "#16a34a" }}
+                    className="h-10 w-10 rounded-lg flex items-center justify-center text-white shadow-sm"
+                    style={{ backgroundColor: acc.cor ?? "#a78bfa" }}
                   >
                     <Wallet size={18} />
                   </div>
                   <div>
-                    <div className="font-semibold">{acc.nome}</div>
-                    <div className="text-xs text-slate-500 dark:text-slate-400">{acc.instituicao}</div>
+                    <div className="font-semibold text-text">{acc.nome}</div>
+                    <div className="text-xs text-text-3">{acc.instituicao}</div>
                   </div>
                 </div>
-                <div className="flex gap-1">
-                  <button onClick={() => open(acc)} className="text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-200 p-1">
+                <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                  <button onClick={() => open(acc)} className="text-text-3 hover:text-text p-1" aria-label="Editar">
                     <Edit size={14} />
                   </button>
-                  <button onClick={() => handleDelete(acc.id)} className="text-slate-400 hover:text-red-600 dark:text-slate-500 dark:hover:text-red-400 p-1">
+                  <button onClick={() => handleDelete(acc.id)} className="text-text-3 hover:text-neg p-1" aria-label="Arquivar">
                     <Trash2 size={14} />
                   </button>
                 </div>
               </div>
-              <div className="text-xs text-slate-500 dark:text-slate-400">{TIPOS.find((t) => t.value === acc.tipo)?.label}</div>
-              <div className="text-2xl font-bold mt-2">{formatBRL(acc.saldo_atual)}</div>
+              <Badge variant="neutral" className="mb-2">
+                {TIPOS.find((t) => t.value === acc.tipo)?.label}
+              </Badge>
+              <div className="tnum text-display font-semibold text-text">
+                {formatBRL(acc.saldo_atual)}
+              </div>
             </Card>
           ))}
         </div>
