@@ -1,9 +1,6 @@
 import {
-  Bar,
-  BarChart,
   CartesianGrid,
   Cell,
-  Legend,
   Line,
   LineChart,
   Pie,
@@ -16,12 +13,14 @@ import {
 
 import { PageHeader } from "@/components/layout/PageHeader";
 import { formatBRL } from "@/lib/utils";
+import { useChartTheme } from "@/lib/chartTheme";
 import { useEvolucaoSaldo, useGastosPorCategoria, useResumo } from "./api";
 
 export function DashboardPage() {
   const { data: resumo } = useResumo();
   const { data: gastos } = useGastosPorCategoria();
   const { data: evolucao } = useEvolucaoSaldo(6);
+  const { gridStroke, axisColor, tooltipStyle } = useChartTheme();
 
   return (
     <div className="p-8 max-w-6xl mx-auto">
@@ -40,10 +39,10 @@ export function DashboardPage() {
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={evolucao?.map((p) => ({ mes: p.mes, saldo: Number(p.saldo) })) ?? []}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
-                <XAxis dataKey="mes" fontSize={12} />
-                <YAxis fontSize={12} tickFormatter={(v) => `R$${(v / 1000).toFixed(0)}k`} />
-                <Tooltip formatter={(v: number) => formatBRL(v)} />
+                <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
+                <XAxis dataKey="mes" fontSize={12} stroke={axisColor} />
+                <YAxis fontSize={12} stroke={axisColor} tickFormatter={(v) => `R$${(v / 1000).toFixed(0)}k`} />
+                <Tooltip formatter={(v: number) => formatBRL(v)} contentStyle={tooltipStyle} />
                 <Line type="monotone" dataKey="saldo" stroke="#16a34a" strokeWidth={2} />
               </LineChart>
             </ResponsiveContainer>
@@ -64,7 +63,7 @@ export function DashboardPage() {
                 >
                   {gastos?.map((g, i) => <Cell key={i} fill={g.cor ?? "#64748b"} />)}
                 </Pie>
-                <Tooltip formatter={(v: number) => formatBRL(v)} />
+                <Tooltip formatter={(v: number) => formatBRL(v)} contentStyle={tooltipStyle} />
               </PieChart>
             </ResponsiveContainer>
           </div>
@@ -75,16 +74,16 @@ export function DashboardPage() {
         <h3 className="font-semibold mb-3">Patrimônio investido</h3>
         <div className="grid grid-cols-3 gap-3">
           <div>
-            <div className="text-xs text-slate-500">Investido</div>
+            <div className="text-xs text-slate-500 dark:text-slate-400">Investido</div>
             <div className="text-lg font-semibold">{formatBRL(resumo?.valor_investido)}</div>
           </div>
           <div>
-            <div className="text-xs text-slate-500">Atual</div>
+            <div className="text-xs text-slate-500 dark:text-slate-400">Atual</div>
             <div className="text-lg font-semibold">{formatBRL(resumo?.patrimonio_investido)}</div>
           </div>
           <div>
-            <div className="text-xs text-slate-500">Variação</div>
-            <div className={`text-lg font-semibold ${Number(resumo?.variacao_carteira ?? 0) >= 0 ? "text-emerald-600" : "text-red-600"}`}>
+            <div className="text-xs text-slate-500 dark:text-slate-400">Variação</div>
+            <div className={`text-lg font-semibold ${Number(resumo?.variacao_carteira ?? 0) >= 0 ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}>
               {formatBRL(resumo?.variacao_carteira)}
             </div>
           </div>
@@ -103,7 +102,7 @@ function Kpi({ title, value, accent }: { title: string; value: string; accent: s
   };
   return (
     <div className={`card p-5 border-l-4 ${colors[accent]}`}>
-      <div className="text-xs text-slate-500">{title}</div>
+      <div className="text-xs text-slate-500 dark:text-slate-400">{title}</div>
       <div className="text-xl font-bold mt-1">{value}</div>
     </div>
   );

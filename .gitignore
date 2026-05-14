@@ -30,3 +30,11 @@ Thumbs.db
 *.log
 
 pgdata/
+
+.claude/
+.playwright-mcp/
+*.db
+*.sqlite
+*.sqlite3
+/*.png
+/*.pdf

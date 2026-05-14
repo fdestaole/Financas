@@ -34,10 +34,10 @@ export function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center px-4">
+    <div className="min-h-screen flex items-center justify-center px-4 bg-slate-50 dark:bg-slate-950">
       <div className="card w-full max-w-md p-8">
-        <h1 className="text-2xl font-bold text-slate-900 mb-1">Criar conta</h1>
-        <p className="text-sm text-slate-500 mb-6">Comece a controlar suas finanças agora</p>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-1">Criar conta</h1>
+        <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">Comece a controlar suas finanças agora</p>
         <form onSubmit={submit} className="space-y-4">
           <div>
             <label className="label">Nome</label>
@@ -73,9 +73,9 @@ export function RegisterPage() {
             {loading ? "Criando..." : "Criar conta"}
           </button>
         </form>
-        <p className="text-sm text-slate-500 mt-6 text-center">
+        <p className="text-sm text-slate-500 dark:text-slate-400 mt-6 text-center">
           Já tem conta?{" "}
-          <Link to="/login" className="text-brand-600 font-medium hover:underline">
+          <Link to="/login" className="text-brand-600 dark:text-brand-500 font-medium hover:underline">
             Entrar
           </Link>
         </p>

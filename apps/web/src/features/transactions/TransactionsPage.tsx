@@ -21,12 +21,12 @@ const TIPO_LABELS: Record<TipoTransacao, string> = {
 };
 
 const TIPO_BADGE: Record<TipoTransacao, string> = {
-  RECEITA: "bg-emerald-100 text-emerald-700",
-  DESPESA: "bg-red-100 text-red-700",
-  TRANSFERENCIA: "bg-blue-100 text-blue-700",
-  COMPRA_CARTAO: "bg-purple-100 text-purple-700",
-  PAGAMENTO_FATURA: "bg-slate-100 text-slate-700",
-  AJUSTE: "bg-amber-100 text-amber-700",
+  RECEITA: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300",
+  DESPESA: "bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-300",
+  TRANSFERENCIA: "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300",
+  COMPRA_CARTAO: "bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300",
+  PAGAMENTO_FATURA: "bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-200",
+  AJUSTE: "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300",
 };
 
 export function TransactionsPage() {
@@ -102,12 +102,12 @@ export function TransactionsPage() {
 
       <div className="card overflow-hidden">
         {isLoading ? (
-          <p className="p-5">Carregando...</p>
+          <p className="p-5 text-slate-500 dark:text-slate-400">Carregando...</p>
         ) : !data?.items.length ? (
-          <p className="p-12 text-center text-slate-500">Nenhuma transação. Clique em "Nova" para começar.</p>
+          <p className="p-12 text-center text-slate-500 dark:text-slate-400">Nenhuma transação. Clique em "Nova" para começar.</p>
         ) : (
           <table className="w-full text-sm">
-            <thead className="bg-slate-50 text-left text-xs uppercase text-slate-500">
+            <thead className="bg-slate-50 dark:bg-slate-800/50 text-left text-xs uppercase text-slate-500 dark:text-slate-400">
               <tr>
                 <th className="px-4 py-2">Data</th>
                 <th className="px-4 py-2">Descrição</th>
@@ -124,18 +124,18 @@ export function TransactionsPage() {
                 const isOut = ["DESPESA", "COMPRA_CARTAO", "PAGAMENTO_FATURA"].includes(t.tipo)
                   || (t.tipo === "TRANSFERENCIA" && t.sentido_transferencia === "ORIGEM");
                 return (
-                  <tr key={t.id} className="border-t border-slate-100">
+                  <tr key={t.id} className="border-t border-slate-100 dark:border-slate-800">
                     <td className="px-4 py-3 whitespace-nowrap">{formatDate(t.data_competencia)}</td>
                     <td className="px-4 py-3">{t.descricao}</td>
                     <td className="px-4 py-3">
                       <span className={`badge ${TIPO_BADGE[t.tipo]}`}>{TIPO_LABELS[t.tipo]}</span>
                     </td>
-                    <td className="px-4 py-3 text-slate-600">{card?.nome ?? account?.nome ?? "—"}</td>
-                    <td className={`px-4 py-3 text-right font-semibold ${isOut ? "text-red-600" : "text-emerald-600"}`}>
+                    <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{card?.nome ?? account?.nome ?? "—"}</td>
+                    <td className={`px-4 py-3 text-right font-semibold ${isOut ? "text-red-600 dark:text-red-400" : "text-emerald-600 dark:text-emerald-400"}`}>
                       {isOut ? "−" : "+"} {formatBRL(t.valor)}
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <button onClick={() => handleDelete(t.id)} className="text-slate-400 hover:text-red-600">
+                      <button onClick={() => handleDelete(t.id)} className="text-slate-400 hover:text-red-600 dark:text-slate-500 dark:hover:text-red-400">
                         <Trash2 size={14} />
                       </button>
                     </td>
@@ -148,7 +148,7 @@ export function TransactionsPage() {
       </div>
 
       {data && data.total > data.page_size && (
-        <div className="flex justify-between items-center mt-4 text-sm text-slate-500">
+        <div className="flex justify-between items-center mt-4 text-sm text-slate-500 dark:text-slate-400">
           <div>{data.total} lançamentos</div>
           <div className="flex gap-2">
             <button

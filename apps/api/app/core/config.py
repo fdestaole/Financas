@@ -1,3 +1,4 @@
+import json
 from functools import lru_cache
 from typing import List
 
@@ -13,11 +14,14 @@ class Settings(BaseSettings):
     DATABASE_URL: str
     JWT_ACCESS_SECRET: str
     JWT_REFRESH_SECRET: str
+    REFRESH_HASH_SECRET: str = ""
     JWT_ACCESS_EXPIRES_MINUTES: int = 15
     JWT_REFRESH_EXPIRES_DAYS: int = 7
     COOKIE_DOMAIN: str = "localhost"
     COOKIE_SECURE: bool = False
-    CORS_ORIGINS: List[str] = Field(default_factory=lambda: ["http://localhost:5173"])
+    CORS_ORIGINS: List[str] = Field(
+        default_factory=lambda: ["http://localhost:5173", "http://localhost:5174"]
+    )
     BRAPI_TOKEN: str = ""
     BRAPI_BASE_URL: str = "https://brapi.dev/api"
     TZ: str = "America/Sao_Paulo"
@@ -27,6 +31,12 @@ class Settings(BaseSettings):
     @classmethod
     def split_cors(cls, v):
         if isinstance(v, str):
+            try:
+                parsed = json.loads(v)
+            except json.JSONDecodeError:
+                parsed = None
+            if isinstance(parsed, list):
+                return [str(origin).strip() for origin in parsed if str(origin).strip()]
             return [origin.strip() for origin in v.split(",") if origin.strip()]
         return v
 

@@ -113,25 +113,6 @@ def upgrade() -> None:
     op.create_index("ix_categories_user_id", "categories", ["user_id"])
 
     op.create_table(
-        "credit_card_invoices",
-        sa.Column("id", sa.String(32), primary_key=True),
-        sa.Column("user_id", sa.String(32), sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False),
-        sa.Column("credit_card_id", sa.String(32), sa.ForeignKey("credit_cards.id", ondelete="CASCADE"), nullable=False),
-        sa.Column("mes_referencia", sa.Integer, nullable=False),
-        sa.Column("ano_referencia", sa.Integer, nullable=False),
-        sa.Column("data_fechamento", sa.Date, nullable=False),
-        sa.Column("data_vencimento", sa.Date, nullable=False),
-        sa.Column("valor_pago", sa.Numeric(14, 2), nullable=False, server_default="0"),
-        sa.Column("status", status_fatura, nullable=False),
-        sa.Column("pagamento_transaction_id", sa.String(32), nullable=True),
-        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
-        sa.Column("updated_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
-        sa.UniqueConstraint("credit_card_id", "mes_referencia", "ano_referencia", name="uq_invoice_card_period"),
-    )
-    op.create_index("ix_credit_card_invoices_user_id", "credit_card_invoices", ["user_id"])
-    op.create_index("ix_credit_card_invoices_credit_card_id", "credit_card_invoices", ["credit_card_id"])
-
-    op.create_table(
         "transactions",
         sa.Column("id", sa.String(32), primary_key=True),
         sa.Column("user_id", sa.String(32), sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False),
@@ -144,7 +125,7 @@ def upgrade() -> None:
         sa.Column("category_id", sa.String(32), sa.ForeignKey("categories.id", ondelete="SET NULL"), nullable=True),
         sa.Column("bank_account_id", sa.String(32), sa.ForeignKey("bank_accounts.id", ondelete="CASCADE"), nullable=True),
         sa.Column("credit_card_id", sa.String(32), sa.ForeignKey("credit_cards.id", ondelete="CASCADE"), nullable=True),
-        sa.Column("invoice_id", sa.String(32), sa.ForeignKey("credit_card_invoices.id", ondelete="SET NULL"), nullable=True),
+        sa.Column("invoice_id", sa.String(32), nullable=True),
         sa.Column("transferencia_par_id", sa.String(32), sa.ForeignKey("transactions.id", ondelete="SET NULL"), nullable=True),
         sa.Column("sentido_transferencia", sentido_transferencia, nullable=True),
         sa.Column("parcela_atual", sa.Integer, nullable=True),
@@ -162,14 +143,38 @@ def upgrade() -> None:
     op.create_index("ix_transactions_invoice_id", "transactions", ["invoice_id"])
     op.create_index("ix_transactions_category_id", "transactions", ["category_id"])
 
-    op.create_foreign_key(
-        "fk_invoice_pagamento_tx",
+    op.create_table(
         "credit_card_invoices",
-        "transactions",
-        ["pagamento_transaction_id"],
-        ["id"],
-        ondelete="SET NULL",
+        sa.Column("id", sa.String(32), primary_key=True),
+        sa.Column("user_id", sa.String(32), sa.ForeignKey("users.id", ondelete="CASCADE"), nullable=False),
+        sa.Column("credit_card_id", sa.String(32), sa.ForeignKey("credit_cards.id", ondelete="CASCADE"), nullable=False),
+        sa.Column("mes_referencia", sa.Integer, nullable=False),
+        sa.Column("ano_referencia", sa.Integer, nullable=False),
+        sa.Column("data_fechamento", sa.Date, nullable=False),
+        sa.Column("data_vencimento", sa.Date, nullable=False),
+        sa.Column("valor_pago", sa.Numeric(14, 2), nullable=False, server_default="0"),
+        sa.Column("status", status_fatura, nullable=False),
+        sa.Column("pagamento_transaction_id", sa.String(32), sa.ForeignKey("transactions.id", ondelete="SET NULL"), nullable=True),
+        sa.Column("created_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
+        sa.Column("updated_at", sa.DateTime(timezone=True), server_default=sa.func.now(), nullable=False),
+        sa.UniqueConstraint("credit_card_id", "mes_referencia", "ano_referencia", name="uq_invoice_card_period"),
     )
+    op.create_index("ix_credit_card_invoices_user_id", "credit_card_invoices", ["user_id"])
+    op.create_index("ix_credit_card_invoices_credit_card_id", "credit_card_invoices", ["credit_card_id"])
+
+    # Add FK from transactions.invoice_id now that credit_card_invoices exists.
+    # SQLite does not support ALTER TABLE ADD CONSTRAINT, so we skip it there;
+    # the column still references the right table via the ORM relationship.
+    bind = op.get_bind()
+    if bind.dialect.name != "sqlite":
+        op.create_foreign_key(
+            "fk_transaction_invoice",
+            "transactions",
+            "credit_card_invoices",
+            ["invoice_id"],
+            ["id"],
+            ondelete="SET NULL",
+        )
 
     op.create_table(
         "investments",
@@ -217,26 +222,34 @@ def upgrade() -> None:
 
 
 def downgrade() -> None:
+    bind = op.get_bind()
+    is_sqlite = bind.dialect.name == "sqlite"
+
     op.drop_table("quote_cache")
     op.drop_table("investment_operations")
     op.drop_table("investments")
-    op.drop_constraint("fk_invoice_pagamento_tx", "credit_card_invoices", type_="foreignkey")
-    op.drop_table("transactions")
+
+    if not is_sqlite:
+        op.drop_constraint("fk_transaction_invoice", "transactions", type_="foreignkey")
+
     op.drop_table("credit_card_invoices")
+    op.drop_table("transactions")
     op.drop_table("categories")
     op.drop_table("credit_cards")
     op.drop_table("bank_accounts")
     op.drop_table("refresh_tokens")
     op.drop_table("users")
-    for name in [
-        "tipo_conta",
-        "tipo_transacao",
-        "status_transacao",
-        "status_fatura",
-        "bandeira_cartao",
-        "tipo_categoria",
-        "tipo_ativo",
-        "tipo_operacao_invest",
-        "sentido_transferencia",
-    ]:
-        sa.Enum(name=name).drop(op.get_bind(), checkfirst=True)
+
+    if not is_sqlite:
+        for name in [
+            "tipo_conta",
+            "tipo_transacao",
+            "status_transacao",
+            "status_fatura",
+            "bandeira_cartao",
+            "tipo_categoria",
+            "tipo_ativo",
+            "tipo_operacao_invest",
+            "sentido_transferencia",
+        ]:
+            sa.Enum(name=name).drop(op.get_bind(), checkfirst=True)

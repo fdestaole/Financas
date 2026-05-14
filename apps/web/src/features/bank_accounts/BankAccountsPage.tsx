@@ -101,9 +101,9 @@ export function BankAccountsPage() {
       />
 
       {isLoading ? (
-        <p className="text-slate-500">Carregando...</p>
+        <p className="text-slate-500 dark:text-slate-400">Carregando...</p>
       ) : !accounts?.length ? (
-        <div className="card p-12 text-center text-slate-500">
+        <div className="card p-12 text-center text-slate-500 dark:text-slate-400">
           <Wallet className="mx-auto mb-3" size={32} />
           <p>Nenhuma conta cadastrada ainda.</p>
         </div>
@@ -121,19 +121,19 @@ export function BankAccountsPage() {
                   </div>
                   <div>
                     <div className="font-semibold">{acc.nome}</div>
-                    <div className="text-xs text-slate-500">{acc.instituicao}</div>
+                    <div className="text-xs text-slate-500 dark:text-slate-400">{acc.instituicao}</div>
                   </div>
                 </div>
                 <div className="flex gap-1">
-                  <button onClick={() => open(acc)} className="text-slate-400 hover:text-slate-600 p-1">
+                  <button onClick={() => open(acc)} className="text-slate-400 hover:text-slate-600 dark:text-slate-500 dark:hover:text-slate-200 p-1">
                     <Edit size={14} />
                   </button>
-                  <button onClick={() => handleDelete(acc.id)} className="text-slate-400 hover:text-red-600 p-1">
+                  <button onClick={() => handleDelete(acc.id)} className="text-slate-400 hover:text-red-600 dark:text-slate-500 dark:hover:text-red-400 p-1">
                     <Trash2 size={14} />
                   </button>
                 </div>
               </div>
-              <div className="text-xs text-slate-500">{TIPOS.find((t) => t.value === acc.tipo)?.label}</div>
+              <div className="text-xs text-slate-500 dark:text-slate-400">{TIPOS.find((t) => t.value === acc.tipo)?.label}</div>
               <div className="text-2xl font-bold mt-2">{formatBRL(acc.saldo_atual)}</div>
             </div>
           ))}

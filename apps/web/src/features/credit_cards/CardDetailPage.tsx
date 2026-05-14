@@ -19,11 +19,11 @@ import {
 const MESES = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
 
 const STATUS_COLORS: Record<Invoice["status"], string> = {
-  ABERTA: "bg-blue-100 text-blue-700",
-  FECHADA: "bg-amber-100 text-amber-700",
-  PAGA: "bg-emerald-100 text-emerald-700",
-  PAGA_PARCIAL: "bg-yellow-100 text-yellow-700",
-  VENCIDA: "bg-red-100 text-red-700",
+  ABERTA: "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300",
+  FECHADA: "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300",
+  PAGA: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300",
+  PAGA_PARCIAL: "bg-yellow-100 text-yellow-700 dark:bg-yellow-500/20 dark:text-yellow-300",
+  VENCIDA: "bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-300",
 };
 
 export function CardDetailPage() {
@@ -76,12 +76,12 @@ export function CardDetailPage() {
       )}
 
       <div className="card">
-        <div className="px-5 py-3 border-b border-slate-200 font-semibold">Faturas</div>
+        <div className="px-5 py-3 border-b border-slate-200 dark:border-slate-800 font-semibold">Faturas</div>
         {!invoices?.length ? (
-          <p className="p-5 text-sm text-slate-500">Nenhuma fatura ainda. Adicione uma compra.</p>
+          <p className="p-5 text-sm text-slate-500 dark:text-slate-400">Nenhuma fatura ainda. Adicione uma compra.</p>
         ) : (
           <table className="w-full text-sm">
-            <thead className="text-left text-slate-500 text-xs uppercase">
+            <thead className="text-left text-slate-500 dark:text-slate-400 text-xs uppercase">
               <tr>
                 <th className="px-5 py-2">Período</th>
                 <th className="px-5 py-2">Fechamento</th>
@@ -94,9 +94,9 @@ export function CardDetailPage() {
             </thead>
             <tbody>
               {invoices.map((inv) => (
-                <tr key={inv.id} className="border-t border-slate-100">
+                <tr key={inv.id} className="border-t border-slate-100 dark:border-slate-800">
                   <td className="px-5 py-3 font-medium">
-                    <button onClick={() => setOpenInvoice(inv)} className="hover:text-brand-600">
+                    <button onClick={() => setOpenInvoice(inv)} className="hover:text-brand-600 dark:hover:text-brand-500">
                       {MESES[inv.mes_referencia - 1]}/{inv.ano_referencia}
                     </button>
                   </td>
@@ -109,7 +109,7 @@ export function CardDetailPage() {
                   </td>
                   <td className="px-5 py-3 text-right">
                     {inv.status !== "PAGA" && Number(inv.valor_aberto) > 0 && (
-                      <button onClick={() => openPay(inv)} className="text-brand-600 text-xs font-medium hover:underline">
+                      <button onClick={() => openPay(inv)} className="text-brand-600 dark:text-brand-500 text-xs font-medium hover:underline">
                         Pagar
                       </button>
                     )}
@@ -123,14 +123,14 @@ export function CardDetailPage() {
 
       <Modal open={!!openInvoice} onClose={() => setOpenInvoice(null)} title={openInvoice ? `Fatura ${MESES[openInvoice.mes_referencia - 1]}/${openInvoice.ano_referencia}` : ""} maxWidth="max-w-2xl">
         {!txs?.length ? (
-          <p className="text-sm text-slate-500">Sem lançamentos nesta fatura.</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400">Sem lançamentos nesta fatura.</p>
         ) : (
-          <ul className="divide-y divide-slate-100">
+          <ul className="divide-y divide-slate-100 dark:divide-slate-800">
             {txs.map((t) => (
               <li key={t.id} className="py-2 flex justify-between text-sm">
                 <div>
                   <div className="font-medium">{t.descricao}</div>
-                  <div className="text-xs text-slate-500">{formatDate(t.data_competencia)}</div>
+                  <div className="text-xs text-slate-500 dark:text-slate-400">{formatDate(t.data_competencia)}</div>
                 </div>
                 <div className="font-semibold">{formatBRL(t.valor)}</div>
               </li>
@@ -168,7 +168,7 @@ export function CardDetailPage() {
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div className="card p-5">
-      <div className="text-xs text-slate-500">{label}</div>
+      <div className="text-xs text-slate-500 dark:text-slate-400">{label}</div>
       <div className="text-xl font-bold mt-1">{value}</div>
     </div>
   );

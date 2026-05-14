@@ -85,9 +85,9 @@ export function CreditCardsPage() {
       />
 
       {isLoading ? (
-        <p>Carregando...</p>
+        <p className="text-slate-500 dark:text-slate-400">Carregando...</p>
       ) : !cards?.length ? (
-        <div className="card p-12 text-center text-slate-500">
+        <div className="card p-12 text-center text-slate-500 dark:text-slate-400">
           <CardIcon className="mx-auto mb-3" size={32} />
           <p>Nenhum cartão cadastrado.</p>
         </div>
@@ -106,23 +106,23 @@ export function CreditCardsPage() {
                       <CardIcon size={18} />
                     </div>
                     <div>
-                      <Link to={`/cartoes/${card.id}`} className="font-semibold hover:text-brand-600">
+                      <Link to={`/cartoes/${card.id}`} className="font-semibold hover:text-brand-600 dark:hover:text-brand-500">
                         {card.nome}
                       </Link>
-                      <div className="text-xs text-slate-500">
+                      <div className="text-xs text-slate-500 dark:text-slate-400">
                         {card.bandeira}
                         {card.ultimos_quatro_digitos && ` •••• ${card.ultimos_quatro_digitos}`}
                       </div>
                     </div>
                   </div>
-                  <button onClick={() => handleDelete(card.id)} className="text-slate-400 hover:text-red-600 p-1">
+                  <button onClick={() => handleDelete(card.id)} className="text-slate-400 hover:text-red-600 dark:text-slate-500 dark:hover:text-red-400 p-1">
                     <Trash2 size={14} />
                   </button>
                 </div>
-                <div className="text-xs text-slate-500">
+                <div className="text-xs text-slate-500 dark:text-slate-400">
                   Conta: {account?.nome ?? "—"} · Fecha dia {card.dia_fechamento} · Vence dia {card.dia_vencimento}
                 </div>
-                <div className="grid grid-cols-3 gap-3 mt-3 pt-3 border-t border-slate-100">
+                <div className="grid grid-cols-3 gap-3 mt-3 pt-3 border-t border-slate-100 dark:border-slate-800">
                   <Stat label="Limite" value={formatBRL(card.limite)} />
                   <Stat label="Disponível" value={formatBRL(card.limite_disponivel)} />
                   <Stat label="Fatura atual" value={formatBRL(card.fatura_atual)} />
@@ -188,7 +188,7 @@ export function CreditCardsPage() {
 function Stat({ label, value }: { label: string; value: string }) {
   return (
     <div>
-      <div className="text-xs text-slate-500">{label}</div>
+      <div className="text-xs text-slate-500 dark:text-slate-400">{label}</div>
       <div className="font-semibold">{value}</div>
     </div>
   );

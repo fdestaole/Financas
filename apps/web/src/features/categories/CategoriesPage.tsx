@@ -52,7 +52,7 @@ export function CategoriesPage() {
       />
 
       {isLoading ? (
-        <p>Carregando...</p>
+        <p className="text-slate-500 dark:text-slate-400">Carregando...</p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <Section title="Receitas" items={receitas} onDelete={handleDelete} />
@@ -94,16 +94,16 @@ function Section({ title, items, onDelete }: { title: string; items: any[]; onDe
     <div className="card p-5">
       <h2 className="font-semibold mb-3">{title}</h2>
       {items.length === 0 ? (
-        <p className="text-sm text-slate-500">Nenhuma categoria</p>
+        <p className="text-sm text-slate-500 dark:text-slate-400">Nenhuma categoria</p>
       ) : (
         <ul className="space-y-1">
           {items.map((c) => (
-            <li key={c.id} className="flex items-center justify-between py-2 border-b border-slate-100 last:border-0">
+            <li key={c.id} className="flex items-center justify-between py-2 border-b border-slate-100 dark:border-slate-800 last:border-0">
               <div className="flex items-center gap-2">
                 <span className="h-3 w-3 rounded-full" style={{ background: c.cor ?? "#64748b" }} />
                 <span className="text-sm">{c.nome}</span>
               </div>
-              <button onClick={() => onDelete(c.id)} className="text-slate-400 hover:text-red-600">
+              <button onClick={() => onDelete(c.id)} className="text-slate-400 hover:text-red-600 dark:text-slate-500 dark:hover:text-red-400">
                 <Trash2 size={14} />
               </button>
             </li>

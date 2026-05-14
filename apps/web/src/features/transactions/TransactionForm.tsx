@@ -11,6 +11,7 @@ import { useCreateTransaction, type TipoTransacao, type TxIn } from "./api";
 
 interface Props {
   onSuccess: () => void;
+  initialTipo?: TipoTransacao;
 }
 
 const TIPOS: { value: TipoTransacao; label: string }[] = [
@@ -20,13 +21,13 @@ const TIPOS: { value: TipoTransacao; label: string }[] = [
   { value: "COMPRA_CARTAO", label: "Compra no cartão" },
 ];
 
-export function TransactionForm({ onSuccess }: Props) {
+export function TransactionForm({ onSuccess, initialTipo }: Props) {
   const { data: accounts } = useBankAccounts();
   const { data: cards } = useCreditCards();
   const { data: categories } = useCategories();
   const create = useCreateTransaction();
 
-  const [tipo, setTipo] = useState<TipoTransacao>("DESPESA");
+  const [tipo, setTipo] = useState<TipoTransacao>(initialTipo ?? "DESPESA");
   const [descricao, setDescricao] = useState("");
   const [valor, setValor] = useState(0);
   const [data, setData] = useState(todayISO());
@@ -153,7 +154,7 @@ export function TransactionForm({ onSuccess }: Props) {
             </div>
           </div>
           {parcelas > 1 && valor > 0 && (
-            <p className="text-xs text-slate-500">
+            <p className="text-xs text-slate-500 dark:text-slate-400">
               {parcelas}x de aproximadamente R$ {(valor / parcelas).toFixed(2).replace(".", ",")}
             </p>
           )}

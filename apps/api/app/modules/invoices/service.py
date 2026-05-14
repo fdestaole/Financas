@@ -8,7 +8,7 @@ from sqlalchemy.orm import Session
 
 from app.core.errors import BusinessRuleError, NotFoundError
 from app.db.enums import StatusFatura, StatusTransacao, TipoTransacao
-from app.db.models import CreditCard, CreditCardInvoice, Transaction
+from app.db.models import BankAccount, CreditCard, CreditCardInvoice, Transaction
 
 
 def _last_day(year: int, month: int) -> int:
@@ -127,6 +127,8 @@ def pagar_fatura(
     data_pagamento: date,
     bank_account_id: str | None = None,
 ) -> tuple[CreditCardInvoice, Transaction]:
+    if valor <= 0:
+        raise BusinessRuleError("Valor do pagamento deve ser maior que zero")
     invoice = get_invoice(db, user_id, invoice_id)
     if invoice.status == StatusFatura.PAGA:
         raise BusinessRuleError("Fatura já paga")
@@ -134,6 +136,14 @@ def pagar_fatura(
     if not card:
         raise NotFoundError("Cartão não encontrado")
     target_account = bank_account_id or card.bank_account_id
+    account = db.scalar(
+        select(BankAccount).where(
+            BankAccount.id == target_account, BankAccount.user_id == user_id
+        )
+    )
+    if not account:
+        raise BusinessRuleError("Conta de pagamento não encontrada")
+    target_account = account.id
 
     pagamento = Transaction(
         user_id=user_id,

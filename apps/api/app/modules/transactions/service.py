@@ -7,7 +7,7 @@ from sqlalchemy.orm import Session
 
 from app.core.errors import BusinessRuleError, NotFoundError
 from app.db.enums import SentidoTransferencia, StatusTransacao, TipoTransacao
-from app.db.models import BankAccount, CreditCard, Transaction
+from app.db.models import BankAccount, Category, CreditCard, Transaction
 from app.modules.invoices.service import upsert_invoice
 from app.modules.transactions.schemas import (
     CompraCartaoIn,
@@ -37,12 +37,23 @@ def _ensure_card(db: Session, user_id: str, card_id: str) -> CreditCard:
     return card
 
 
+def _ensure_category(db: Session, user_id: str, category_id: str | None) -> None:
+    if category_id is None:
+        return
+    cat = db.scalar(
+        select(Category).where(Category.id == category_id, Category.user_id == user_id)
+    )
+    if not cat:
+        raise BusinessRuleError("Categoria não encontrada")
+
+
 def _q2(value: Decimal) -> Decimal:
     return value.quantize(Decimal("0.01"), rounding=ROUND_HALF_UP)
 
 
 def criar_receita(db: Session, user_id: str, data: ReceitaIn) -> list[Transaction]:
     _ensure_account(db, user_id, data.bank_account_id)
+    _ensure_category(db, user_id, data.category_id)
     tx = Transaction(
         user_id=user_id,
         tipo=TipoTransacao.RECEITA,
@@ -63,6 +74,7 @@ def criar_receita(db: Session, user_id: str, data: ReceitaIn) -> list[Transactio
 
 def criar_despesa(db: Session, user_id: str, data: DespesaIn) -> list[Transaction]:
     _ensure_account(db, user_id, data.bank_account_id)
+    _ensure_category(db, user_id, data.category_id)
     tx = Transaction(
         user_id=user_id,
         tipo=TipoTransacao.DESPESA,
@@ -123,6 +135,7 @@ def criar_transferencia(db: Session, user_id: str, data: TransferenciaIn) -> lis
 
 def criar_compra_cartao(db: Session, user_id: str, data: CompraCartaoIn) -> list[Transaction]:
     card = _ensure_card(db, user_id, data.credit_card_id)
+    _ensure_category(db, user_id, data.category_id)
     parcelas = max(data.parcelas, 1)
     valor_parcela = _q2(data.valor / parcelas)
     diferenca = data.valor - (valor_parcela * parcelas)
@@ -234,6 +247,8 @@ def get_transacao(db: Session, user_id: str, tx_id: str) -> Transaction:
 def atualizar(db: Session, user_id: str, tx_id: str, data: TransactionUpdate) -> Transaction:
     tx = get_transacao(db, user_id, tx_id)
     payload = data.model_dump(exclude_unset=True)
+    if "category_id" in payload:
+        _ensure_category(db, user_id, payload["category_id"])
     if "data" in payload:
         tx.data_competencia = payload.pop("data")
     for field, value in payload.items():

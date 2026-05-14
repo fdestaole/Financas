@@ -6,6 +6,10 @@ import { Toaster } from "sonner";
 
 import "./styles/globals.css";
 import App from "./App";
+import { applyTheme, useThemeStore } from "@/lib/theme";
+
+applyTheme(useThemeStore.getState().theme);
+useThemeStore.subscribe((state) => applyTheme(state.theme));
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -13,12 +17,17 @@ const queryClient = new QueryClient({
   },
 });
 
+function ThemedToaster() {
+  const theme = useThemeStore((s) => s.theme);
+  return <Toaster richColors position="top-right" theme={theme} />;
+}
+
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
         <App />
-        <Toaster richColors position="top-right" />
+        <ThemedToaster />
       </BrowserRouter>
     </QueryClientProvider>
   </React.StrictMode>
