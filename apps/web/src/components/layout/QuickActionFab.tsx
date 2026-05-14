@@ -30,11 +30,11 @@ const ITEMS: {
   icon: typeof ArrowDownCircle;
   color: string;
 }[] = [
-  { key: "RECEITA", label: "Receita", icon: ArrowDownCircle, color: "text-emerald-600" },
-  { key: "DESPESA", label: "Despesa", icon: ArrowUpCircle, color: "text-red-600" },
-  { key: "TRANSFERENCIA", label: "Transferência", icon: ArrowLeftRight, color: "text-blue-600" },
-  { key: "COMPRA_CARTAO", label: "Compra no cartão", icon: CreditCard, color: "text-violet-600" },
-  { key: "INVESTIMENTO", label: "Investimento", icon: TrendingUp, color: "text-amber-600" },
+  { key: "RECEITA", label: "Receita", icon: ArrowDownCircle, color: "text-pos" },
+  { key: "DESPESA", label: "Despesa", icon: ArrowUpCircle, color: "text-neg" },
+  { key: "TRANSFERENCIA", label: "Transferência", icon: ArrowLeftRight, color: "text-blue-500" },
+  { key: "COMPRA_CARTAO", label: "Compra no cartão", icon: CreditCard, color: "text-accent" },
+  { key: "INVESTIMENTO", label: "Investimento", icon: TrendingUp, color: "text-warn" },
 ];
 
 export function QuickActionFab() {
@@ -74,10 +74,10 @@ export function QuickActionFab() {
               <button
                 key={key}
                 onClick={() => pick(key)}
-                className="flex items-center gap-3 rounded-full bg-white pl-4 pr-5 py-2 shadow-lg border border-slate-200 hover:bg-slate-50 dark:bg-slate-800 dark:border-slate-700 dark:hover:bg-slate-700 transition-colors"
+                className="flex items-center gap-3 rounded-full bg-surface pl-4 pr-5 py-2 shadow-sm border border-border hover:bg-surface-2 transition-colors"
               >
                 <Icon size={18} className={color} />
-                <span className="text-sm font-medium text-slate-700 dark:text-slate-200">{label}</span>
+                <span className="text-sm font-medium text-text">{label}</span>
               </button>
             ))}
           </div>
@@ -85,9 +85,9 @@ export function QuickActionFab() {
         <button
           onClick={() => setMenuOpen((v) => !v)}
           aria-label={menuOpen ? "Fechar menu" : "Novo lançamento"}
-          className="h-14 w-14 rounded-full bg-brand-600 text-white shadow-lg flex items-center justify-center hover:bg-brand-700 transition-colors"
+          className="h-14 w-14 rounded-full bg-accent-gradient text-white shadow-glow flex items-center justify-center hover:scale-105 transition-transform"
         >
-          {menuOpen ? <X size={24} /> : <Plus size={24} />}
+          {menuOpen ? <X size={22} /> : <Plus size={22} />}
         </button>
       </div>
 

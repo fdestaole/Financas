@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Delete } from "lucide-react";
+import { cn } from "@/lib/cn";
 
 interface Props {
   initialValue: number;
@@ -98,34 +99,33 @@ export function CalculatorPopup({ initialValue, onConfirm, onClose }: Props) {
   }
 
   const num =
-    "h-10 w-full rounded-lg text-sm font-medium bg-slate-100 hover:bg-slate-200 text-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-100 transition-colors select-none active:scale-95";
+    "h-10 w-full rounded-md text-sm font-medium bg-surface-2 hover:bg-border text-text transition-colors select-none active:scale-95";
   const op = (active: boolean) =>
-    `h-10 w-full rounded-lg text-sm font-medium transition-colors select-none active:scale-95 ${
-      active
-        ? "bg-brand-500 text-white"
-        : "bg-slate-200 hover:bg-slate-300 text-slate-700 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-slate-100"
-    }`;
+    cn(
+      "h-10 w-full rounded-md text-sm font-medium transition-colors select-none active:scale-95",
+      active ? "bg-accent text-white" : "bg-surface-2 hover:bg-border text-text-2",
+    );
 
   return (
     <div
-      className="absolute top-full left-0 mt-1 z-50 bg-white rounded-xl shadow-xl border border-slate-200 p-2 w-52 dark:bg-slate-900 dark:border-slate-700"
+      className="absolute top-full left-0 mt-1 z-50 bg-surface rounded-xl shadow-modal border border-border p-2 w-52"
       onMouseDown={(e) => e.stopPropagation()}
     >
       {/* Display */}
-      <div className="w-full px-3 py-2 mb-2 bg-slate-50 rounded-lg border border-slate-200 dark:bg-slate-800 dark:border-slate-700">
-        <div className="text-xs text-slate-400 dark:text-slate-500 h-4 text-right">
+      <div className="w-full px-3 py-2 mb-2 bg-surface-2 rounded-md border border-border">
+        <div className="text-xs text-text-3 h-4 text-right">
           {accumulator !== null && operator
             ? `${String(accumulator).replace(".", ",")} ${operator}`
             : " "}
         </div>
-        <div className="text-base font-mono text-right truncate text-slate-900 dark:text-slate-100">{display}</div>
+        <div className="text-base font-mono text-right truncate text-text">{display}</div>
       </div>
 
       {/* Grid 4 colunas */}
       <div className="grid grid-cols-4 gap-1">
         {/* Row 1 */}
         <button
-          className="h-10 w-full rounded-lg text-sm font-medium bg-red-100 hover:bg-red-200 text-red-700 dark:bg-red-500/20 dark:hover:bg-red-500/30 dark:text-red-300 transition-colors select-none active:scale-95"
+          className="h-10 w-full rounded-md text-sm font-medium bg-neg/10 hover:bg-neg/20 text-neg transition-colors select-none active:scale-95"
           onClick={handleClear}
         >C</button>
         <button className={op(false)} onClick={handleBackspace}>
@@ -154,12 +154,12 @@ export function CalculatorPopup({ initialValue, onConfirm, onClose }: Props) {
 
         {/* Row 5 — 0 ocupa 2 colunas, , e = ocupam 1 cada */}
         <button
-          className="h-10 col-span-2 w-full rounded-lg text-sm font-medium bg-slate-100 hover:bg-slate-200 text-slate-800 dark:bg-slate-800 dark:hover:bg-slate-700 dark:text-slate-100 transition-colors select-none active:scale-95"
+          className="h-10 col-span-2 w-full rounded-md text-sm font-medium bg-surface-2 hover:bg-border text-text transition-colors select-none active:scale-95"
           onClick={() => handleDigit("0")}
         >0</button>
         <button className={num} onClick={() => handleDigit(",")}>,</button>
         <button
-          className="h-10 w-full rounded-lg text-sm font-medium bg-brand-500 hover:bg-brand-600 text-white transition-colors select-none active:scale-95"
+          className="h-10 w-full rounded-md text-sm font-medium bg-accent text-white shadow-glow transition-colors select-none active:scale-95"
           onClick={handleEquals}
         >=</button>
       </div>
