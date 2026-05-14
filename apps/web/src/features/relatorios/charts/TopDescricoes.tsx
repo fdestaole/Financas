@@ -20,7 +20,7 @@ interface Props {
 }
 
 export function TopDescricoes({ data, direcao, onDirecaoChange }: Props) {
-  const { gridStroke, axisColor, tooltipStyle } = useChartTheme();
+  const t = useChartTheme();
 
   const rows =
     data?.map((d) => ({
@@ -29,7 +29,7 @@ export function TopDescricoes({ data, direcao, onDirecaoChange }: Props) {
       contagem: d.contagem,
     })) ?? [];
 
-  const color = direcao === "DESPESA" ? "#ef4444" : "#16a34a";
+  const color = direcao === "DESPESA" ? t.neg : t.pos;
 
   return (
     <Card padding="lg">
@@ -39,27 +39,33 @@ export function TopDescricoes({ data, direcao, onDirecaoChange }: Props) {
       </div>
       <div className="h-96">
         {rows.length === 0 ? (
-          <EmptyState />
+          <div className="h-full flex items-center justify-center text-sm text-text-3">
+            Sem dados no período filtrado.
+          </div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
             <BarChart data={rows} layout="vertical" margin={{ left: 12, right: 24 }}>
-              <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} horizontal={false} />
+              <CartesianGrid strokeDasharray="3 3" stroke={t.gridStroke} horizontal={false} />
               <XAxis
                 type="number"
-                fontSize={12}
-                stroke={axisColor}
-                tickFormatter={(v) => `R$${(v / 1000).toFixed(1)}k`}
+                fontSize={t.axisFontSize}
+                stroke={t.axisColor}
+                tickFormatter={t.tickFormatter}
+                tickLine={false}
+                axisLine={false}
               />
               <YAxis
                 type="category"
                 dataKey="descricao"
-                fontSize={12}
-                stroke={axisColor}
+                fontSize={t.axisFontSize}
+                stroke={t.axisColor}
                 width={160}
+                tickLine={false}
+                axisLine={false}
               />
               <Tooltip
                 formatter={(v: number, name) => [formatBRL(v), name === "total" ? "Total" : name]}
-                contentStyle={tooltipStyle}
+                contentStyle={t.tooltipStyle}
               />
               <Bar dataKey="total" fill={color} radius={[0, 4, 4, 0]} />
             </BarChart>
@@ -73,29 +79,21 @@ export function TopDescricoes({ data, direcao, onDirecaoChange }: Props) {
 function DirecaoToggle({ value, onChange }: { value: Direcao; onChange: (d: Direcao) => void }) {
   const base = "px-2.5 py-1 text-xs font-medium rounded-md transition-colors";
   return (
-    <div className="inline-flex bg-slate-100 dark:bg-slate-800 rounded-md p-0.5">
+    <div className="inline-flex bg-surface-2 rounded-md p-0.5">
       <button
         type="button"
-        className={`${base} ${value === "DESPESA" ? "bg-white shadow text-red-600 dark:bg-slate-900 dark:text-red-400" : "text-slate-500"}`}
+        className={`${base} ${value === "DESPESA" ? "bg-surface shadow text-neg" : "text-text-3"}`}
         onClick={() => onChange("DESPESA")}
       >
         Despesas
       </button>
       <button
         type="button"
-        className={`${base} ${value === "RECEITA" ? "bg-white shadow text-emerald-600 dark:bg-slate-900 dark:text-emerald-400" : "text-slate-500"}`}
+        className={`${base} ${value === "RECEITA" ? "bg-surface shadow text-pos" : "text-text-3"}`}
         onClick={() => onChange("RECEITA")}
       >
         Receitas
       </button>
-    </div>
-  );
-}
-
-function EmptyState() {
-  return (
-    <div className="h-full flex items-center justify-center text-sm text-slate-500 dark:text-slate-400">
-      Sem dados no período filtrado.
     </div>
   );
 }

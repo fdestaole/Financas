@@ -1,5 +1,4 @@
-import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
-
+import { DonutChart } from "@/components/charts/DonutChart";
 import { Card } from "@/components/ui/Card";
 import { useChartTheme } from "@/lib/chartTheme";
 import { formatBRL } from "@/lib/utils";
@@ -12,13 +11,13 @@ interface Props {
 }
 
 export function PizzaCategoria({ data, direcao, onDirecaoChange }: Props) {
-  const { tooltipStyle, palette } = useChartTheme();
+  const { palette } = useChartTheme();
 
   const rows =
     data?.map((c, i) => ({
       name: c.nome,
       value: Number(c.total),
-      cor: c.cor ?? palette[i % palette.length],
+      color: c.cor ?? palette[i % palette.length],
     })) ?? [];
 
   return (
@@ -29,26 +28,17 @@ export function PizzaCategoria({ data, direcao, onDirecaoChange }: Props) {
       </div>
       <div className="h-72">
         {rows.length === 0 ? (
-          <EmptyState />
+          <div className="h-full flex items-center justify-center text-sm text-text-3">
+            Sem dados no período filtrado.
+          </div>
         ) : (
-          <ResponsiveContainer width="100%" height="100%">
-            <PieChart>
-              <Pie
-                data={rows}
-                dataKey="value"
-                nameKey="name"
-                outerRadius={90}
-                innerRadius={45}
-                paddingAngle={2}
-                label={(e) => e.name}
-              >
-                {rows.map((r, i) => (
-                  <Cell key={i} fill={r.cor} />
-                ))}
-              </Pie>
-              <Tooltip formatter={(v: number) => formatBRL(v)} contentStyle={tooltipStyle} />
-            </PieChart>
-          </ResponsiveContainer>
+          <DonutChart
+            data={rows}
+            height={288}
+            format={formatBRL}
+            innerRadius={45}
+            outerRadius={90}
+          />
         )}
       </div>
     </Card>
@@ -56,32 +46,23 @@ export function PizzaCategoria({ data, direcao, onDirecaoChange }: Props) {
 }
 
 function DirecaoToggle({ value, onChange }: { value: Direcao; onChange: (d: Direcao) => void }) {
-  const base =
-    "px-2.5 py-1 text-xs font-medium rounded-md transition-colors";
+  const base = "px-2.5 py-1 text-xs font-medium rounded-md transition-colors";
   return (
-    <div className="inline-flex bg-slate-100 dark:bg-slate-800 rounded-md p-0.5">
+    <div className="inline-flex bg-surface-2 rounded-md p-0.5">
       <button
         type="button"
-        className={`${base} ${value === "DESPESA" ? "bg-white shadow text-red-600 dark:bg-slate-900 dark:text-red-400" : "text-slate-500"}`}
+        className={`${base} ${value === "DESPESA" ? "bg-surface shadow text-neg" : "text-text-3"}`}
         onClick={() => onChange("DESPESA")}
       >
         Despesas
       </button>
       <button
         type="button"
-        className={`${base} ${value === "RECEITA" ? "bg-white shadow text-emerald-600 dark:bg-slate-900 dark:text-emerald-400" : "text-slate-500"}`}
+        className={`${base} ${value === "RECEITA" ? "bg-surface shadow text-pos" : "text-text-3"}`}
         onClick={() => onChange("RECEITA")}
       >
         Receitas
       </button>
-    </div>
-  );
-}
-
-function EmptyState() {
-  return (
-    <div className="h-full flex items-center justify-center text-sm text-slate-500 dark:text-slate-400">
-      Sem dados no período filtrado.
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { Card } from "@/components/ui/Card";
+import { KpiCard } from "@/components/ui/KpiCard";
 import { formatBRL } from "@/lib/utils";
 import type { ResumoRelatorio } from "../api";
 
@@ -9,53 +9,32 @@ interface Props {
 
 export function KpisResumo({ data, isLoading }: Props) {
   const saldo = Number(data?.saldo_periodo ?? 0);
-  const saldoColor = saldo >= 0 ? "border-l-emerald-500" : "border-l-red-500";
+  const saldoTone = saldo >= 0 ? "pos" : "neg";
+
+  const loadVal = (v: string) => (isLoading ? "…" : v);
 
   return (
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
-      <Kpi
-        title="Receitas no período"
-        value={formatBRL(data?.total_receitas)}
-        accent="border-l-emerald-500"
-        loading={isLoading}
+      <KpiCard
+        label="Receitas no período"
+        value={loadVal(formatBRL(data?.total_receitas))}
+        tone="pos"
       />
-      <Kpi
-        title="Despesas no período"
-        value={formatBRL(data?.total_despesas)}
-        accent="border-l-red-500"
-        loading={isLoading}
+      <KpiCard
+        label="Despesas no período"
+        value={loadVal(formatBRL(data?.total_despesas))}
+        tone="neg"
       />
-      <Kpi
-        title="Saldo do período"
-        value={formatBRL(data?.saldo_periodo)}
-        accent={saldoColor}
-        loading={isLoading}
+      <KpiCard
+        label="Saldo do período"
+        value={loadVal(formatBRL(data?.saldo_periodo))}
+        tone={saldoTone}
       />
-      <Kpi
-        title="Transações"
-        value={`${data?.num_transacoes ?? 0} • tkt ${formatBRL(data?.ticket_medio)}`}
-        accent="border-l-brand-500"
-        loading={isLoading}
+      <KpiCard
+        label="Transações"
+        value={loadVal(`${data?.num_transacoes ?? 0} • tkt ${formatBRL(data?.ticket_medio)}`)}
+        tone="neutral"
       />
     </div>
-  );
-}
-
-function Kpi({
-  title,
-  value,
-  accent,
-  loading,
-}: {
-  title: string;
-  value: string;
-  accent: string;
-  loading: boolean;
-}) {
-  return (
-    <Card padding="md" className={`border-l-4 ${accent}`}>
-      <div className="text-xs text-slate-500 dark:text-slate-400">{title}</div>
-      <div className="text-lg font-bold mt-1">{loading ? "…" : value}</div>
-    </Card>
   );
 }

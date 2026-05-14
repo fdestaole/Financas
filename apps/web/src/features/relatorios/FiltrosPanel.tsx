@@ -70,7 +70,7 @@ export function FiltrosPanel({ filtros, preset, onPresetChange, onFiltrosChange,
   return (
     <Card padding="md" className="mb-4 space-y-3">
       <div className="flex items-center justify-between gap-2 flex-wrap">
-        <div className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-200">
+        <div className="flex items-center gap-2 text-sm font-semibold text-text">
           <Filter size={16} /> Filtros
         </div>
         <PeriodoPresets value={preset} onChange={handlePreset} />
@@ -78,7 +78,7 @@ export function FiltrosPanel({ filtros, preset, onPresetChange, onFiltrosChange,
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
         <div>
-          <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">De</label>
+          <label className="block text-xs text-text-3 mb-1">De</label>
           <Input
             type="date"
             value={filtros.data_inicio ?? ""}
@@ -89,7 +89,7 @@ export function FiltrosPanel({ filtros, preset, onPresetChange, onFiltrosChange,
           />
         </div>
         <div>
-          <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Até</label>
+          <label className="block text-xs text-text-3 mb-1">Até</label>
           <Input
             type="date"
             value={filtros.data_fim ?? ""}
@@ -100,7 +100,7 @@ export function FiltrosPanel({ filtros, preset, onPresetChange, onFiltrosChange,
           />
         </div>
         <div className="md:col-span-2">
-          <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">
+          <label className="block text-xs text-text-3 mb-1">
             Buscar por nome/observação
           </label>
           <Input
@@ -112,7 +112,7 @@ export function FiltrosPanel({ filtros, preset, onPresetChange, onFiltrosChange,
         </div>
 
         <div>
-          <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Tipo</label>
+          <label className="block text-xs text-text-3 mb-1">Tipo</label>
           <Select
             value={filtros.tipo ?? ""}
             onChange={(e) => setField("tipo", e.target.value || undefined)}
@@ -126,7 +126,7 @@ export function FiltrosPanel({ filtros, preset, onPresetChange, onFiltrosChange,
         </div>
 
         <div>
-          <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">
+          <label className="block text-xs text-text-3 mb-1">
             Categorias
           </label>
           <MultiSelect
@@ -139,7 +139,7 @@ export function FiltrosPanel({ filtros, preset, onPresetChange, onFiltrosChange,
         </div>
 
         <div>
-          <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Conta</label>
+          <label className="block text-xs text-text-3 mb-1">Conta</label>
           <Select
             value={filtros.bank_account_id ?? ""}
             onChange={(e) => setField("bank_account_id", e.target.value || undefined)}
@@ -154,7 +154,7 @@ export function FiltrosPanel({ filtros, preset, onPresetChange, onFiltrosChange,
         </div>
 
         <div>
-          <label className="block text-xs text-slate-500 dark:text-slate-400 mb-1">Cartão</label>
+          <label className="block text-xs text-text-3 mb-1">Cartão</label>
           <Select
             value={filtros.credit_card_id ?? ""}
             onChange={(e) => setField("credit_card_id", e.target.value || undefined)}
@@ -173,7 +173,7 @@ export function FiltrosPanel({ filtros, preset, onPresetChange, onFiltrosChange,
         <button
           type="button"
           onClick={onLimpar}
-          className="flex items-center gap-1 text-xs text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+          className="flex items-center gap-1 text-xs text-text-3 hover:text-text"
         >
           <X size={14} /> Limpar filtros
         </button>

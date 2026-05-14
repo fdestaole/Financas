@@ -1,3 +1,4 @@
+import { useId } from "react";
 import {
   Area,
   AreaChart,
@@ -22,7 +23,13 @@ interface Props {
 }
 
 export function LinhaFluxoAcumulado({ data, granularidade, onGranularidadeChange }: Props) {
-  const { gridStroke, axisColor, tooltipStyle } = useChartTheme();
+  const t = useChartTheme();
+  const gradId = useId();
+
+  // Two series requires raw recharts — AreaChartCard only supports 1 yKey.
+  // Colors use theme tokens instead of hardcoded hex values.
+  const colorAcumulado = t.accent;
+  const colorSaldo = t.pos;
 
   const series =
     data?.map((p) => ({
@@ -39,36 +46,40 @@ export function LinhaFluxoAcumulado({ data, granularidade, onGranularidadeChange
       </div>
       <div className="h-80">
         {series.length === 0 ? (
-          <EmptyState />
+          <div className="h-full flex items-center justify-center text-sm text-text-3">
+            Sem dados no período filtrado.
+          </div>
         ) : (
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart data={series}>
               <defs>
-                <linearGradient id="gradAcumulado" x1="0" y1="0" x2="0" y2="1">
-                  <stop offset="5%" stopColor="#0ea5e9" stopOpacity={0.4} />
-                  <stop offset="95%" stopColor="#0ea5e9" stopOpacity={0} />
+                <linearGradient id={gradId} x1="0" y1="0" x2="0" y2="1">
+                  <stop offset="5%" stopColor={colorAcumulado} stopOpacity={0.4} />
+                  <stop offset="95%" stopColor={colorAcumulado} stopOpacity={0} />
                 </linearGradient>
               </defs>
-              <CartesianGrid strokeDasharray="3 3" stroke={gridStroke} />
-              <XAxis dataKey="data" fontSize={12} stroke={axisColor} />
+              <CartesianGrid strokeDasharray="3 3" stroke={t.gridStroke} />
+              <XAxis dataKey="data" fontSize={t.axisFontSize} stroke={t.axisColor} tickLine={false} axisLine={false} />
               <YAxis
-                fontSize={12}
-                stroke={axisColor}
-                tickFormatter={(v) => `R$${(v / 1000).toFixed(0)}k`}
+                fontSize={t.axisFontSize}
+                stroke={t.axisColor}
+                tickFormatter={t.tickFormatter}
+                tickLine={false}
+                axisLine={false}
               />
-              <Tooltip formatter={(v: number) => formatBRL(v)} contentStyle={tooltipStyle} />
-              <Legend wrapperStyle={{ fontSize: 12 }} />
+              <Tooltip formatter={(v: number) => formatBRL(v)} contentStyle={t.tooltipStyle} />
+              <Legend wrapperStyle={{ fontSize: 11, color: t.axisColor }} />
               <Area
                 type="monotone"
                 dataKey="Acumulado"
-                stroke="#0ea5e9"
+                stroke={colorAcumulado}
                 strokeWidth={2}
-                fill="url(#gradAcumulado)"
+                fill={`url(#${gradId})`}
               />
               <Line
                 type="monotone"
                 dataKey="Saldo do período"
-                stroke="#16a34a"
+                stroke={colorSaldo}
                 strokeWidth={1.5}
                 dot={false}
               />
@@ -88,31 +99,23 @@ function GranularidadeToggle({
   onChange: (g: Granularidade) => void;
 }) {
   const base = "px-2.5 py-1 text-xs font-medium rounded-md transition-colors";
-  const activeCls = "bg-white shadow text-brand-600 dark:bg-slate-900 dark:text-brand-400";
+  const activeCls = "bg-surface shadow text-brand-600 dark:text-brand-400";
   return (
-    <div className="inline-flex bg-slate-100 dark:bg-slate-800 rounded-md p-0.5">
+    <div className="inline-flex bg-surface-2 rounded-md p-0.5">
       <button
         type="button"
-        className={`${base} ${value === "mes" ? activeCls : "text-slate-500"}`}
+        className={`${base} ${value === "mes" ? activeCls : "text-text-3"}`}
         onClick={() => onChange("mes")}
       >
         Mês
       </button>
       <button
         type="button"
-        className={`${base} ${value === "dia" ? activeCls : "text-slate-500"}`}
+        className={`${base} ${value === "dia" ? activeCls : "text-text-3"}`}
         onClick={() => onChange("dia")}
       >
         Dia
       </button>
-    </div>
-  );
-}
-
-function EmptyState() {
-  return (
-    <div className="h-full flex items-center justify-center text-sm text-slate-500 dark:text-slate-400">
-      Sem dados no período filtrado.
     </div>
   );
 }
