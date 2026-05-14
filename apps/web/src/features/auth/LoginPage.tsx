@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 import { errorMessage } from "@/lib/api";
+import { Button } from "@/components/ui/Button";
 import { authApi } from "./api";
 import { useAuthStore } from "./store";
 
@@ -66,9 +67,9 @@ export function LoginPage() {
               onChange={(e) => setSenha(e.target.value)}
             />
           </div>
-          <button type="submit" disabled={loading} className="btn btn-primary w-full">
+          <Button type="submit" disabled={loading} className="w-full">
             {loading ? "Entrando..." : "Entrar"}
-          </button>
+          </Button>
         </form>
         {import.meta.env.VITE_DEV_AUTO_LOGIN === "true" && (
           <button

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Plus, RefreshCw, TrendingUp } from "lucide-react";
 
 import { PageHeader } from "@/components/layout/PageHeader";
+import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { formatBRL } from "@/lib/utils";
 import { useInvestments, useRefreshQuotes } from "./api";
@@ -23,12 +24,12 @@ export function InvestmentsPage() {
         description="Carteira de ações e FIIs com cotação em tempo real"
         action={
           <div className="flex gap-2">
-            <button onClick={() => refresh.mutate()} className="btn btn-secondary" disabled={refresh.isPending}>
+            <Button variant="secondary" onClick={() => refresh.mutate()} disabled={refresh.isPending}>
               <RefreshCw size={16} className={refresh.isPending ? "animate-spin" : ""} /> Atualizar cotações
-            </button>
-            <button onClick={() => setOpen(true)} className="btn btn-primary">
+            </Button>
+            <Button onClick={() => setOpen(true)}>
               <Plus size={16} /> Nova operação
-            </button>
+            </Button>
           </div>
         }
       />

@@ -4,6 +4,7 @@ import { CreditCard as CardIcon, Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { PageHeader } from "@/components/layout/PageHeader";
+import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { MoneyInput } from "@/components/ui/MoneyInput";
 import { formatBRL } from "@/lib/utils";
@@ -68,7 +69,7 @@ export function CreditCardsPage() {
         title="Cartões de crédito"
         description="Gerencie seus cartões e acompanhe faturas"
         action={
-          <button
+          <Button
             onClick={() => {
               if (!accounts?.length) {
                 toast.error("Cadastre uma conta bancária primeiro");
@@ -77,10 +78,9 @@ export function CreditCardsPage() {
               setForm({ ...initial, bank_account_id: accounts[0].id });
               setOpen(true);
             }}
-            className="btn btn-primary"
           >
             <Plus size={16} /> Novo cartão
-          </button>
+          </Button>
         }
       />
 
@@ -176,8 +176,8 @@ export function CreditCardsPage() {
             </div>
           </div>
           <div className="flex justify-end gap-2 pt-2">
-            <button type="button" onClick={() => setOpen(false)} className="btn btn-secondary">Cancelar</button>
-            <button type="submit" className="btn btn-primary">Criar</button>
+            <Button type="button" variant="secondary" onClick={() => setOpen(false)}>Cancelar</Button>
+            <Button type="submit">Criar</Button>
           </div>
         </form>
       </Modal>

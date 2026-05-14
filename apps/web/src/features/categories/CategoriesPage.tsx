@@ -3,6 +3,7 @@ import { Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { PageHeader } from "@/components/layout/PageHeader";
+import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { errorMessage } from "@/lib/api";
 import { useCategories, useCreateCategory, useDeleteCategory, type TipoCategoria } from "./api";
@@ -45,9 +46,9 @@ export function CategoriesPage() {
       <PageHeader
         title="Categorias"
         action={
-          <button onClick={() => setOpen(true)} className="btn btn-primary">
+          <Button onClick={() => setOpen(true)}>
             <Plus size={16} /> Nova categoria
-          </button>
+          </Button>
         }
       />
 
@@ -80,8 +81,8 @@ export function CategoriesPage() {
             </div>
           </div>
           <div className="flex justify-end gap-2">
-            <button type="button" onClick={() => setOpen(false)} className="btn btn-secondary">Cancelar</button>
-            <button type="submit" className="btn btn-primary">Criar</button>
+            <Button type="button" variant="secondary" onClick={() => setOpen(false)}>Cancelar</Button>
+            <Button type="submit">Criar</Button>
           </div>
         </form>
       </Modal>

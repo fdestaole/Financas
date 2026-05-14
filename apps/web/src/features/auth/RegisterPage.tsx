@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 
 import { errorMessage } from "@/lib/api";
+import { Button } from "@/components/ui/Button";
 import { authApi } from "./api";
 import { useAuthStore } from "./store";
 
@@ -69,9 +70,9 @@ export function RegisterPage() {
               onChange={(e) => setSenha(e.target.value)}
             />
           </div>
-          <button type="submit" disabled={loading} className="btn btn-primary w-full">
+          <Button type="submit" disabled={loading} className="w-full">
             {loading ? "Criando..." : "Criar conta"}
-          </button>
+          </Button>
         </form>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-6 text-center">
           Já tem conta?{" "}

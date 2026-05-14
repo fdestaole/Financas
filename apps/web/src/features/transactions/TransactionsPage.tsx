@@ -3,6 +3,7 @@ import { Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { PageHeader } from "@/components/layout/PageHeader";
+import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { formatBRL, formatDate } from "@/lib/utils";
 import { errorMessage } from "@/lib/api";
@@ -54,9 +55,9 @@ export function TransactionsPage() {
         title="Transações"
         description="Receitas, despesas, transferências e compras"
         action={
-          <button onClick={() => setOpen(true)} className="btn btn-primary">
+          <Button onClick={() => setOpen(true)}>
             <Plus size={16} /> Nova
-          </button>
+          </Button>
         }
       />
 
@@ -151,21 +152,23 @@ export function TransactionsPage() {
         <div className="flex justify-between items-center mt-4 text-sm text-slate-500 dark:text-slate-400">
           <div>{data.total} lançamentos</div>
           <div className="flex gap-2">
-            <button
+            <Button
+              variant="secondary"
+              size="sm"
               disabled={data.page <= 1}
               onClick={() => setFilters({ ...filters, page: (filters.page ?? 1) - 1 })}
-              className="btn btn-secondary text-xs"
             >
               Anterior
-            </button>
+            </Button>
             <span className="self-center">Página {data.page}</span>
-            <button
+            <Button
+              variant="secondary"
+              size="sm"
               disabled={data.page * data.page_size >= data.total}
               onClick={() => setFilters({ ...filters, page: (filters.page ?? 1) + 1 })}
-              className="btn btn-secondary text-xs"
             >
               Próxima
-            </button>
+            </Button>
           </div>
         </div>
       )}

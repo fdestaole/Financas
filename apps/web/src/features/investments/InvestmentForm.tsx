@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 
+import { Button } from "@/components/ui/Button";
 import { MoneyInput } from "@/components/ui/MoneyInput";
 import { errorMessage } from "@/lib/api";
 import { todayISO } from "@/lib/utils";
@@ -94,7 +95,7 @@ export function InvestmentForm({ onSuccess }: Props) {
         <input className="input" value={form.corretora} onChange={(e) => setForm({ ...form, corretora: e.target.value })} />
       </div>
       <div className="flex justify-end gap-2 pt-2">
-        <button type="submit" className="btn btn-primary">Registrar</button>
+        <Button type="submit">Registrar</Button>
       </div>
     </form>
   );

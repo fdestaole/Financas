@@ -4,6 +4,7 @@ import { Download } from "lucide-react";
 import { toast } from "sonner";
 
 import { PageHeader } from "@/components/layout/PageHeader";
+import { Button } from "@/components/ui/Button";
 import { formatDate } from "@/lib/utils";
 import {
   type Direcao,
@@ -138,15 +139,15 @@ export function RelatoriosPage() {
           title="Relatórios"
           description="Filtre receitas, despesas e transferências por período, categoria, conta ou descrição."
         />
-        <button
+        <Button
           type="button"
+          variant="secondary"
           onClick={exportarPdf}
           disabled={exportando}
-          className="btn btn-secondary flex items-center gap-2 disabled:opacity-60"
         >
           <Download size={16} />
           {exportando ? "Gerando PDF..." : "Exportar PDF"}
-        </button>
+        </Button>
       </div>
 
       <FiltrosPanel

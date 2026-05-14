@@ -3,6 +3,7 @@ import { Plus, Wallet, Trash2, Edit } from "lucide-react";
 import { toast } from "sonner";
 
 import { PageHeader } from "@/components/layout/PageHeader";
+import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { MoneyInput } from "@/components/ui/MoneyInput";
 import { formatBRL } from "@/lib/utils";
@@ -94,9 +95,9 @@ export function BankAccountsPage() {
         title="Contas bancárias"
         description="Gerencie suas contas e visualize saldos atualizados"
         action={
-          <button onClick={() => open()} className="btn btn-primary">
+          <Button onClick={() => open()}>
             <Plus size={16} /> Nova conta
-          </button>
+          </Button>
         }
       />
 
@@ -177,8 +178,8 @@ export function BankAccountsPage() {
             <MoneyInput value={form.saldo_inicial} onChange={(v) => setForm({ ...form, saldo_inicial: v })} />
           </div>
           <div className="flex justify-end gap-2 pt-2">
-            <button type="button" onClick={() => setModalOpen(false)} className="btn btn-secondary">Cancelar</button>
-            <button type="submit" className="btn btn-primary">{editing ? "Salvar" : "Criar"}</button>
+            <Button type="button" variant="secondary" onClick={() => setModalOpen(false)}>Cancelar</Button>
+            <Button type="submit">{editing ? "Salvar" : "Criar"}</Button>
           </div>
         </form>
       </Modal>

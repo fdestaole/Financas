@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { toast } from "sonner";
 
+import { Button } from "@/components/ui/Button";
 import { MoneyInput } from "@/components/ui/MoneyInput";
 import { errorMessage } from "@/lib/api";
 import { todayISO } from "@/lib/utils";
@@ -167,7 +168,7 @@ export function TransactionForm({ onSuccess, initialTipo }: Props) {
       </div>
 
       <div className="flex justify-end gap-2 pt-2">
-        <button type="submit" className="btn btn-primary">Salvar</button>
+        <Button type="submit">Salvar</Button>
       </div>
     </form>
   );

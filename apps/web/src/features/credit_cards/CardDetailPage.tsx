@@ -3,6 +3,7 @@ import { useParams } from "react-router-dom";
 import { toast } from "sonner";
 
 import { PageHeader } from "@/components/layout/PageHeader";
+import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
 import { MoneyInput } from "@/components/ui/MoneyInput";
 import { formatBRL, formatDate, todayISO } from "@/lib/utils";
@@ -156,8 +157,8 @@ export function CardDetailPage() {
             </select>
           </div>
           <div className="flex justify-end gap-2">
-            <button type="button" onClick={() => setPayOpen(null)} className="btn btn-secondary">Cancelar</button>
-            <button type="submit" className="btn btn-primary">Confirmar pagamento</button>
+            <Button type="button" variant="secondary" onClick={() => setPayOpen(null)}>Cancelar</Button>
+            <Button type="submit">Confirmar pagamento</Button>
           </div>
         </form>
       </Modal>
