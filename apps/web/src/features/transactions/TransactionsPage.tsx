@@ -3,34 +3,18 @@ import { Plus, Trash2 } from "lucide-react";
 import { toast } from "sonner";
 
 import { PageHeader } from "@/components/layout/PageHeader";
+import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Modal } from "@/components/ui/Modal";
 import { formatBRL, formatDate } from "@/lib/utils";
 import { errorMessage } from "@/lib/api";
+import { TIPO_LABELS, tipoToBadgeVariant } from "@/lib/transactions";
 import { useBankAccounts } from "@/features/bank_accounts/api";
 import { useCreditCards } from "@/features/credit_cards/api";
 import { useDeleteTransaction, useTransactions, type ListFilters, type TipoTransacao } from "./api";
 import { TransactionForm } from "./TransactionForm";
 import { Input, Select } from "@/components/ui/Input";
-
-const TIPO_LABELS: Record<TipoTransacao, string> = {
-  RECEITA: "Receita",
-  DESPESA: "Despesa",
-  TRANSFERENCIA: "Transferência",
-  COMPRA_CARTAO: "Cartão",
-  PAGAMENTO_FATURA: "Pgto fatura",
-  AJUSTE: "Ajuste",
-};
-
-const TIPO_BADGE: Record<TipoTransacao, string> = {
-  RECEITA: "bg-emerald-100 text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300",
-  DESPESA: "bg-red-100 text-red-700 dark:bg-red-500/20 dark:text-red-300",
-  TRANSFERENCIA: "bg-blue-100 text-blue-700 dark:bg-blue-500/20 dark:text-blue-300",
-  COMPRA_CARTAO: "bg-purple-100 text-purple-700 dark:bg-purple-500/20 dark:text-purple-300",
-  PAGAMENTO_FATURA: "bg-slate-100 text-slate-700 dark:bg-slate-700 dark:text-slate-200",
-  AJUSTE: "bg-amber-100 text-amber-700 dark:bg-amber-500/20 dark:text-amber-300",
-};
 
 export function TransactionsPage() {
   const [filters, setFilters] = useState<ListFilters>({ page: 1, page_size: 50 });
@@ -126,7 +110,7 @@ export function TransactionsPage() {
                     <td className="px-4 py-3 whitespace-nowrap">{formatDate(t.data_competencia)}</td>
                     <td className="px-4 py-3">{t.descricao}</td>
                     <td className="px-4 py-3">
-                      <span className={`badge ${TIPO_BADGE[t.tipo]}`}>{TIPO_LABELS[t.tipo]}</span>
+                      <Badge variant={tipoToBadgeVariant(t.tipo)}>{TIPO_LABELS[t.tipo]}</Badge>
                     </td>
                     <td className="px-4 py-3 text-slate-600 dark:text-slate-300">{card?.nome ?? account?.nome ?? "—"}</td>
                     <td className={`px-4 py-3 text-right font-semibold ${isOut ? "text-red-600 dark:text-red-400" : "text-emerald-600 dark:text-emerald-400"}`}>
