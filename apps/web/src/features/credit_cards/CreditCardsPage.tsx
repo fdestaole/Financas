@@ -5,6 +5,7 @@ import { toast } from "sonner";
 
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
 import { Modal } from "@/components/ui/Modal";
 import { MoneyInput } from "@/components/ui/MoneyInput";
 import { formatBRL } from "@/lib/utils";
@@ -87,16 +88,16 @@ export function CreditCardsPage() {
       {isLoading ? (
         <p className="text-slate-500 dark:text-slate-400">Carregando...</p>
       ) : !cards?.length ? (
-        <div className="card p-12 text-center text-slate-500 dark:text-slate-400">
+        <Card padding="none" className="p-12 text-center text-slate-500 dark:text-slate-400">
           <CardIcon className="mx-auto mb-3" size={32} />
           <p>Nenhum cartão cadastrado.</p>
-        </div>
+        </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {cards.map((card) => {
             const account = accounts?.find((a) => a.id === card.bank_account_id);
             return (
-              <div key={card.id} className="card p-5">
+              <Card key={card.id} padding="lg">
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-3">
                     <div
@@ -127,7 +128,7 @@ export function CreditCardsPage() {
                   <Stat label="Disponível" value={formatBRL(card.limite_disponivel)} />
                   <Stat label="Fatura atual" value={formatBRL(card.fatura_atual)} />
                 </div>
-              </div>
+              </Card>
             );
           })}
         </div>

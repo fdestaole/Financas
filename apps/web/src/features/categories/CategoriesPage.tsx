@@ -4,6 +4,7 @@ import { toast } from "sonner";
 
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
 import { Modal } from "@/components/ui/Modal";
 import { errorMessage } from "@/lib/api";
 import { useCategories, useCreateCategory, useDeleteCategory, type TipoCategoria } from "./api";
@@ -92,7 +93,7 @@ export function CategoriesPage() {
 
 function Section({ title, items, onDelete }: { title: string; items: any[]; onDelete: (id: string) => void }) {
   return (
-    <div className="card p-5">
+    <Card padding="lg">
       <h2 className="font-semibold mb-3">{title}</h2>
       {items.length === 0 ? (
         <p className="text-sm text-slate-500 dark:text-slate-400">Nenhuma categoria</p>
@@ -111,6 +112,6 @@ function Section({ title, items, onDelete }: { title: string; items: any[]; onDe
           ))}
         </ul>
       )}
-    </div>
+    </Card>
   );
 }

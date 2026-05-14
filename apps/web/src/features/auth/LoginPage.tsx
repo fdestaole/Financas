@@ -4,6 +4,7 @@ import { toast } from "sonner";
 
 import { errorMessage } from "@/lib/api";
 import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
 import { authApi } from "./api";
 import { useAuthStore } from "./store";
 
@@ -43,7 +44,7 @@ export function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center px-4 bg-slate-50 dark:bg-slate-950">
-      <div className="card w-full max-w-md p-8">
+      <Card padding="none" className="w-full max-w-md p-8">
         <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 mb-1">Entrar</h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">Acesse sua conta para gerenciar suas finanças</p>
         <form onSubmit={submit} className="space-y-4">
@@ -87,7 +88,7 @@ export function LoginPage() {
             Criar conta
           </Link>
         </p>
-      </div>
+      </Card>
     </div>
   );
 }

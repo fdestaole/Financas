@@ -4,6 +4,7 @@ import { toast } from "sonner";
 
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
 import { Modal } from "@/components/ui/Modal";
 import { MoneyInput } from "@/components/ui/MoneyInput";
 import { formatBRL, formatDate, todayISO } from "@/lib/utils";
@@ -76,7 +77,7 @@ export function CardDetailPage() {
         </div>
       )}
 
-      <div className="card">
+      <Card padding="none">
         <div className="px-5 py-3 border-b border-slate-200 dark:border-slate-800 font-semibold">Faturas</div>
         {!invoices?.length ? (
           <p className="p-5 text-sm text-slate-500 dark:text-slate-400">Nenhuma fatura ainda. Adicione uma compra.</p>
@@ -120,7 +121,7 @@ export function CardDetailPage() {
             </tbody>
           </table>
         )}
-      </div>
+      </Card>
 
       <Modal open={!!openInvoice} onClose={() => setOpenInvoice(null)} title={openInvoice ? `Fatura ${MESES[openInvoice.mes_referencia - 1]}/${openInvoice.ano_referencia}` : ""} maxWidth="max-w-2xl">
         {!txs?.length ? (
@@ -168,9 +169,9 @@ export function CardDetailPage() {
 
 function Stat({ label, value }: { label: string; value: string }) {
   return (
-    <div className="card p-5">
+    <Card padding="lg">
       <div className="text-xs text-slate-500 dark:text-slate-400">{label}</div>
       <div className="text-xl font-bold mt-1">{value}</div>
-    </div>
+    </Card>
   );
 }

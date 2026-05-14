@@ -1,3 +1,4 @@
+import { Card } from "@/components/ui/Card";
 import { formatBRL } from "@/lib/utils";
 import type { ResumoRelatorio } from "../api";
 
@@ -52,9 +53,9 @@ function Kpi({
   loading: boolean;
 }) {
   return (
-    <div className={`card p-4 border-l-4 ${accent}`}>
+    <Card padding="md" className={`border-l-4 ${accent}`}>
       <div className="text-xs text-slate-500 dark:text-slate-400">{title}</div>
       <div className="text-lg font-bold mt-1">{loading ? "…" : value}</div>
-    </div>
+    </Card>
   );
 }

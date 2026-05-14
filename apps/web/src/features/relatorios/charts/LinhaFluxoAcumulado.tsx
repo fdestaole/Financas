@@ -10,6 +10,7 @@ import {
   YAxis,
 } from "recharts";
 
+import { Card } from "@/components/ui/Card";
 import { useChartTheme } from "@/lib/chartTheme";
 import { formatBRL } from "@/lib/utils";
 import type { Granularidade, PontoFluxo } from "../api";
@@ -31,7 +32,7 @@ export function LinhaFluxoAcumulado({ data, granularidade, onGranularidadeChange
     })) ?? [];
 
   return (
-    <div className="card p-5">
+    <Card padding="lg">
       <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
         <h3 className="font-semibold">Fluxo acumulado</h3>
         <GranularidadeToggle value={granularidade} onChange={onGranularidadeChange} />
@@ -75,7 +76,7 @@ export function LinhaFluxoAcumulado({ data, granularidade, onGranularidadeChange
           </ResponsiveContainer>
         )}
       </div>
-    </div>
+    </Card>
   );
 }
 

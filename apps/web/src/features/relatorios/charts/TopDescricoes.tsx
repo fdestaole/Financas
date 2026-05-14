@@ -8,6 +8,7 @@ import {
   YAxis,
 } from "recharts";
 
+import { Card } from "@/components/ui/Card";
 import { useChartTheme } from "@/lib/chartTheme";
 import { formatBRL } from "@/lib/utils";
 import type { DescricaoTotal, Direcao } from "../api";
@@ -31,7 +32,7 @@ export function TopDescricoes({ data, direcao, onDirecaoChange }: Props) {
   const color = direcao === "DESPESA" ? "#ef4444" : "#16a34a";
 
   return (
-    <div className="card p-5">
+    <Card padding="lg">
       <div className="flex items-center justify-between mb-3 flex-wrap gap-2">
         <h3 className="font-semibold">Top 10 por descrição</h3>
         <DirecaoToggle value={direcao} onChange={onDirecaoChange} />
@@ -65,7 +66,7 @@ export function TopDescricoes({ data, direcao, onDirecaoChange }: Props) {
           </ResponsiveContainer>
         )}
       </div>
-    </div>
+    </Card>
   );
 }
 

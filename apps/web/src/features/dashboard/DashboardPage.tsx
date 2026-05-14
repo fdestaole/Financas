@@ -12,6 +12,7 @@ import {
 } from "recharts";
 
 import { PageHeader } from "@/components/layout/PageHeader";
+import { Card } from "@/components/ui/Card";
 import { formatBRL } from "@/lib/utils";
 import { useChartTheme } from "@/lib/chartTheme";
 import { useEvolucaoSaldo, useGastosPorCategoria, useResumo } from "./api";
@@ -34,7 +35,7 @@ export function DashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
-        <div className="card p-5">
+        <Card padding="lg">
           <h3 className="font-semibold mb-3">Evolução do saldo</h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
@@ -47,9 +48,9 @@ export function DashboardPage() {
               </LineChart>
             </ResponsiveContainer>
           </div>
-        </div>
+        </Card>
 
-        <div className="card p-5">
+        <Card padding="lg">
           <h3 className="font-semibold mb-3">Gastos por categoria (mês)</h3>
           <div className="h-64">
             <ResponsiveContainer width="100%" height="100%">
@@ -67,10 +68,10 @@ export function DashboardPage() {
               </PieChart>
             </ResponsiveContainer>
           </div>
-        </div>
+        </Card>
       </div>
 
-      <div className="card p-5">
+      <Card padding="lg">
         <h3 className="font-semibold mb-3">Patrimônio investido</h3>
         <div className="grid grid-cols-3 gap-3">
           <div>
@@ -88,7 +89,7 @@ export function DashboardPage() {
             </div>
           </div>
         </div>
-      </div>
+      </Card>
     </div>
   );
 }
@@ -101,9 +102,9 @@ function Kpi({ title, value, accent }: { title: string; value: string; accent: s
     amber: "border-l-amber-500",
   };
   return (
-    <div className={`card p-5 border-l-4 ${colors[accent]}`}>
+    <Card padding="lg" className={`border-l-4 ${colors[accent]}`}>
       <div className="text-xs text-slate-500 dark:text-slate-400">{title}</div>
       <div className="text-xl font-bold mt-1">{value}</div>
-    </div>
+    </Card>
   );
 }

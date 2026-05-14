@@ -9,6 +9,7 @@ import {
   YAxis,
 } from "recharts";
 
+import { Card } from "@/components/ui/Card";
 import { useChartTheme } from "@/lib/chartTheme";
 import { formatBRL } from "@/lib/utils";
 import type { PontoSerie } from "../api";
@@ -30,7 +31,7 @@ export function BarrasReceitaDespesa({ data }: Props) {
   const vazio = series.every((p) => p.Receitas === 0 && p.Despesas === 0);
 
   return (
-    <div className="card p-5">
+    <Card padding="lg">
       <h3 className="font-semibold mb-3">Receitas × Despesas por mês</h3>
       <div className="h-72">
         {vazio ? (
@@ -53,7 +54,7 @@ export function BarrasReceitaDespesa({ data }: Props) {
           </ResponsiveContainer>
         )}
       </div>
-    </div>
+    </Card>
   );
 }
 

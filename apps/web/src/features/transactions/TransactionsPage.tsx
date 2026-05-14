@@ -4,6 +4,7 @@ import { toast } from "sonner";
 
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
 import { Modal } from "@/components/ui/Modal";
 import { formatBRL, formatDate } from "@/lib/utils";
 import { errorMessage } from "@/lib/api";
@@ -61,7 +62,7 @@ export function TransactionsPage() {
         }
       />
 
-      <div className="card p-4 mb-4 grid grid-cols-2 md:grid-cols-5 gap-3">
+      <Card padding="md" className="mb-4 grid grid-cols-2 md:grid-cols-5 gap-3">
         <select
           className="input"
           value={filters.tipo ?? ""}
@@ -99,9 +100,9 @@ export function TransactionsPage() {
           value={filters.data_fim ?? ""}
           onChange={(e) => setFilters({ ...filters, data_fim: e.target.value || undefined, page: 1 })}
         />
-      </div>
+      </Card>
 
-      <div className="card overflow-hidden">
+      <Card padding="none" className="overflow-hidden">
         {isLoading ? (
           <p className="p-5 text-slate-500 dark:text-slate-400">Carregando...</p>
         ) : !data?.items.length ? (
@@ -146,7 +147,7 @@ export function TransactionsPage() {
             </tbody>
           </table>
         )}
-      </div>
+      </Card>
 
       {data && data.total > data.page_size && (
         <div className="flex justify-between items-center mt-4 text-sm text-slate-500 dark:text-slate-400">

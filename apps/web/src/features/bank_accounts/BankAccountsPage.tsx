@@ -4,6 +4,7 @@ import { toast } from "sonner";
 
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
 import { Modal } from "@/components/ui/Modal";
 import { MoneyInput } from "@/components/ui/MoneyInput";
 import { formatBRL } from "@/lib/utils";
@@ -104,14 +105,14 @@ export function BankAccountsPage() {
       {isLoading ? (
         <p className="text-slate-500 dark:text-slate-400">Carregando...</p>
       ) : !accounts?.length ? (
-        <div className="card p-12 text-center text-slate-500 dark:text-slate-400">
+        <Card padding="none" className="p-12 text-center text-slate-500 dark:text-slate-400">
           <Wallet className="mx-auto mb-3" size={32} />
           <p>Nenhuma conta cadastrada ainda.</p>
-        </div>
+        </Card>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
           {accounts.map((acc) => (
-            <div key={acc.id} className="card p-5">
+            <Card key={acc.id} padding="lg">
               <div className="flex items-start justify-between mb-3">
                 <div className="flex items-center gap-3">
                   <div
@@ -136,7 +137,7 @@ export function BankAccountsPage() {
               </div>
               <div className="text-xs text-slate-500 dark:text-slate-400">{TIPOS.find((t) => t.value === acc.tipo)?.label}</div>
               <div className="text-2xl font-bold mt-2">{formatBRL(acc.saldo_atual)}</div>
-            </div>
+            </Card>
           ))}
         </div>
       )}

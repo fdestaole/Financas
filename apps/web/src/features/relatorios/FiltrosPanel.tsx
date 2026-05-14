@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { Filter, X } from "lucide-react";
 
+import { Card } from "@/components/ui/Card";
 import { MultiSelect } from "@/components/ui/MultiSelect";
 import { useBankAccounts } from "@/features/bank_accounts/api";
 import { useCategories } from "@/features/categories/api";
@@ -66,7 +67,7 @@ export function FiltrosPanel({ filtros, preset, onPresetChange, onFiltrosChange,
   };
 
   return (
-    <div className="card p-4 mb-4 space-y-3">
+    <Card padding="md" className="mb-4 space-y-3">
       <div className="flex items-center justify-between gap-2 flex-wrap">
         <div className="flex items-center gap-2 text-sm font-semibold text-slate-700 dark:text-slate-200">
           <Filter size={16} /> Filtros
@@ -182,6 +183,6 @@ export function FiltrosPanel({ filtros, preset, onPresetChange, onFiltrosChange,
           <X size={14} /> Limpar filtros
         </button>
       </div>
-    </div>
+    </Card>
   );
 }

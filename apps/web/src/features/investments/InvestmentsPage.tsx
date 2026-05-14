@@ -3,6 +3,7 @@ import { Plus, RefreshCw, TrendingUp } from "lucide-react";
 
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/Button";
+import { Card } from "@/components/ui/Card";
 import { Modal } from "@/components/ui/Modal";
 import { formatBRL } from "@/lib/utils";
 import { useInvestments, useRefreshQuotes } from "./api";
@@ -35,23 +36,23 @@ export function InvestmentsPage() {
       />
 
       <div className="grid grid-cols-3 gap-4 mb-6">
-        <div className="card p-5">
+        <Card padding="lg">
           <div className="text-xs text-slate-500 dark:text-slate-400">Total investido</div>
           <div className="text-xl font-bold mt-1">{formatBRL(totalInvestido)}</div>
-        </div>
-        <div className="card p-5">
+        </Card>
+        <Card padding="lg">
           <div className="text-xs text-slate-500 dark:text-slate-400">Valor atual</div>
           <div className="text-xl font-bold mt-1">{formatBRL(totalAtual)}</div>
-        </div>
-        <div className="card p-5">
+        </Card>
+        <Card padding="lg">
           <div className="text-xs text-slate-500 dark:text-slate-400">Variação</div>
           <div className={`text-xl font-bold mt-1 ${totalAtual >= totalInvestido ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"}`}>
             {formatBRL(totalAtual - totalInvestido)}
           </div>
-        </div>
+        </Card>
       </div>
 
-      <div className="card overflow-hidden">
+      <Card padding="none" className="overflow-hidden">
         {isLoading ? (
           <p className="p-5 text-slate-500 dark:text-slate-400">Carregando...</p>
         ) : !data?.length ? (
@@ -94,7 +95,7 @@ export function InvestmentsPage() {
             </tbody>
           </table>
         )}
-      </div>
+      </Card>
 
       <Modal open={open} onClose={() => setOpen(false)} title="Nova operação">
         <InvestmentForm onSuccess={() => setOpen(false)} />

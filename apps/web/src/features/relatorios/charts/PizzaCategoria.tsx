@@ -1,5 +1,6 @@
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 
+import { Card } from "@/components/ui/Card";
 import { useChartTheme } from "@/lib/chartTheme";
 import { formatBRL } from "@/lib/utils";
 import type { CategoriaTotal, Direcao } from "../api";
@@ -21,7 +22,7 @@ export function PizzaCategoria({ data, direcao, onDirecaoChange }: Props) {
     })) ?? [];
 
   return (
-    <div className="card p-5">
+    <Card padding="lg">
       <div className="flex items-center justify-between mb-3">
         <h3 className="font-semibold">Por categoria</h3>
         <DirecaoToggle value={direcao} onChange={onDirecaoChange} />
@@ -50,7 +51,7 @@ export function PizzaCategoria({ data, direcao, onDirecaoChange }: Props) {
           </ResponsiveContainer>
         )}
       </div>
-    </div>
+    </Card>
   );
 }
 
