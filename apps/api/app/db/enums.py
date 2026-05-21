@@ -15,6 +15,8 @@ class TipoTransacao(str, enum.Enum):
     COMPRA_CARTAO = "COMPRA_CARTAO"
     PAGAMENTO_FATURA = "PAGAMENTO_FATURA"
     AJUSTE = "AJUSTE"
+    APLICACAO_RF = "APLICACAO_RF"
+    RESGATE_RF = "RESGATE_RF"
 
 
 class StatusTransacao(str, enum.Enum):
@@ -65,3 +67,29 @@ class TipoOperacaoInvest(str, enum.Enum):
 class SentidoTransferencia(str, enum.Enum):
     ORIGEM = "ORIGEM"
     DESTINO = "DESTINO"
+
+
+class TipoProdutoRF(str, enum.Enum):
+    CAIXINHA = "CAIXINHA"
+    CDB = "CDB"
+    LCI = "LCI"
+    LCA = "LCA"
+    LC = "LC"
+    TESOURO_SELIC = "TESOURO_SELIC"
+    TESOURO_PRE = "TESOURO_PRE"
+    TESOURO_IPCA = "TESOURO_IPCA"
+    DEBENTURE = "DEBENTURE"
+    OUTRO = "OUTRO"
+
+
+class IndexadorRF(str, enum.Enum):
+    CDI = "CDI"
+    PRE = "PRE"
+    IPCA = "IPCA"
+    SELIC = "SELIC"
+
+
+class TipoOperacaoRF(str, enum.Enum):
+    APORTE = "APORTE"
+    RESGATE = "RESGATE"
+    AJUSTE_SALDO = "AJUSTE_SALDO"
