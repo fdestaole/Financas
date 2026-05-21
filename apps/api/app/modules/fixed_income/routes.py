@@ -63,7 +63,8 @@ def create_product(data: ProductIn, user: CurrentUser, db: DbSession):
 def get_product(product_id: str, user: CurrentUser, db: DbSession):
     p = service.get_product(db, user.id, product_id)
     base = _to_out(db, user.id, p)
-    ops = [OperacaoRFOut.model_validate(o) for o in service.list_operations(db, user.id, product_id)]
+    operacoes = service.list_operations(db, user.id, product_id)
+    ops = [OperacaoRFOut.model_validate(o) for o in operacoes]
     return ProductDetailOut(**base.model_dump(), operacoes=ops)
 
 
