@@ -5,18 +5,21 @@ from sqlalchemy import (
     Boolean,
     Date,
     DateTime,
-    Enum as SAEnum,
     ForeignKey,
     Integer,
     Numeric,
     String,
     UniqueConstraint,
 )
+from sqlalchemy import (
+    Enum as SAEnum,
+)
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.base import Base, IdMixin, TimestampMixin
 from app.db.enums import (
     BandeiraCartao,
+    IndexadorRF,
     SentidoTransferencia,
     StatusFatura,
     StatusTransacao,
@@ -24,6 +27,8 @@ from app.db.enums import (
     TipoCategoria,
     TipoConta,
     TipoOperacaoInvest,
+    TipoOperacaoRF,
+    TipoProdutoRF,
     TipoTransacao,
 )
 
@@ -64,6 +69,9 @@ class BankAccount(Base, IdMixin, TimestampMixin):
     saldo_inicial: Mapped[Decimal] = mapped_column(MoneyT, nullable=False, default=Decimal("0"))
     cor: Mapped[str | None] = mapped_column(String(20), nullable=True)
     arquivada: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    ignorar_nos_totais: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    exibir_no_resumo: Mapped[bool] = mapped_column(Boolean, default=True, nullable=False)
+    padrao: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False, index=True)
 
 
 class CreditCard(Base, IdMixin, TimestampMixin):
@@ -144,6 +152,7 @@ class Transaction(Base, IdMixin, TimestampMixin):
     compra_original_id: Mapped[str | None] = mapped_column(
         ForeignKey("transactions.id", ondelete="SET NULL"), nullable=True
     )
+    recorrente: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
     observacao: Mapped[str | None] = mapped_column(String(500), nullable=True)
 
@@ -209,3 +218,54 @@ class QuoteCache(Base, TimestampMixin):
     preco: Mapped[Decimal] = mapped_column(PriceT, nullable=False)
     variacao: Mapped[Decimal | None] = mapped_column(Numeric(8, 4), nullable=True)
     atualizado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class FixedIncomeProduct(Base, IdMixin, TimestampMixin):
+    __tablename__ = "fixed_income_products"
+
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    nome: Mapped[str] = mapped_column(String(120), nullable=False)
+    tipo: Mapped[TipoProdutoRF] = mapped_column(
+        SAEnum(TipoProdutoRF, name="tipo_produto_rf"), nullable=False
+    )
+    indexador: Mapped[IndexadorRF] = mapped_column(
+        SAEnum(IndexadorRF, name="indexador_rf"), nullable=False
+    )
+    taxa: Mapped[Decimal] = mapped_column(Numeric(8, 2), nullable=False, default=Decimal("0"))
+    data_aplicacao: Mapped[date] = mapped_column(Date, nullable=False)
+    data_vencimento: Mapped[date | None] = mapped_column(Date, nullable=True)
+    bank_account_id: Mapped[str | None] = mapped_column(
+        ForeignKey("bank_accounts.id", ondelete="SET NULL"), nullable=True, index=True
+    )
+    emissor: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    ir_isento: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    liquidez_diaria: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    arquivado: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+    observacao: Mapped[str | None] = mapped_column(String(500), nullable=True)
+
+
+class FixedIncomeOperation(Base, IdMixin, TimestampMixin):
+    __tablename__ = "fixed_income_operations"
+
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    product_id: Mapped[str] = mapped_column(
+        ForeignKey("fixed_income_products.id", ondelete="CASCADE"), index=True
+    )
+    tipo: Mapped[TipoOperacaoRF] = mapped_column(
+        SAEnum(TipoOperacaoRF, name="tipo_operacao_rf"), nullable=False
+    )
+    valor: Mapped[Decimal] = mapped_column(MoneyT, nullable=False)
+    data: Mapped[date] = mapped_column(Date, nullable=False, index=True)
+    transaction_id: Mapped[str | None] = mapped_column(
+        ForeignKey("transactions.id", ondelete="SET NULL"), nullable=True
+    )
+    observacao: Mapped[str | None] = mapped_column(String(500), nullable=True)
+
+
+class UserSettings(Base, TimestampMixin):
+    __tablename__ = "user_settings"
+
+    user_id: Mapped[str] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), primary_key=True
+    )
+    cdi_mensal: Mapped[Decimal] = mapped_column(Numeric(8, 4), nullable=False, default=Decimal("0"))
