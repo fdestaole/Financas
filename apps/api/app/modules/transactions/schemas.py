@@ -1,6 +1,6 @@
 from datetime import date
 from decimal import Decimal
-from typing import Literal, Union
+from typing import Literal
 
 from pydantic import BaseModel, Field
 
@@ -37,9 +37,10 @@ class CompraCartaoIn(_Base):
     credit_card_id: str
     category_id: str | None = None
     parcelas: int = Field(default=1, ge=1, le=120)
+    recorrente: bool = False
 
 
-TransactionIn = Union[ReceitaIn, DespesaIn, TransferenciaIn, CompraCartaoIn]
+TransactionIn = ReceitaIn | DespesaIn | TransferenciaIn | CompraCartaoIn
 
 
 class TransactionUpdate(BaseModel):
@@ -47,7 +48,9 @@ class TransactionUpdate(BaseModel):
     valor: Decimal | None = None
     data: date | None = None
     category_id: str | None = None
+    bank_account_id: str | None = None
     observacao: str | None = None
+    recorrente: bool | None = None
 
 
 class TransactionOut(BaseModel):
@@ -67,6 +70,7 @@ class TransactionOut(BaseModel):
     parcela_atual: int | None
     total_parcelas: int | None
     compra_original_id: str | None
+    recorrente: bool
     observacao: str | None
 
     model_config = {"from_attributes": True}

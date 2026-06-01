@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/Button";
@@ -39,7 +39,15 @@ export function TransactionForm({ onSuccess, initialTipo }: Props) {
   const [cardId, setCardId] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [parcelas, setParcelas] = useState(1);
+  const [recorrente, setRecorrente] = useState(false);
   const [observacao, setObservacao] = useState("");
+
+  const defaultAccountId = accounts?.find((a) => a.padrao)?.id ?? "";
+  useEffect(() => {
+    if (!defaultAccountId) return;
+    setBankAccountId((prev) => prev || defaultAccountId);
+    setOrigemId((prev) => prev || defaultAccountId);
+  }, [defaultAccountId]);
 
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -58,7 +66,7 @@ export function TransactionForm({ onSuccess, initialTipo }: Props) {
           bank_account_destino_id: destinoId,
         };
       } else {
-        payload = { tipo: "COMPRA_CARTAO", ...base, credit_card_id: cardId || cards?.[0]?.id || "", category_id: categoryId || undefined, parcelas };
+        payload = { tipo: "COMPRA_CARTAO", ...base, credit_card_id: cardId || cards?.[0]?.id || "", category_id: categoryId || undefined, parcelas, recorrente: parcelas > 1 ? false : recorrente };
       }
       await create.mutateAsync(payload);
       toast.success("Lançamento criado");
@@ -159,6 +167,17 @@ export function TransactionForm({ onSuccess, initialTipo }: Props) {
             <p className="text-xs text-text-3">
               {parcelas}x de aproximadamente R$ {(valor / parcelas).toFixed(2).replace(".", ",")}
             </p>
+          )}
+          {parcelas <= 1 && (
+            <label className="flex items-center gap-2 text-sm text-text-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={recorrente}
+                onChange={(e) => setRecorrente(e.target.checked)}
+                className="accent-accent h-4 w-4"
+              />
+              Compra fixa (recorrente)
+            </label>
           )}
         </>
       )}

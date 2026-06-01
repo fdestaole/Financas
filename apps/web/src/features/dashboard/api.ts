@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import type { MiniAccount } from "@/features/bank_accounts/MiniAccountCard";
 
 export interface ResumoDashboard {
   saldo_total: string;
@@ -9,6 +10,7 @@ export interface ResumoDashboard {
   patrimonio_investido: string;
   valor_investido: string;
   variacao_carteira: string;
+  contas_resumo: MiniAccount[];
 }
 
 export interface GastoCategoria {

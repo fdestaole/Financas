@@ -1,6 +1,6 @@
 import hashlib
 import hmac
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from uuid import uuid4
 
 from sqlalchemy import select, update
@@ -30,7 +30,7 @@ def _hash_token(token: str) -> str:
 
 
 def _as_utc(value: datetime) -> datetime:
-    return value if value.tzinfo is not None else value.replace(tzinfo=timezone.utc)
+    return value if value.tzinfo is not None else value.replace(tzinfo=UTC)
 
 
 def _new_family_id() -> str:
@@ -45,7 +45,7 @@ def _revoke_family(db: Session, user_id: str, family_id: str) -> None:
             RefreshToken.family_id == family_id,
             RefreshToken.revoked_at.is_(None),
         )
-        .values(revoked_at=datetime.now(timezone.utc))
+        .values(revoked_at=datetime.now(UTC))
     )
 
 
@@ -98,21 +98,23 @@ def rotate_refresh_token(db: Session, refresh: str) -> tuple[User, str, str]:
     if not record:
         raise UnauthorizedError("Refresh token inválido")
 
-    user_id = payload.get("sub") or record.user_id
+    user_id = payload.get("sub")
+    if not user_id:
+        raise UnauthorizedError("Refresh token inválido")
 
     # Reuso de token já revogado: assume comprometimento e revoga toda a família.
     if record.revoked_at is not None:
         _revoke_family(db, record.user_id, record.family_id)
         db.commit()
         raise UnauthorizedError("Refresh token revogado")
-    if _as_utc(record.expires_at) < datetime.now(timezone.utc):
+    if _as_utc(record.expires_at) < datetime.now(UTC):
         raise UnauthorizedError("Refresh token expirado")
 
     user = db.get(User, user_id)
     if not user:
         raise UnauthorizedError("Usuário não encontrado")
 
-    record.revoked_at = datetime.now(timezone.utc)
+    record.revoked_at = datetime.now(UTC)
     new_access = create_access_token(user.id)
     new_refresh, expires_at = create_refresh_token(user.id)
     db.add(

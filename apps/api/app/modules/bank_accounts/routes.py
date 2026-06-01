@@ -10,17 +10,12 @@ router = APIRouter()
 
 
 def _to_out(db, acc) -> BankAccountOut:
-    return BankAccountOut(
-        id=acc.id,
-        nome=acc.nome,
-        instituicao=acc.instituicao,
-        agencia=acc.agencia,
-        numero=acc.numero,
-        tipo=acc.tipo,
-        saldo_inicial=acc.saldo_inicial,
-        cor=acc.cor,
-        arquivada=acc.arquivada,
-        saldo_atual=service.calcular_saldo(db, acc),
+    return BankAccountOut.model_validate(
+        {**{col: getattr(acc, col) for col in
+            ("id", "nome", "instituicao", "agencia", "numero", "tipo",
+             "saldo_inicial", "cor", "arquivada",
+             "ignorar_nos_totais", "exibir_no_resumo", "padrao")},
+         "saldo_atual": service.calcular_saldo(db, acc)}
     )
 
 

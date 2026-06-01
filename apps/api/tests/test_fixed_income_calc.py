@@ -53,10 +53,11 @@ def test_ajuste_saldo_reseta_base():
         ops, indexador=IndexadorRF.CDI, taxa=Decimal("100"), cdi_mensal=Decimal("1"),
         data_aplicacao=date(2026, 1, 1), ir_isento=False, ref=date(2026, 6, 1),
     )
-    # ajuste define saldo absoluto na data; sem rendimento após (ref == data ajuste)
+    # AJUSTE_SALDO declara novo baseline: saldo e capital se igualam na data do ajuste.
+    # Rendimento_bruto deve ser 0 para que a correção não apareça como ganho/perda fictícia.
     assert r.saldo_bruto == Decimal("1200.00")
-    assert r.capital_liquido == Decimal("1000.00")
-    assert r.rendimento_bruto == Decimal("200.00")
+    assert r.capital_liquido == Decimal("1200.00")  # base resetada junto com o saldo
+    assert r.rendimento_bruto == Decimal("0.00")
 
 
 def test_isento_sem_ir():

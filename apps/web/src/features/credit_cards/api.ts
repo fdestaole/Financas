@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { invalidateFinanceData } from "@/lib/queryKeys";
 
 export type Bandeira = "VISA" | "MASTERCARD" | "ELO" | "AMEX" | "HIPERCARD" | "OUTRA";
 
@@ -29,6 +30,8 @@ export interface CreditCardIn {
   cor?: string;
 }
 
+export type CreditCardUpdate = Partial<CreditCardIn>;
+
 export const useCreditCards = () =>
   useQuery({
     queryKey: ["credit-cards"],
@@ -47,6 +50,18 @@ export const useCreateCard = () => {
   return useMutation({
     mutationFn: (data: CreditCardIn) => api.post<CreditCard>("/credit-cards", data).then((r) => r.data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["credit-cards"] }),
+  });
+};
+
+export const useUpdateCard = (id: string) => {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: (data: CreditCardUpdate) =>
+      api.put<CreditCard>(`/credit-cards/${id}`, data).then((r) => r.data),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["credit-cards"] });
+      qc.invalidateQueries({ queryKey: ["credit-cards", id] });
+    },
   });
 };
 
@@ -103,11 +118,6 @@ export const usePayInvoice = (cardId: string) => {
       api
         .post<Invoice>(`/credit-cards/${cardId}/invoices/${invoiceId}/pagar`, body)
         .then((r) => r.data),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["invoices", cardId] });
-      qc.invalidateQueries({ queryKey: ["credit-cards"] });
-      qc.invalidateQueries({ queryKey: ["bank-accounts"] });
-      qc.invalidateQueries({ queryKey: ["transactions"] });
-    },
+    onSuccess: () => invalidateFinanceData(qc),
   });
 };

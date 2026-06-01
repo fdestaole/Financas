@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Plus, Wallet, Trash2, Edit } from "lucide-react";
+import { Plus, Wallet, Trash2, Edit, Star } from "lucide-react";
 import { toast } from "sonner";
 
 import { PageHeader } from "@/components/layout/PageHeader";
@@ -36,6 +36,9 @@ const initialForm = {
   tipo: "CORRENTE" as TipoConta,
   saldo_inicial: 0,
   cor: "#a78bfa",
+  ignorar_nos_totais: false,
+  exibir_no_resumo: true,
+  padrao: false,
 };
 
 export function BankAccountsPage() {
@@ -59,6 +62,9 @@ export function BankAccountsPage() {
         tipo: acc.tipo,
         saldo_inicial: Number(acc.saldo_inicial),
         cor: acc.cor ?? "#a78bfa",
+        ignorar_nos_totais: acc.ignorar_nos_totais,
+        exibir_no_resumo: acc.exibir_no_resumo,
+        padrao: acc.padrao,
       });
     } else {
       setEditing(null);
@@ -140,9 +146,20 @@ export function BankAccountsPage() {
                   </button>
                 </div>
               </div>
-              <Badge variant="neutral" className="mb-2">
-                {TIPOS.find((t) => t.value === acc.tipo)?.label}
-              </Badge>
+              <div className="flex flex-wrap items-center gap-1.5 mb-2">
+                <Badge variant="neutral">
+                  {TIPOS.find((t) => t.value === acc.tipo)?.label}
+                </Badge>
+                {acc.padrao && (
+                  <Badge variant="accent" className="gap-1">
+                    <Star size={11} className="fill-current" />
+                    Padrão
+                  </Badge>
+                )}
+                {acc.ignorar_nos_totais && (
+                  <Badge variant="warn">Fora do total</Badge>
+                )}
+              </div>
               <div className="tnum text-display font-semibold text-text">
                 {formatBRL(acc.saldo_atual)}
               </div>
@@ -186,6 +203,45 @@ export function BankAccountsPage() {
           <div>
             <Label>Saldo inicial</Label>
             <MoneyInput value={form.saldo_inicial} onChange={(v) => setForm({ ...form, saldo_inicial: v })} />
+          </div>
+          <div className="border-t border-border pt-3 space-y-2.5">
+            <div className="text-xs font-medium text-text-3 uppercase tracking-wide">Características</div>
+            <label className="flex items-start gap-2 text-sm text-text-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={form.padrao}
+                onChange={(e) => setForm({ ...form, padrao: e.target.checked })}
+                className="accent-accent h-4 w-4 mt-0.5"
+              />
+              <span>
+                Conta padrão
+                <span className="block text-xs text-text-3">Será pré-selecionada em novas transações</span>
+              </span>
+            </label>
+            <label className="flex items-start gap-2 text-sm text-text-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={form.exibir_no_resumo}
+                onChange={(e) => setForm({ ...form, exibir_no_resumo: e.target.checked })}
+                className="accent-accent h-4 w-4 mt-0.5"
+              />
+              <span>
+                Exibir no resumo
+                <span className="block text-xs text-text-3">Aparece no widget "Minhas contas" do dashboard</span>
+              </span>
+            </label>
+            <label className="flex items-start gap-2 text-sm text-text-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={form.ignorar_nos_totais}
+                onChange={(e) => setForm({ ...form, ignorar_nos_totais: e.target.checked })}
+                className="accent-accent h-4 w-4 mt-0.5"
+              />
+              <span>
+                Ignorar nos totais
+                <span className="block text-xs text-text-3">Saldo não conta no saldo total nem na evolução</span>
+              </span>
+            </label>
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <Button type="button" variant="secondary" onClick={() => setModalOpen(false)}>Cancelar</Button>

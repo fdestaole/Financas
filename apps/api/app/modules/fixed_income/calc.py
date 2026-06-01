@@ -85,7 +85,8 @@ def calcular_posicao(
             saldo -= op.valor
             capital -= op.valor
         elif op.tipo == TipoOperacaoRF.AJUSTE_SALDO:
-            saldo = op.valor  # override absoluto do saldo naquela data
+            saldo = op.valor   # override absoluto: declara novo baseline
+            capital = op.valor  # sincroniza capital para rendimento_bruto=0 pós-ajuste
         cursor = op.data
 
     if cursor is not None:

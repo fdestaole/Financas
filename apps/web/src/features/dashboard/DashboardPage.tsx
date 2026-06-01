@@ -4,6 +4,7 @@ import { KpiCard } from "@/components/ui/KpiCard";
 import { ProgressBar } from "@/components/ui/ProgressBar";
 import { Stat } from "@/components/ui/Stat";
 import { AreaChartCard } from "@/components/charts/AreaChartCard";
+import { MiniAccountCard } from "@/features/bank_accounts/MiniAccountCard";
 import { formatBRL } from "@/lib/utils";
 import { useEvolucaoSaldo, useGastosPorCategoria, useResumo } from "./api";
 
@@ -49,6 +50,20 @@ export function DashboardPage() {
           value={formatBRL(resumo?.faturas_em_aberto)}
         />
       </div>
+
+      {resumo?.contas_resumo && resumo.contas_resumo.length > 0 && (
+        <Card padding="none" className="mb-4">
+          <CardHeader>
+            <CardTitle>Minhas contas</CardTitle>
+            <span className="text-xs text-text-3">{resumo.contas_resumo.length} contas</span>
+          </CardHeader>
+          <CardBody className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {resumo.contas_resumo.map((acc) => (
+              <MiniAccountCard key={acc.id} account={acc} />
+            ))}
+          </CardBody>
+        </Card>
+      )}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-3 mb-4">
         <Card padding="none" className="lg:col-span-2">

@@ -22,6 +22,11 @@ export const useAuthStore = create<AuthState>()(
       setSession: (token, user) => set({ accessToken: token, user }),
       clear: () => set({ accessToken: null, user: null }),
     }),
-    { name: "financas-auth" }
+    {
+      name: "financas-auth",
+      // Access token fica apenas em memória — só o perfil do usuário é persistido.
+      // Isso impede roubo do token por XSS via localStorage.
+      partialize: (state) => ({ user: state.user }),
+    }
   )
 );

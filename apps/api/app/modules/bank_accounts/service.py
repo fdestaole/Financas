@@ -1,42 +1,19 @@
+from collections.abc import Sequence
 from datetime import date
 from decimal import Decimal
 
-from sqlalchemy import case, func, select
+from sqlalchemy import func, select, update
 from sqlalchemy.orm import Session
 
 from app.core.errors import NotFoundError
-from app.db.enums import SentidoTransferencia, StatusTransacao, TipoTransacao
+from app.db.enums import StatusTransacao
 from app.db.models import BankAccount, Transaction
+from app.domain.transacoes import VALOR_ASSINADO_CONTA
 from app.modules.bank_accounts.schemas import BankAccountIn, BankAccountUpdate
-
-ENTRADAS = (TipoTransacao.RECEITA,)
-SAIDAS = (TipoTransacao.DESPESA, TipoTransacao.PAGAMENTO_FATURA)
 
 
 def calcular_saldo(db: Session, account: BankAccount, ate: date | None = None) -> Decimal:
-    stmt = select(
-        func.coalesce(
-            func.sum(
-                case(
-                    (Transaction.tipo.in_(ENTRADAS), Transaction.valor),
-                    (
-                        (Transaction.tipo == TipoTransacao.TRANSFERENCIA)
-                        & (Transaction.sentido_transferencia == SentidoTransferencia.DESTINO),
-                        Transaction.valor,
-                    ),
-                    (Transaction.tipo.in_(SAIDAS), -Transaction.valor),
-                    (
-                        (Transaction.tipo == TipoTransacao.TRANSFERENCIA)
-                        & (Transaction.sentido_transferencia == SentidoTransferencia.ORIGEM),
-                        -Transaction.valor,
-                    ),
-                    (Transaction.tipo == TipoTransacao.AJUSTE, Transaction.valor),
-                    else_=0,
-                )
-            ),
-            0,
-        )
-    ).where(
+    stmt = select(func.coalesce(func.sum(VALOR_ASSINADO_CONTA), 0)).where(
         Transaction.bank_account_id == account.id,
         Transaction.status == StatusTransacao.EFETIVADA,
     )
@@ -46,7 +23,36 @@ def calcular_saldo(db: Session, account: BankAccount, ate: date | None = None) -
     return (account.saldo_inicial or Decimal("0")) + Decimal(delta)
 
 
-def list_accounts(db: Session, user_id: str, *, incluir_arquivadas: bool = False) -> list[BankAccount]:
+def calcular_saldos(
+    db: Session, accounts: Sequence[BankAccount], ate: date | None = None
+) -> dict[str, Decimal]:
+    """Saldo de várias contas em uma única query (evita N+1)."""
+    ids = [a.id for a in accounts]
+    if not ids:
+        return {}
+    stmt = (
+        select(
+            Transaction.bank_account_id,
+            func.coalesce(func.sum(VALOR_ASSINADO_CONTA), 0),
+        )
+        .where(
+            Transaction.bank_account_id.in_(ids),
+            Transaction.status == StatusTransacao.EFETIVADA,
+        )
+        .group_by(Transaction.bank_account_id)
+    )
+    if ate:
+        stmt = stmt.where(Transaction.data_competencia <= ate)
+    deltas = {acc_id: Decimal(total) for acc_id, total in db.execute(stmt)}
+    return {
+        a.id: (a.saldo_inicial or Decimal("0")) + deltas.get(a.id, Decimal("0"))
+        for a in accounts
+    }
+
+
+def list_accounts(
+    db: Session, user_id: str, *, incluir_arquivadas: bool = False
+) -> list[BankAccount]:
     stmt = select(BankAccount).where(BankAccount.user_id == user_id).order_by(BankAccount.nome)
     if not incluir_arquivadas:
         stmt = stmt.where(BankAccount.arquivada.is_(False))
@@ -62,7 +68,20 @@ def get_account(db: Session, user_id: str, account_id: str) -> BankAccount:
     return acc
 
 
+def _unset_other_defaults(db: Session, user_id: str, except_id: str | None = None) -> None:
+    stmt = (
+        update(BankAccount)
+        .where(BankAccount.user_id == user_id, BankAccount.padrao.is_(True))
+        .values(padrao=False)
+    )
+    if except_id is not None:
+        stmt = stmt.where(BankAccount.id != except_id)
+    db.execute(stmt)
+
+
 def create_account(db: Session, user_id: str, data: BankAccountIn) -> BankAccount:
+    if data.padrao:
+        _unset_other_defaults(db, user_id)
     acc = BankAccount(user_id=user_id, **data.model_dump())
     db.add(acc)
     db.commit()
@@ -70,9 +89,14 @@ def create_account(db: Session, user_id: str, data: BankAccountIn) -> BankAccoun
     return acc
 
 
-def update_account(db: Session, user_id: str, account_id: str, data: BankAccountUpdate) -> BankAccount:
+def update_account(
+    db: Session, user_id: str, account_id: str, data: BankAccountUpdate
+) -> BankAccount:
     acc = get_account(db, user_id, account_id)
-    for field, value in data.model_dump(exclude_unset=True).items():
+    payload = data.model_dump(exclude_unset=True)
+    if payload.get("padrao") is True:
+        _unset_other_defaults(db, user_id, except_id=acc.id)
+    for field, value in payload.items():
         setattr(acc, field, value)
     db.commit()
     db.refresh(acc)

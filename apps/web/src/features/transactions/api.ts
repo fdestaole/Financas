@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { api } from "@/lib/api";
+import { invalidateFinanceData } from "@/lib/queryKeys";
 
 export type TipoTransacao =
   | "RECEITA"
@@ -7,7 +8,9 @@ export type TipoTransacao =
   | "TRANSFERENCIA"
   | "COMPRA_CARTAO"
   | "PAGAMENTO_FATURA"
-  | "AJUSTE";
+  | "AJUSTE"
+  | "APLICACAO_RF"
+  | "RESGATE_RF";
 
 export interface Transaction {
   id: string;
@@ -26,6 +29,7 @@ export interface Transaction {
   parcela_atual: number | null;
   total_parcelas: number | null;
   compra_original_id: string | null;
+  recorrente: boolean;
   observacao: string | null;
 }
 
@@ -91,6 +95,7 @@ export type TxIn =
       credit_card_id: string;
       category_id?: string;
       parcelas: number;
+      recorrente?: boolean;
       observacao?: string;
     };
 
@@ -98,13 +103,7 @@ export const useCreateTransaction = () => {
   const qc = useQueryClient();
   return useMutation({
     mutationFn: (data: TxIn) => api.post<Transaction[]>("/transactions", data).then((r) => r.data),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["transactions"] });
-      qc.invalidateQueries({ queryKey: ["bank-accounts"] });
-      qc.invalidateQueries({ queryKey: ["credit-cards"] });
-      qc.invalidateQueries({ queryKey: ["invoices"] });
-      qc.invalidateQueries({ queryKey: ["dashboard"] });
-    },
+    onSuccess: () => invalidateFinanceData(qc),
   });
 };
 
@@ -113,11 +112,6 @@ export const useDeleteTransaction = () => {
   return useMutation({
     mutationFn: ({ id, escopo }: { id: string; escopo?: "apenas" | "todasFuturas" | "todas" }) =>
       api.delete(`/transactions/${id}`, { params: { escopo: escopo ?? "apenas" } }),
-    onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ["transactions"] });
-      qc.invalidateQueries({ queryKey: ["bank-accounts"] });
-      qc.invalidateQueries({ queryKey: ["credit-cards"] });
-      qc.invalidateQueries({ queryKey: ["invoices"] });
-    },
+    onSuccess: () => invalidateFinanceData(qc),
   });
 };

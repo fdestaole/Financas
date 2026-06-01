@@ -13,8 +13,8 @@ os.environ.setdefault("JWT_REFRESH_SECRET", "test-refresh")
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
-from app.db.base import Base
 from app.db import models  # noqa
+from app.db.base import Base
 from app.db.enums import BandeiraCartao, TipoConta
 from app.modules.auth.schemas import RegisterIn
 from app.modules.auth.service import register_user
@@ -96,7 +96,7 @@ def main():
     ))
     assert len(txs) == 12, f"Esperava 12 parcelas, deu {len(txs)}"
     assert all(t.valor == Decimal("100.00") for t in txs), "Parcelas não são 100"
-    print(f"12 parcelas de R$ 100 criadas")
+    print("12 parcelas de R$ 100 criadas")
 
     # 6) Verificar faturas
     invoices = list_invoices(db, user.id, card.id)

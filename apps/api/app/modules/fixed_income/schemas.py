@@ -1,7 +1,7 @@
 from datetime import date
 from decimal import Decimal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 from app.db.enums import IndexadorRF, TipoOperacaoRF, TipoProdutoRF
 
@@ -42,10 +42,16 @@ class ProductUpdate(BaseModel):
 
 class OperacaoRFIn(BaseModel):
     tipo: TipoOperacaoRF
-    valor: Decimal = Field(gt=0)
+    valor: Decimal = Field(ge=0)
     data: date
     bank_account_id: str | None = None
     observacao: str | None = Field(default=None, max_length=500)
+
+    @model_validator(mode="after")
+    def _check_valor(self):
+        if self.tipo in (TipoOperacaoRF.APORTE, TipoOperacaoRF.RESGATE) and self.valor <= 0:
+            raise ValueError("Valor deve ser maior que zero para APORTE e RESGATE")
+        return self
 
 
 class OperacaoRFOut(BaseModel):

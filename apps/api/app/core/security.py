@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from typing import Any
 from uuid import uuid4
 
@@ -25,7 +25,7 @@ def verify_password(password: str, password_hash: str) -> bool:
 
 
 def _create_token(subject: str, secret: str, expires_delta: timedelta, token_type: str) -> str:
-    now = datetime.now(timezone.utc)
+    now = datetime.now(UTC)
     payload: dict[str, Any] = {
         "sub": subject,
         "iat": int(now.timestamp()),
@@ -46,7 +46,7 @@ def create_access_token(user_id: str) -> str:
 
 
 def create_refresh_token(user_id: str) -> tuple[str, datetime]:
-    expires_at = datetime.now(timezone.utc) + timedelta(days=settings.JWT_REFRESH_EXPIRES_DAYS)
+    expires_at = datetime.now(UTC) + timedelta(days=settings.JWT_REFRESH_EXPIRES_DAYS)
     token = _create_token(
         subject=user_id,
         secret=settings.JWT_REFRESH_SECRET,

@@ -1,8 +1,8 @@
 from datetime import date
-from decimal import Decimal, ROUND_HALF_UP
+from decimal import ROUND_HALF_UP, Decimal
 
 from dateutil.relativedelta import relativedelta
-from sqlalchemy import and_, or_, select
+from sqlalchemy import func, or_, select
 from sqlalchemy.orm import Session
 
 from app.core.errors import BusinessRuleError, NotFoundError
@@ -159,6 +159,7 @@ def criar_compra_cartao(db: Session, user_id: str, data: CompraCartaoIn) -> list
             invoice_id=invoice.id,
             parcela_atual=i + 1 if parcelas > 1 else None,
             total_parcelas=parcelas if parcelas > 1 else None,
+            recorrente=data.recorrente,
             observacao=data.observacao,
         )
         db.add(tx)
@@ -215,15 +216,16 @@ def listar_transacoes(
     if data_fim:
         base = base.where(Transaction.data_competencia <= data_fim)
     if q:
-        like = f"%{q}%"
-        base = base.where(or_(Transaction.descricao.ilike(like), Transaction.observacao.ilike(like)))
+        escaped = q.replace("\\", "\\\\").replace("%", "\\%").replace("_", "\\_")
+        like = f"%{escaped}%"
+        base = base.where(
+            or_(
+                Transaction.descricao.ilike(like, escape="\\"),
+                Transaction.observacao.ilike(like, escape="\\"),
+            )
+        )
 
-    total = db.scalar(select(Transaction).with_only_columns(Transaction.id).where(base.whereclause).order_by(None))
-    # Conta corretamente:
-    from sqlalchemy import func as sa_func
-
-    count_stmt = select(sa_func.count()).select_from(base.subquery())
-    total = db.scalar(count_stmt) or 0
+    total = db.scalar(select(func.count()).select_from(base.subquery())) or 0
 
     items = list(
         db.scalars(
@@ -249,6 +251,8 @@ def atualizar(db: Session, user_id: str, tx_id: str, data: TransactionUpdate) ->
     payload = data.model_dump(exclude_unset=True)
     if "category_id" in payload:
         _ensure_category(db, user_id, payload["category_id"])
+    if "bank_account_id" in payload and payload["bank_account_id"] is not None:
+        _ensure_account(db, user_id, payload["bank_account_id"])
     if "data" in payload:
         tx.data_competencia = payload.pop("data")
     for field, value in payload.items():
@@ -282,7 +286,10 @@ def deletar(db: Session, user_id: str, tx_id: str, *, escopo: str = "apenas") ->
         if escopo == "todas":
             irmas = db.scalars(
                 select(Transaction).where(
-                    or_(Transaction.id == original_id, Transaction.compra_original_id == original_id),
+                    or_(
+                        Transaction.id == original_id,
+                        Transaction.compra_original_id == original_id,
+                    ),
                     Transaction.user_id == user_id,
                 )
             )
@@ -293,7 +300,10 @@ def deletar(db: Session, user_id: str, tx_id: str, *, escopo: str = "apenas") ->
             hoje = date.today()
             irmas = db.scalars(
                 select(Transaction).where(
-                    or_(Transaction.id == original_id, Transaction.compra_original_id == original_id),
+                    or_(
+                        Transaction.id == original_id,
+                        Transaction.compra_original_id == original_id,
+                    ),
                     Transaction.user_id == user_id,
                     Transaction.data_competencia >= hoje,
                 )

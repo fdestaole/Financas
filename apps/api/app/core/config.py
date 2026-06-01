@@ -1,6 +1,5 @@
 import json
 from functools import lru_cache
-from typing import List
 
 from pydantic import Field, field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -19,7 +18,7 @@ class Settings(BaseSettings):
     JWT_REFRESH_EXPIRES_DAYS: int = 7
     COOKIE_DOMAIN: str = "localhost"
     COOKIE_SECURE: bool = False
-    CORS_ORIGINS: List[str] = Field(
+    CORS_ORIGINS: list[str] = Field(
         default_factory=lambda: ["http://localhost:5173", "http://localhost:5174"]
     )
     BRAPI_TOKEN: str = ""

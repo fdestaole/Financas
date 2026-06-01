@@ -13,6 +13,9 @@ export interface BankAccount {
   saldo_inicial: string;
   cor: string | null;
   arquivada: boolean;
+  ignorar_nos_totais: boolean;
+  exibir_no_resumo: boolean;
+  padrao: boolean;
   saldo_atual: string;
 }
 
@@ -24,6 +27,9 @@ export interface BankAccountIn {
   tipo: TipoConta;
   saldo_inicial: number;
   cor?: string;
+  ignorar_nos_totais?: boolean;
+  exibir_no_resumo?: boolean;
+  padrao?: boolean;
 }
 
 export const useBankAccounts = () =>

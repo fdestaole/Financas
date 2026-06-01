@@ -1,6 +1,15 @@
-import axios, { type AxiosError } from "axios";
+import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
 
 import { useAuthStore } from "@/features/auth/store";
+
+interface RetriableConfig extends InternalAxiosRequestConfig {
+  _retry?: boolean;
+}
+
+interface ApiErrorBody {
+  error?: { message?: string };
+  detail?: string;
+}
 
 const baseURL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3333/api/v1";
 
@@ -23,8 +32,13 @@ const flushQueue = (token: string | null) => {
 api.interceptors.response.use(
   (r) => r,
   async (error: AxiosError) => {
-    const original = error.config as any;
-    if (error.response?.status === 401 && !original?._retry && !original?.url?.includes("/auth/")) {
+    const original = error.config as RetriableConfig | undefined;
+    if (
+      error.response?.status === 401 &&
+      original &&
+      !original._retry &&
+      !original.url?.includes("/auth/")
+    ) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           refreshQueue.push((token) => {
@@ -60,7 +74,7 @@ api.interceptors.response.use(
 
 export const errorMessage = (err: unknown, fallback = "Erro inesperado"): string => {
   if (axios.isAxiosError(err)) {
-    const data = err.response?.data as any;
+    const data = err.response?.data as ApiErrorBody | undefined;
     return data?.error?.message || data?.detail || err.message || fallback;
   }
   return fallback;

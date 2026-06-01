@@ -77,8 +77,14 @@ def list_invoices(db: Session, user_id: str, card_id: str) -> list[CreditCardInv
     return list(
         db.scalars(
             select(CreditCardInvoice)
-            .where(CreditCardInvoice.user_id == user_id, CreditCardInvoice.credit_card_id == card_id)
-            .order_by(CreditCardInvoice.ano_referencia.desc(), CreditCardInvoice.mes_referencia.desc())
+            .where(
+                CreditCardInvoice.user_id == user_id,
+                CreditCardInvoice.credit_card_id == card_id,
+            )
+            .order_by(
+                CreditCardInvoice.ano_referencia.desc(),
+                CreditCardInvoice.mes_referencia.desc(),
+            )
         )
     )
 
@@ -145,10 +151,14 @@ def pagar_fatura(
         raise BusinessRuleError("Conta de pagamento não encontrada")
     target_account = account.id
 
+    descricao_pagamento = (
+        f"Pagamento fatura {card.nome} "
+        f"{invoice.mes_referencia:02d}/{invoice.ano_referencia}"
+    )
     pagamento = Transaction(
         user_id=user_id,
         tipo=TipoTransacao.PAGAMENTO_FATURA,
-        descricao=f"Pagamento fatura {card.nome} {invoice.mes_referencia:02d}/{invoice.ano_referencia}",
+        descricao=descricao_pagamento,
         valor=valor,
         data_competencia=data_pagamento,
         data_efetivacao=data_pagamento,
@@ -160,7 +170,8 @@ def pagar_fatura(
     db.flush()
 
     invoice.valor_pago = (invoice.valor_pago or Decimal("0")) + valor
-    invoice.pagamento_transaction_id = pagamento.id
+    if invoice.pagamento_transaction_id is None:
+        invoice.pagamento_transaction_id = pagamento.id
     transicionar_status(db, invoice, data_pagamento)
     db.commit()
     db.refresh(invoice)

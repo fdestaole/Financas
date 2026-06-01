@@ -1,0 +1,23 @@
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+# Investimentos ficam de fora do lint por ora (módulo intocado neste refactor).
+extend-exclude = [".venv", "alembic/versions", "app/modules/investments"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = [
+    "B008",   # FastAPI usa Depends()/Query() como default de argumento
+    "UP042",  # `class X(str, Enum)` é proposital p/ compat com SQLAlchemy SAEnum
+]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+addopts = "-q"
+
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true
+plugins = []
+exclude = ["alembic/"]

@@ -33,8 +33,9 @@ def _clear_refresh_cookie(response: Response) -> None:
 @router.post("/register", response_model=TokenOut)
 def register(data: RegisterIn, request: Request, response: Response, db: DbSession) -> TokenOut:
     user = service.register_user(db, data)
+    ip = request.client.host if request.client else None
     access, refresh = service.issue_tokens(
-        db, user, user_agent=request.headers.get("user-agent"), ip=request.client.host if request.client else None
+        db, user, user_agent=request.headers.get("user-agent"), ip=ip
     )
     _set_refresh_cookie(response, refresh)
     return TokenOut(access_token=access, user=UserOut.model_validate(user))
@@ -43,22 +44,27 @@ def register(data: RegisterIn, request: Request, response: Response, db: DbSessi
 @router.post("/login", response_model=TokenOut)
 def login(data: LoginIn, request: Request, response: Response, db: DbSession) -> TokenOut:
     user = service.authenticate(db, data)
+    ip = request.client.host if request.client else None
     access, refresh = service.issue_tokens(
-        db, user, user_agent=request.headers.get("user-agent"), ip=request.client.host if request.client else None
+        db, user, user_agent=request.headers.get("user-agent"), ip=ip
     )
     _set_refresh_cookie(response, refresh)
     return TokenOut(access_token=access, user=UserOut.model_validate(user))
 
 
 @router.post("/refresh", response_model=TokenOut)
-def refresh(response: Response, db: DbSession, refresh_token: str = Depends(get_refresh_cookie)) -> TokenOut:
+def refresh(
+    response: Response, db: DbSession, refresh_token: str = Depends(get_refresh_cookie)
+) -> TokenOut:
     user, access, new_refresh = service.rotate_refresh_token(db, refresh_token)
     _set_refresh_cookie(response, new_refresh)
     return TokenOut(access_token=access, user=UserOut.model_validate(user))
 
 
 @router.post("/logout", status_code=204)
-def logout(response: Response, db: DbSession, refresh_token: str = Depends(get_refresh_cookie)) -> Response:
+def logout(
+    response: Response, db: DbSession, refresh_token: str = Depends(get_refresh_cookie)
+) -> Response:
     service.revoke_refresh_token(db, refresh_token)
     _clear_refresh_cookie(response)
     return Response(status_code=204)
