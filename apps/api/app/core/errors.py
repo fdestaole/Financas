@@ -1,4 +1,5 @@
 from fastapi import FastAPI, Request, status
+from fastapi.encoders import jsonable_encoder
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 
@@ -51,11 +52,16 @@ def register_error_handlers(app: FastAPI) -> None:
     async def validation_error_handler(request: Request, exc: RequestValidationError):
         return JSONResponse(
             status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
-            content={
-                "error": {
-                    "code": "validation_error",
-                    "message": "Dados inválidos",
-                    "details": exc.errors(),
+            # jsonable_encoder: os erros do Pydantic podem conter no `ctx` o objeto
+            # de exceção original (não serializável em JSON), o que derrubaria o
+            # handler com 500 quando um validator levanta ValueError.
+            content=jsonable_encoder(
+                {
+                    "error": {
+                        "code": "validation_error",
+                        "message": "Dados inválidos",
+                        "details": exc.errors(),
+                    }
                 }
-            },
+            ),
         )
