@@ -93,3 +93,18 @@ class TipoOperacaoRF(str, enum.Enum):
     APORTE = "APORTE"
     RESGATE = "RESGATE"
     AJUSTE_SALDO = "AJUSTE_SALDO"
+
+
+class WorkspaceRole(str, enum.Enum):
+    """Papel de um membro dentro de um workspace (grupo de compartilhamento)."""
+
+    OWNER = "OWNER"
+    EDITOR = "EDITOR"
+    VIEWER = "VIEWER"
+
+
+class InviteStatus(str, enum.Enum):
+    PENDENTE = "PENDENTE"
+    ACEITO = "ACEITO"
+    REVOGADO = "REVOGADO"
+    EXPIRADO = "EXPIRADO"

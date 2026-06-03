@@ -6,6 +6,7 @@ from uuid import uuid4
 from sqlalchemy import select, update
 from sqlalchemy.orm import Session
 
+from app.core.authz import ensure_personal_workspace
 from app.core.config import settings
 from app.core.errors import ConflictError, UnauthorizedError
 from app.core.security import (
@@ -56,6 +57,7 @@ def register_user(db: Session, data: RegisterIn) -> User:
     user = User(email=data.email, nome=data.nome, password_hash=hash_password(data.senha))
     db.add(user)
     db.flush()
+    ensure_personal_workspace(db, user)
     seed_default_categories(db, user.id)
     db.commit()
     db.refresh(user)

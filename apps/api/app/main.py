@@ -14,6 +14,7 @@ from app.modules.fixed_income.routes import router as fixed_income_router
 from app.modules.investments.routes import router as investments_router
 from app.modules.invoices.routes import router as invoices_router
 from app.modules.transactions.routes import router as transactions_router
+from app.modules.workspaces.routes import router as workspaces_router
 
 
 @asynccontextmanager
@@ -45,6 +46,7 @@ def health() -> dict[str, str]:
 
 API_PREFIX = "/api/v1"
 app.include_router(auth_router, prefix=f"{API_PREFIX}/auth", tags=["auth"])
+app.include_router(workspaces_router, prefix=f"{API_PREFIX}/workspaces", tags=["workspaces"])
 app.include_router(
     bank_accounts_router, prefix=f"{API_PREFIX}/bank-accounts", tags=["bank-accounts"]
 )

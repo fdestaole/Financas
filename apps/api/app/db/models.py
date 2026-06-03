@@ -20,6 +20,7 @@ from app.db.base import Base, IdMixin, TimestampMixin
 from app.db.enums import (
     BandeiraCartao,
     IndexadorRF,
+    InviteStatus,
     SentidoTransferencia,
     StatusFatura,
     StatusTransacao,
@@ -30,11 +31,16 @@ from app.db.enums import (
     TipoOperacaoRF,
     TipoProdutoRF,
     TipoTransacao,
+    WorkspaceRole,
 )
 
 MoneyT = Numeric(14, 2)
 QtyT = Numeric(18, 8)
 PriceT = Numeric(14, 4)
+
+# Enum compartilhado entre workspace_members e workspace_invites: precisa ser uma
+# única instância para o tipo PostgreSQL ser criado uma só vez.
+WorkspaceRoleT = SAEnum(WorkspaceRole, name="workspace_role")
 
 
 class User(Base, IdMixin, TimestampMixin):
@@ -43,6 +49,69 @@ class User(Base, IdMixin, TimestampMixin):
     email: Mapped[str] = mapped_column(String(255), unique=True, index=True, nullable=False)
     password_hash: Mapped[str] = mapped_column(String(255), nullable=False)
     nome: Mapped[str] = mapped_column(String(120), nullable=False)
+
+
+class Workspace(Base, IdMixin, TimestampMixin):
+    """Grupo de compartilhamento. Os recursos financeiros continuam escopados por
+    ``user_id == owner_user_id``; o workspace adiciona membros que enxergam/editam
+    esse mesmo conjunto de dados conforme o papel.
+
+    Cada usuário possui exatamente um workspace pessoal (``is_personal=True``),
+    criado no registro, e pode ser membro de outros workspaces.
+    """
+
+    __tablename__ = "workspaces"
+
+    owner_user_id: Mapped[str] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), index=True, nullable=False
+    )
+    nome: Mapped[str] = mapped_column(String(120), nullable=False)
+    is_personal: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
+
+    owner: Mapped["User"] = relationship()
+
+
+class WorkspaceMember(Base, IdMixin, TimestampMixin):
+    __tablename__ = "workspace_members"
+    __table_args__ = (
+        UniqueConstraint("workspace_id", "user_id", name="uq_workspace_member"),
+    )
+
+    workspace_id: Mapped[str] = mapped_column(
+        ForeignKey("workspaces.id", ondelete="CASCADE"), index=True, nullable=False
+    )
+    user_id: Mapped[str] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), index=True, nullable=False
+    )
+    role: Mapped[WorkspaceRole] = mapped_column(WorkspaceRoleT, nullable=False)
+
+    user: Mapped["User"] = relationship()
+
+
+class WorkspaceInvite(Base, IdMixin, TimestampMixin):
+    """Convite para entrar em um workspace. O token bruto nunca é persistido —
+    guardamos apenas o HMAC (``token_hash``). É de uso único, expira e fica
+    atrelado ao e-mail convidado.
+    """
+
+    __tablename__ = "workspace_invites"
+
+    workspace_id: Mapped[str] = mapped_column(
+        ForeignKey("workspaces.id", ondelete="CASCADE"), index=True, nullable=False
+    )
+    email: Mapped[str] = mapped_column(String(255), index=True, nullable=False)
+    role: Mapped[WorkspaceRole] = mapped_column(WorkspaceRoleT, nullable=False)
+    token_hash: Mapped[str] = mapped_column(String(255), unique=True, index=True, nullable=False)
+    status: Mapped[InviteStatus] = mapped_column(
+        SAEnum(InviteStatus, name="invite_status"), nullable=False, default=InviteStatus.PENDENTE
+    )
+    expires_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    invited_by_user_id: Mapped[str] = mapped_column(
+        ForeignKey("users.id", ondelete="CASCADE"), nullable=False
+    )
+    accepted_user_id: Mapped[str | None] = mapped_column(
+        ForeignKey("users.id", ondelete="SET NULL"), nullable=True
+    )
 
 
 class RefreshToken(Base, IdMixin, TimestampMixin):

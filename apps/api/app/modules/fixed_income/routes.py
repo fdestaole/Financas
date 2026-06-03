@@ -2,7 +2,8 @@ from datetime import date
 
 from fastapi import APIRouter, Response
 
-from app.core.deps import CurrentUser, DbSession
+from app.core.authz import ReadScope, WriteScope
+from app.core.deps import DbSession
 from app.db.models import FixedIncomeProduct
 from app.modules.fixed_income import service
 from app.modules.fixed_income.schemas import (
@@ -49,55 +50,55 @@ def _to_out(db, user_id: str, p: FixedIncomeProduct) -> ProductOut:
 
 
 @router.get("/products", response_model=list[ProductOut])
-def list_products(user: CurrentUser, db: DbSession):
-    return [_to_out(db, user.id, p) for p in service.list_products(db, user.id)]
+def list_products(scope: ReadScope, db: DbSession):
+    return [_to_out(db, scope.owner_id, p) for p in service.list_products(db, scope.owner_id)]
 
 
 @router.post("/products", response_model=ProductOut, status_code=201)
-def create_product(data: ProductIn, user: CurrentUser, db: DbSession):
-    p = service.create_product(db, user.id, data)
-    return _to_out(db, user.id, p)
+def create_product(data: ProductIn, scope: WriteScope, db: DbSession):
+    p = service.create_product(db, scope.owner_id, data)
+    return _to_out(db, scope.owner_id, p)
 
 
 @router.get("/products/{product_id}", response_model=ProductDetailOut)
-def get_product(product_id: str, user: CurrentUser, db: DbSession):
-    p = service.get_product(db, user.id, product_id)
-    base = _to_out(db, user.id, p)
-    operacoes = service.list_operations(db, user.id, product_id)
+def get_product(product_id: str, scope: ReadScope, db: DbSession):
+    p = service.get_product(db, scope.owner_id, product_id)
+    base = _to_out(db, scope.owner_id, p)
+    operacoes = service.list_operations(db, scope.owner_id, product_id)
     ops = [OperacaoRFOut.model_validate(o) for o in operacoes]
     return ProductDetailOut(**base.model_dump(), operacoes=ops)
 
 
 @router.patch("/products/{product_id}", response_model=ProductOut)
-def update_product(product_id: str, data: ProductUpdate, user: CurrentUser, db: DbSession):
-    p = service.update_product(db, user.id, product_id, data)
-    return _to_out(db, user.id, p)
+def update_product(product_id: str, data: ProductUpdate, scope: WriteScope, db: DbSession):
+    p = service.update_product(db, scope.owner_id, product_id, data)
+    return _to_out(db, scope.owner_id, p)
 
 
 @router.delete("/products/{product_id}", status_code=204)
-def delete_product(product_id: str, user: CurrentUser, db: DbSession) -> Response:
-    service.delete_product(db, user.id, product_id)
+def delete_product(product_id: str, scope: WriteScope, db: DbSession) -> Response:
+    service.delete_product(db, scope.owner_id, product_id)
     return Response(status_code=204)
 
 
 @router.post("/products/{product_id}/operations", response_model=OperacaoRFOut, status_code=201)
-def add_operation(product_id: str, data: OperacaoRFIn, user: CurrentUser, db: DbSession):
-    op = service.adicionar_operacao(db, user.id, product_id, data)
+def add_operation(product_id: str, data: OperacaoRFIn, scope: WriteScope, db: DbSession):
+    op = service.adicionar_operacao(db, scope.owner_id, product_id, data)
     return OperacaoRFOut.model_validate(op)
 
 
 @router.delete("/operations/{op_id}", status_code=204)
-def delete_operation(op_id: str, user: CurrentUser, db: DbSession) -> Response:
-    service.deletar_operacao(db, user.id, op_id)
+def delete_operation(op_id: str, scope: WriteScope, db: DbSession) -> Response:
+    service.deletar_operacao(db, scope.owner_id, op_id)
     return Response(status_code=204)
 
 
 @router.get("/settings", response_model=SettingsOut)
-def read_settings(user: CurrentUser, db: DbSession):
-    return SettingsOut.model_validate(get_settings(db, user.id), from_attributes=True)
+def read_settings(scope: ReadScope, db: DbSession):
+    return SettingsOut.model_validate(get_settings(db, scope.owner_id), from_attributes=True)
 
 
 @router.patch("/settings", response_model=SettingsOut)
-def patch_settings(data: SettingsIn, user: CurrentUser, db: DbSession):
-    s = update_settings(db, user.id, data.cdi_mensal)
+def patch_settings(data: SettingsIn, scope: WriteScope, db: DbSession):
+    s = update_settings(db, scope.owner_id, data.cdi_mensal)
     return SettingsOut.model_validate(s, from_attributes=True)

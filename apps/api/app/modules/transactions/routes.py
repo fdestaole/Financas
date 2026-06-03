@@ -3,7 +3,8 @@ from typing import Annotated
 
 from fastapi import APIRouter, Body, Query, Response
 
-from app.core.deps import CurrentUser, DbSession
+from app.core.authz import ReadScope, WriteScope
+from app.core.deps import DbSession
 from app.db.enums import TipoTransacao
 from app.modules.transactions import service
 from app.modules.transactions.schemas import (
@@ -26,7 +27,7 @@ TxIn = Annotated[
 
 @router.get("", response_model=TransactionList)
 def list_(
-    user: CurrentUser,
+    scope: ReadScope,
     db: DbSession,
     bank_account_id: str | None = None,
     credit_card_id: str | None = None,
@@ -40,7 +41,7 @@ def list_(
 ):
     items, total = service.listar_transacoes(
         db,
-        user.id,
+        scope.owner_id,
         bank_account_id=bank_account_id,
         credit_card_id=credit_card_id,
         category_id=category_id,
@@ -60,27 +61,27 @@ def list_(
 
 
 @router.post("", response_model=list[TransactionOut], status_code=201)
-def create(data: TxIn, user: CurrentUser, db: DbSession):
-    txs = service.criar_transacao(db, user.id, data)
+def create(data: TxIn, scope: WriteScope, db: DbSession):
+    txs = service.criar_transacao(db, scope.owner_id, data)
     return [TransactionOut.model_validate(t) for t in txs]
 
 
 @router.get("/{tx_id}", response_model=TransactionOut)
-def get(tx_id: str, user: CurrentUser, db: DbSession):
-    return TransactionOut.model_validate(service.get_transacao(db, user.id, tx_id))
+def get(tx_id: str, scope: ReadScope, db: DbSession):
+    return TransactionOut.model_validate(service.get_transacao(db, scope.owner_id, tx_id))
 
 
 @router.put("/{tx_id}", response_model=TransactionOut)
-def update(tx_id: str, data: TransactionUpdate, user: CurrentUser, db: DbSession):
-    return TransactionOut.model_validate(service.atualizar(db, user.id, tx_id, data))
+def update(tx_id: str, data: TransactionUpdate, scope: WriteScope, db: DbSession):
+    return TransactionOut.model_validate(service.atualizar(db, scope.owner_id, tx_id, data))
 
 
 @router.delete("/{tx_id}", status_code=204)
 def delete(
     tx_id: str,
-    user: CurrentUser,
+    scope: WriteScope,
     db: DbSession,
     escopo: str = Query("apenas", pattern="^(apenas|todasFuturas|todas)$"),
 ) -> Response:
-    service.deletar(db, user.id, tx_id, escopo=escopo)
+    service.deletar(db, scope.owner_id, tx_id, escopo=escopo)
     return Response(status_code=204)

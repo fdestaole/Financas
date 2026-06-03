@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Response
 
-from app.core.deps import CurrentUser, DbSession
+from app.core.authz import ReadScope, WriteScope
+from app.core.deps import DbSession
 from app.modules.credit_cards import service
 from app.modules.credit_cards.schemas import CreditCardIn, CreditCardOut, CreditCardUpdate
 
@@ -26,27 +27,27 @@ def _to_out(db, card) -> CreditCardOut:
 
 
 @router.get("", response_model=list[CreditCardOut])
-def list_(user: CurrentUser, db: DbSession, incluir_arquivados: bool = False):
-    cards = service.list_cards(db, user.id, incluir_arquivados=incluir_arquivados)
+def list_(scope: ReadScope, db: DbSession, incluir_arquivados: bool = False):
+    cards = service.list_cards(db, scope.owner_id, incluir_arquivados=incluir_arquivados)
     return [_to_out(db, c) for c in cards]
 
 
 @router.get("/{card_id}", response_model=CreditCardOut)
-def get(card_id: str, user: CurrentUser, db: DbSession):
-    return _to_out(db, service.get_card(db, user.id, card_id))
+def get(card_id: str, scope: ReadScope, db: DbSession):
+    return _to_out(db, service.get_card(db, scope.owner_id, card_id))
 
 
 @router.post("", response_model=CreditCardOut, status_code=201)
-def create(data: CreditCardIn, user: CurrentUser, db: DbSession):
-    return _to_out(db, service.create_card(db, user.id, data))
+def create(data: CreditCardIn, scope: WriteScope, db: DbSession):
+    return _to_out(db, service.create_card(db, scope.owner_id, data))
 
 
 @router.put("/{card_id}", response_model=CreditCardOut)
-def update(card_id: str, data: CreditCardUpdate, user: CurrentUser, db: DbSession):
-    return _to_out(db, service.update_card(db, user.id, card_id, data))
+def update(card_id: str, data: CreditCardUpdate, scope: WriteScope, db: DbSession):
+    return _to_out(db, service.update_card(db, scope.owner_id, card_id, data))
 
 
 @router.delete("/{card_id}", status_code=204)
-def archive(card_id: str, user: CurrentUser, db: DbSession) -> Response:
-    service.archive_card(db, user.id, card_id)
+def archive(card_id: str, scope: WriteScope, db: DbSession) -> Response:
+    service.archive_card(db, scope.owner_id, card_id)
     return Response(status_code=204)

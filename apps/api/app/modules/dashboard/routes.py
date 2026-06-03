@@ -2,7 +2,8 @@ from datetime import date
 
 from fastapi import APIRouter, Query
 
-from app.core.deps import CurrentUser, DbSession
+from app.core.authz import ReadScope
+from app.core.deps import DbSession
 from app.db.enums import TipoTransacao
 from app.modules.dashboard import service
 
@@ -10,18 +11,18 @@ router = APIRouter()
 
 
 @router.get("/resumo")
-def resumo(user: CurrentUser, db: DbSession, mes: str | None = None):
-    return service.resumo(db, user.id, mes)
+def resumo(scope: ReadScope, db: DbSession, mes: str | None = None):
+    return service.resumo(db, scope.owner_id, mes)
 
 
 @router.get("/gastos-por-categoria")
-def gastos_por_categoria(user: CurrentUser, db: DbSession, mes: str | None = None):
-    return service.gastos_por_categoria(db, user.id, mes)
+def gastos_por_categoria(scope: ReadScope, db: DbSession, mes: str | None = None):
+    return service.gastos_por_categoria(db, scope.owner_id, mes)
 
 
 @router.get("/evolucao-saldo")
-def evolucao_saldo(user: CurrentUser, db: DbSession, meses: int = 6):
-    return service.evolucao_saldo(db, user.id, meses)
+def evolucao_saldo(scope: ReadScope, db: DbSession, meses: int = 6):
+    return service.evolucao_saldo(db, scope.owner_id, meses)
 
 
 # ---------------------------------------------------------------------------
@@ -31,7 +32,7 @@ def evolucao_saldo(user: CurrentUser, db: DbSession, meses: int = 6):
 
 @router.get("/relatorios/resumo")
 def relatorio_resumo(
-    user: CurrentUser,
+    scope: ReadScope,
     db: DbSession,
     data_inicio: date | None = None,
     data_fim: date | None = None,
@@ -44,12 +45,12 @@ def relatorio_resumo(
     f = service.resolver_filtros(
         data_inicio, data_fim, category_ids, bank_account_id, credit_card_id, tipo, q
     )
-    return service.relatorio_resumo(db, user.id, f)
+    return service.relatorio_resumo(db, scope.owner_id, f)
 
 
 @router.get("/relatorios/serie-temporal")
 def relatorio_serie_temporal(
-    user: CurrentUser,
+    scope: ReadScope,
     db: DbSession,
     data_inicio: date | None = None,
     data_fim: date | None = None,
@@ -62,12 +63,12 @@ def relatorio_serie_temporal(
     f = service.resolver_filtros(
         data_inicio, data_fim, category_ids, bank_account_id, credit_card_id, tipo, q
     )
-    return service.relatorio_serie_temporal(db, user.id, f)
+    return service.relatorio_serie_temporal(db, scope.owner_id, f)
 
 
 @router.get("/relatorios/por-categoria")
 def relatorio_por_categoria(
-    user: CurrentUser,
+    scope: ReadScope,
     db: DbSession,
     data_inicio: date | None = None,
     data_fim: date | None = None,
@@ -81,12 +82,12 @@ def relatorio_por_categoria(
     f = service.resolver_filtros(
         data_inicio, data_fim, category_ids, bank_account_id, credit_card_id, tipo, q
     )
-    return service.relatorio_por_categoria(db, user.id, f, direcao)
+    return service.relatorio_por_categoria(db, scope.owner_id, f, direcao)
 
 
 @router.get("/relatorios/top-descricoes")
 def relatorio_top_descricoes(
-    user: CurrentUser,
+    scope: ReadScope,
     db: DbSession,
     data_inicio: date | None = None,
     data_fim: date | None = None,
@@ -101,12 +102,12 @@ def relatorio_top_descricoes(
     f = service.resolver_filtros(
         data_inicio, data_fim, category_ids, bank_account_id, credit_card_id, tipo, q
     )
-    return service.relatorio_top_descricoes(db, user.id, f, direcao, limit)
+    return service.relatorio_top_descricoes(db, scope.owner_id, f, direcao, limit)
 
 
 @router.get("/relatorios/fluxo-acumulado")
 def relatorio_fluxo_acumulado(
-    user: CurrentUser,
+    scope: ReadScope,
     db: DbSession,
     data_inicio: date | None = None,
     data_fim: date | None = None,
@@ -120,4 +121,4 @@ def relatorio_fluxo_acumulado(
     f = service.resolver_filtros(
         data_inicio, data_fim, category_ids, bank_account_id, credit_card_id, tipo, q
     )
-    return service.relatorio_fluxo_acumulado(db, user.id, f, granularidade)
+    return service.relatorio_fluxo_acumulado(db, scope.owner_id, f, granularidade)
