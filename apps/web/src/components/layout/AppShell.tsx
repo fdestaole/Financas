@@ -17,6 +17,8 @@ import { Avatar } from "@/components/ui/Avatar";
 import { cn } from "@/lib/cn";
 import { QuickActionFab } from "./QuickActionFab";
 import { BottomNav } from "./BottomNav";
+import { useNotificationListener } from "@/features/notifications/useNotificationListener";
+import { NotificationSheet } from "@/features/notifications/NotificationSheet";
 
 const links = [
   { to: "/", label: "Dashboard", icon: LayoutDashboard, end: true },
@@ -32,6 +34,8 @@ export function AppShell() {
   const navigate = useNavigate();
   const user = useAuthStore((s) => s.user);
   const clear = useAuthStore((s) => s.clear);
+
+  const { pending, dismiss } = useNotificationListener();
 
   const logout = async () => {
     try {
@@ -125,6 +129,8 @@ export function AppShell() {
       </div>
 
       <QuickActionFab />
+
+      {pending && <NotificationSheet notification={pending} onDismiss={dismiss} />}
     </div>
   );
 }
