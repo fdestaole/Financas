@@ -5,11 +5,12 @@ import { Button } from "@/components/ui/Button";
 import { TransactionForm } from "@/features/transactions/TransactionForm";
 import { type TipoTransacao } from "@/features/transactions/api";
 import { cn } from "@/lib/cn";
-import type { ParsedNotification } from "@/lib/bankNotificationParser";
+import type { PendingNotification } from "./useNotificationListener";
 
 interface Props {
-  notification: ParsedNotification;
+  notification: PendingNotification;
   onDismiss: () => void;
+  onRegistered: () => void;
 }
 
 const TIPOS: { value: TipoTransacao; label: string }[] = [
@@ -19,22 +20,16 @@ const TIPOS: { value: TipoTransacao; label: string }[] = [
   { value: "COMPRA_CARTAO", label: "Compra cartão" },
 ];
 
-const TX_TITLES: Record<TipoTransacao, string> = {
+const TX_TITLES: Record<string, string> = {
   DESPESA: "Nova despesa",
   RECEITA: "Nova receita",
   TRANSFERENCIA: "Nova transferência",
   COMPRA_CARTAO: "Nova compra no cartão",
-  PAGAMENTO_FATURA: "Pagamento de fatura",
-  AJUSTE: "Ajuste",
-  APLICACAO_RF: "Aplicação RF",
-  RESGATE_RF: "Resgate RF",
 };
 
-export function NotificationSheet({ notification, onDismiss }: Props) {
+export function NotificationSheet({ notification, onDismiss, onRegistered }: Props) {
   const [tipo, setTipo] = useState<TipoTransacao>(notification.suggestedTipo);
   const [formOpen, setFormOpen] = useState(false);
-
-  const handleRegister = () => setFormOpen(true);
 
   const formattedAmount = notification.amount.toLocaleString("pt-BR", {
     style: "currency",
@@ -43,13 +38,8 @@ export function NotificationSheet({ notification, onDismiss }: Props) {
 
   return (
     <>
-      {/* Bottom sheet overlay */}
-      <div
-        className="fixed inset-0 z-50 bg-black/40"
-        onClick={onDismiss}
-      />
+      <div className="fixed inset-0 z-50 bg-black/40" onClick={onDismiss} />
 
-      {/* Sheet */}
       <div className="fixed bottom-0 left-0 right-0 z-50 rounded-t-2xl bg-surface border-t border-border shadow-modal p-4 pb-8 animate-[modal-in_200ms_ease-out]">
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-2">
@@ -95,7 +85,7 @@ export function NotificationSheet({ notification, onDismiss }: Props) {
           <Button variant="ghost" className="flex-1" onClick={onDismiss}>
             Ignorar
           </Button>
-          <Button className="flex-1" onClick={handleRegister}>
+          <Button className="flex-1" onClick={() => setFormOpen(true)}>
             Registrar
           </Button>
         </div>
@@ -105,13 +95,13 @@ export function NotificationSheet({ notification, onDismiss }: Props) {
         <Modal
           open
           onClose={() => { setFormOpen(false); onDismiss(); }}
-          title={TX_TITLES[tipo]}
+          title={TX_TITLES[tipo] ?? "Novo lançamento"}
         >
           <TransactionForm
             initialTipo={tipo}
             initialValor={notification.amount}
             initialDescricao={notification.description}
-            onSuccess={() => { setFormOpen(false); onDismiss(); }}
+            onSuccess={() => { setFormOpen(false); onRegistered(); }}
           />
         </Modal>
       )}

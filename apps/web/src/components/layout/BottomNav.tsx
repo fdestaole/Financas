@@ -2,6 +2,7 @@ import { useState } from "react";
 import { NavLink } from "react-router-dom";
 import {
   BarChart3,
+  Bell,
   CreditCard,
   LayoutDashboard,
   Receipt,
@@ -12,6 +13,7 @@ import {
   MoreHorizontal,
 } from "lucide-react";
 import { cn } from "@/lib/cn";
+import { useNotificationHistoryStore } from "@/features/notifications/notificationHistoryStore";
 
 const primaryLinks = [
   { to: "/", label: "Início", icon: LayoutDashboard, end: true },
@@ -24,10 +26,14 @@ const primaryLinks = [
 const secondaryLinks = [
   { to: "/relatorios", label: "Relatórios", icon: BarChart3 },
   { to: "/categorias", label: "Categorias", icon: Tag },
+  { to: "/notificacoes", label: "Notificações", icon: Bell },
 ];
 
 export function BottomNav() {
   const [moreOpen, setMoreOpen] = useState(false);
+  const pendingCount = useNotificationHistoryStore(
+    (s) => s.notifications.filter((n) => n.status === "pending").length,
+  );
 
   return (
     <>
@@ -85,11 +91,18 @@ export function BottomNav() {
         <button
           onClick={() => setMoreOpen((v) => !v)}
           className={cn(
-            "flex flex-1 flex-col items-center justify-center gap-0.5 py-2 transition-colors",
+            "flex flex-1 flex-col items-center justify-center gap-0.5 py-2 transition-colors relative",
             moreOpen ? "text-accent" : "text-text-3 hover:text-text",
           )}
         >
-          {moreOpen ? <X size={20} /> : <MoreHorizontal size={20} />}
+          <span className="relative">
+            {moreOpen ? <X size={20} /> : <MoreHorizontal size={20} />}
+            {!moreOpen && pendingCount > 0 && (
+              <span className="absolute -top-1 -right-1 h-4 w-4 rounded-full bg-warn text-white text-[9px] font-bold flex items-center justify-center leading-none">
+                {pendingCount > 9 ? "9+" : pendingCount}
+              </span>
+            )}
+          </span>
           <span className="text-[10px] font-medium leading-none">Mais</span>
         </button>
       </nav>

@@ -1,6 +1,7 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import {
   BarChart3,
+  Bell,
   CreditCard,
   LayoutDashboard,
   LogOut,
@@ -28,6 +29,7 @@ const links = [
   { to: "/relatorios", label: "Relatórios", icon: BarChart3 },
   { to: "/categorias", label: "Categorias", icon: Tag },
   { to: "/investimentos", label: "Investimentos", icon: TrendingUp },
+  { to: "/notificacoes", label: "Notificações", icon: Bell },
 ];
 
 export function AppShell() {
@@ -35,7 +37,7 @@ export function AppShell() {
   const user = useAuthStore((s) => s.user);
   const clear = useAuthStore((s) => s.clear);
 
-  const { pending, dismiss } = useNotificationListener();
+  const { pending, dismiss, confirmRegistered } = useNotificationListener();
 
   const logout = async () => {
     try {
@@ -130,7 +132,13 @@ export function AppShell() {
 
       <QuickActionFab />
 
-      {pending && <NotificationSheet notification={pending} onDismiss={dismiss} />}
+      {pending && (
+        <NotificationSheet
+          notification={pending}
+          onDismiss={dismiss}
+          onRegistered={confirmRegistered}
+        />
+      )}
     </div>
   );
 }
