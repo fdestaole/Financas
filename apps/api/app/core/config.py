@@ -19,7 +19,13 @@ class Settings(BaseSettings):
     COOKIE_DOMAIN: str = "localhost"
     COOKIE_SECURE: bool = False
     CORS_ORIGINS: list[str] = Field(
-        default_factory=lambda: ["http://localhost:5173", "http://localhost:5174"]
+        default_factory=lambda: [
+            "http://localhost:5173",
+            "http://localhost:5174",
+            # Capacitor Android uses https://localhost as its origin
+            "https://localhost",
+            "capacitor://localhost",
+        ]
     )
     BRAPI_TOKEN: str = ""
     BRAPI_BASE_URL: str = "https://brapi.dev/api"

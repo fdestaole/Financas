@@ -67,7 +67,7 @@ export function QuickActionFab() {
 
   return (
     <>
-      <div ref={containerRef} className="fixed bottom-6 right-6 z-40 flex flex-col items-end gap-3">
+      <div ref={containerRef} className="fixed bottom-[88px] md:bottom-6 right-6 z-40 flex flex-col items-end gap-3">
         {menuOpen && (
           <div className="flex flex-col items-end gap-2">
             {ITEMS.map(({ key, label, icon: Icon, color }) => (

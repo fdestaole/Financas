@@ -1,4 +1,5 @@
 import axios, { type AxiosError, type InternalAxiosRequestConfig } from "axios";
+import { Capacitor } from "@capacitor/core";
 
 import { useAuthStore } from "@/features/auth/store";
 
@@ -11,7 +12,22 @@ interface ApiErrorBody {
   detail?: string;
 }
 
-const baseURL = import.meta.env.VITE_API_BASE_URL || "http://localhost:3333/api/v1";
+function resolveBaseURL(): string {
+  if (Capacitor.isNativePlatform()) {
+    // On Android, use the env var configured for the device/emulator.
+    // VITE_API_BASE_URL_ANDROID should point to your machine's LAN IP, e.g.:
+    //   http://192.168.1.x:3333/api/v1   (physical device on same Wi-Fi)
+    //   http://10.0.2.2:3333/api/v1      (Android emulator)
+    return (
+      import.meta.env.VITE_API_BASE_URL_ANDROID ||
+      import.meta.env.VITE_API_BASE_URL ||
+      "http://10.0.2.2:3333/api/v1"
+    );
+  }
+  return import.meta.env.VITE_API_BASE_URL || "http://localhost:3333/api/v1";
+}
+
+const baseURL = resolveBaseURL();
 
 export const api = axios.create({ baseURL, withCredentials: true });
 
