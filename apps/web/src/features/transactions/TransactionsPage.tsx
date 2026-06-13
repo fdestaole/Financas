@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Modal } from "@/components/ui/Modal";
+import { useConfirm } from "@/components/ui/ConfirmDialog";
 import { DataTable } from "@/components/ui/DataTable";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { Input, Select } from "@/components/ui/Input";
@@ -17,12 +18,7 @@ import { errorMessage } from "@/lib/api";
 import { TIPO_LABELS, tipoToBadgeVariant } from "@/lib/transactions";
 import { useBankAccounts } from "@/features/bank_accounts/api";
 import { useCreditCards } from "@/features/credit_cards/api";
-import {
-  useDeleteTransaction,
-  useTransactions,
-  type ListFilters,
-  type TipoTransacao,
-} from "./api";
+import { useDeleteTransaction, useTransactions, type ListFilters, type TipoTransacao } from "./api";
 import { TransactionForm } from "./TransactionForm";
 
 export function TransactionsPage() {
@@ -31,11 +27,17 @@ export function TransactionsPage() {
   const { data: accounts } = useBankAccounts();
   const { data: cards } = useCreditCards();
   const remove = useDeleteTransaction();
+  const confirm = useConfirm();
 
   const [open, setOpen] = useState(false);
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Excluir lançamento?")) return;
+    const ok = await confirm({
+      title: "Excluir lançamento?",
+      confirmLabel: "Excluir",
+      danger: true,
+    });
+    if (!ok) return;
     try {
       await remove.mutateAsync({ id });
       toast.success("Excluído");
@@ -50,7 +52,9 @@ export function TransactionsPage() {
         header: "Data",
         accessorKey: "data_competencia",
         cell: ({ row }) => (
-          <span className="whitespace-nowrap text-text">{formatDate(row.original.data_competencia)}</span>
+          <span className="whitespace-nowrap text-text">
+            {formatDate(row.original.data_competencia)}
+          </span>
         ),
       },
       {
@@ -62,7 +66,9 @@ export function TransactionsPage() {
         header: "Tipo",
         accessorKey: "tipo",
         cell: ({ row }) => (
-          <Badge variant={tipoToBadgeVariant(row.original.tipo)}>{TIPO_LABELS[row.original.tipo as TipoTransacao]}</Badge>
+          <Badge variant={tipoToBadgeVariant(row.original.tipo)}>
+            {TIPO_LABELS[row.original.tipo as TipoTransacao]}
+          </Badge>
         ),
       },
       {
@@ -126,7 +132,11 @@ export function TransactionsPage() {
         <Select
           value={filters.tipo ?? ""}
           onChange={(e) =>
-            setFilters({ ...filters, tipo: (e.target.value || undefined) as TipoTransacao | undefined, page: 1 })
+            setFilters({
+              ...filters,
+              tipo: (e.target.value || undefined) as TipoTransacao | undefined,
+              page: 1,
+            })
           }
         >
           <option value="">Todos os tipos</option>
@@ -138,7 +148,9 @@ export function TransactionsPage() {
         </Select>
         <Select
           value={filters.bank_account_id ?? ""}
-          onChange={(e) => setFilters({ ...filters, bank_account_id: e.target.value || undefined, page: 1 })}
+          onChange={(e) =>
+            setFilters({ ...filters, bank_account_id: e.target.value || undefined, page: 1 })
+          }
         >
           <option value="">Todas as contas</option>
           {accounts?.map((a: any) => (
@@ -149,7 +161,9 @@ export function TransactionsPage() {
         </Select>
         <Select
           value={filters.credit_card_id ?? ""}
-          onChange={(e) => setFilters({ ...filters, credit_card_id: e.target.value || undefined, page: 1 })}
+          onChange={(e) =>
+            setFilters({ ...filters, credit_card_id: e.target.value || undefined, page: 1 })
+          }
         >
           <option value="">Todos os cartões</option>
           {cards?.map((c: any) => (
@@ -161,12 +175,16 @@ export function TransactionsPage() {
         <Input
           type="date"
           value={filters.data_inicio ?? ""}
-          onChange={(e) => setFilters({ ...filters, data_inicio: e.target.value || undefined, page: 1 })}
+          onChange={(e) =>
+            setFilters({ ...filters, data_inicio: e.target.value || undefined, page: 1 })
+          }
         />
         <Input
           type="date"
           value={filters.data_fim ?? ""}
-          onChange={(e) => setFilters({ ...filters, data_fim: e.target.value || undefined, page: 1 })}
+          onChange={(e) =>
+            setFilters({ ...filters, data_fim: e.target.value || undefined, page: 1 })
+          }
         />
       </Card>
 
@@ -179,7 +197,11 @@ export function TransactionsPage() {
             <EmptyState
               title="Nenhuma transação"
               description='Clique em "Nova" para começar.'
-              action={<Button onClick={() => setOpen(true)}><Plus size={14} /> Nova</Button>}
+              action={
+                <Button onClick={() => setOpen(true)}>
+                  <Plus size={14} /> Nova
+                </Button>
+              }
             />
           }
         />

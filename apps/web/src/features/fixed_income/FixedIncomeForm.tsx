@@ -4,12 +4,7 @@ import { Button } from "@/components/ui/Button";
 import { Input, Label, Select } from "@/components/ui/Input";
 import { MoneyInput } from "@/components/ui/MoneyInput";
 import { useBankAccounts } from "@/features/bank_accounts/api";
-import {
-  type IndexadorRF,
-  type ProductIn,
-  type TipoProdutoRF,
-  useCreateProduct,
-} from "./api";
+import { type IndexadorRF, type ProductIn, type TipoProdutoRF, useCreateProduct } from "./api";
 
 const TIPOS: { value: TipoProdutoRF; label: string }[] = [
   { value: "CAIXINHA", label: "Caixinha" },
@@ -48,7 +43,8 @@ export function FixedIncomeForm({ onSuccess }: Props) {
   const [liquidezDiaria, setLiquidezDiaria] = useState(true);
   const [aporteInicial, setAporteInicial] = useState(0);
 
-  const taxaLabel = indexador === "CDI" || indexador === "SELIC" ? "% do indexador" : "Taxa (% a.a.)";
+  const taxaLabel =
+    indexador === "CDI" || indexador === "SELIC" ? "% do indexador" : "Taxa (% a.a.)";
 
   const onSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -90,10 +86,7 @@ export function FixedIncomeForm({ onSuccess }: Props) {
         </div>
         <div>
           <Label>Indexador</Label>
-          <Select
-            value={indexador}
-            onChange={(e) => setIndexador(e.target.value as IndexadorRF)}
-          >
+          <Select value={indexador} onChange={(e) => setIndexador(e.target.value as IndexadorRF)}>
             {INDEXADORES.map((i) => (
               <option key={i}>{i}</option>
             ))}

@@ -27,8 +27,7 @@
     --color-sidebar: #fafafa;
 
     --shadow-sm: 0 1px 0 rgba(0, 0, 0, 0.04);
-    --shadow-glow: 0 0 0 1px rgba(0, 0, 0, 0.05),
-      0 4px 12px -4px var(--color-accent-glow);
+    --shadow-glow: 0 0 0 1px rgba(0, 0, 0, 0.05), 0 4px 12px -4px var(--color-accent-glow);
     --shadow-modal: 0 20px 50px -10px rgba(15, 23, 42, 0.18);
   }
 
@@ -51,13 +50,16 @@
     --color-sidebar: #08080a;
 
     --shadow-sm: inset 0 0 0 1px rgba(255, 255, 255, 0.04);
-    --shadow-glow: 0 0 0 1px rgba(255, 255, 255, 0.06),
-      0 6px 18px -6px var(--color-accent-glow);
+    --shadow-glow: 0 0 0 1px rgba(255, 255, 255, 0.06), 0 6px 18px -6px var(--color-accent-glow);
     --shadow-modal: 0 20px 50px -10px rgba(0, 0, 0, 0.5);
   }
 
-  html { color-scheme: light; }
-  html.dark { color-scheme: dark; }
+  html {
+    color-scheme: light;
+  }
+  html.dark {
+    color-scheme: dark;
+  }
 
   body {
     font-family: theme("fontFamily.sans");
@@ -65,7 +67,12 @@
     @apply bg-bg text-text antialiased;
   }
 
-  input, select, textarea, button { font: inherit; }
+  input,
+  select,
+  textarea,
+  button {
+    font: inherit;
+  }
 
   input[type="date"]::-webkit-calendar-picker-indicator,
   input[type="time"]::-webkit-calendar-picker-indicator {
@@ -76,7 +83,9 @@
     color: var(--color-text-3);
   }
 
-  hr { @apply border-border; }
+  hr {
+    @apply border-border;
+  }
 }
 
 @layer utilities {
@@ -87,12 +96,26 @@
 }
 
 @keyframes modal-in {
-  from { opacity: 0; transform: scale(0.96); }
-  to { opacity: 1; transform: scale(1); }
+  from {
+    opacity: 0;
+    transform: scale(0.96);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 @keyframes overlay-in {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
-.modal-overlay-anim { animation: overlay-in 120ms ease-out; }
-.modal-anim { animation: modal-in 150ms ease-out; }
+.modal-overlay-anim {
+  animation: overlay-in 120ms ease-out;
+}
+.modal-anim {
+  animation: modal-in 150ms ease-out;
+}

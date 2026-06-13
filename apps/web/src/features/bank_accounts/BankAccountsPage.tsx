@@ -4,6 +4,7 @@ import { toast } from "sonner";
 
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Modal } from "@/components/ui/Modal";
+import { useConfirm } from "@/components/ui/ConfirmDialog";
 import { MoneyInput } from "@/components/ui/MoneyInput";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
@@ -46,6 +47,7 @@ export function BankAccountsPage() {
   const create = useCreateBankAccount();
   const update = useUpdateBankAccount();
   const remove = useDeleteBankAccount();
+  const confirm = useConfirm();
 
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<BankAccount | null>(null);
@@ -90,7 +92,12 @@ export function BankAccountsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Arquivar esta conta?")) return;
+    const ok = await confirm({
+      title: "Arquivar esta conta?",
+      confirmLabel: "Arquivar",
+      danger: true,
+    });
+    if (!ok) return;
     try {
       await remove.mutateAsync(id);
       toast.success("Conta arquivada");
@@ -118,7 +125,11 @@ export function BankAccountsPage() {
           icon={Wallet}
           title="Nenhuma conta cadastrada"
           description="Adicione sua primeira conta bancária para começar."
-          action={<Button onClick={() => open()}><Plus size={14} /> Nova conta</Button>}
+          action={
+            <Button onClick={() => open()}>
+              <Plus size={14} /> Nova conta
+            </Button>
+          }
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -138,27 +149,31 @@ export function BankAccountsPage() {
                   </div>
                 </div>
                 <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                  <button onClick={() => open(acc)} className="text-text-3 hover:text-text p-1" aria-label="Editar">
+                  <button
+                    onClick={() => open(acc)}
+                    className="text-text-3 hover:text-text p-1"
+                    aria-label="Editar"
+                  >
                     <Edit size={14} />
                   </button>
-                  <button onClick={() => handleDelete(acc.id)} className="text-text-3 hover:text-neg p-1" aria-label="Arquivar">
+                  <button
+                    onClick={() => handleDelete(acc.id)}
+                    className="text-text-3 hover:text-neg p-1"
+                    aria-label="Arquivar"
+                  >
                     <Trash2 size={14} />
                   </button>
                 </div>
               </div>
               <div className="flex flex-wrap items-center gap-1.5 mb-2">
-                <Badge variant="neutral">
-                  {TIPOS.find((t) => t.value === acc.tipo)?.label}
-                </Badge>
+                <Badge variant="neutral">{TIPOS.find((t) => t.value === acc.tipo)?.label}</Badge>
                 {acc.padrao && (
                   <Badge variant="accent" className="gap-1">
                     <Star size={11} className="fill-current" />
                     Padrão
                   </Badge>
                 )}
-                {acc.ignorar_nos_totais && (
-                  <Badge variant="warn">Fora do total</Badge>
-                )}
+                {acc.ignorar_nos_totais && <Badge variant="warn">Fora do total</Badge>}
               </div>
               <div className="tnum text-display font-semibold text-text">
                 {formatBRL(acc.saldo_atual)}
@@ -168,44 +183,79 @@ export function BankAccountsPage() {
         </div>
       )}
 
-      <Modal open={modalOpen} onClose={() => setModalOpen(false)} title={editing ? "Editar conta" : "Nova conta"}>
+      <Modal
+        open={modalOpen}
+        onClose={() => setModalOpen(false)}
+        title={editing ? "Editar conta" : "Nova conta"}
+      >
         <form onSubmit={submit} className="space-y-4">
           <div>
             <Label>Apelido</Label>
-            <Input required value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} />
+            <Input
+              required
+              value={form.nome}
+              onChange={(e) => setForm({ ...form, nome: e.target.value })}
+            />
           </div>
           <div>
             <Label>Instituição</Label>
-            <Input required value={form.instituicao} onChange={(e) => setForm({ ...form, instituicao: e.target.value })} />
+            <Input
+              required
+              value={form.instituicao}
+              onChange={(e) => setForm({ ...form, instituicao: e.target.value })}
+            />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label>Agência</Label>
-              <Input value={form.agencia} onChange={(e) => setForm({ ...form, agencia: e.target.value })} />
+              <Input
+                value={form.agencia}
+                onChange={(e) => setForm({ ...form, agencia: e.target.value })}
+              />
             </div>
             <div>
               <Label>Conta</Label>
-              <Input value={form.numero} onChange={(e) => setForm({ ...form, numero: e.target.value })} />
+              <Input
+                value={form.numero}
+                onChange={(e) => setForm({ ...form, numero: e.target.value })}
+              />
             </div>
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label>Tipo</Label>
-              <Select value={form.tipo} onChange={(e) => setForm({ ...form, tipo: e.target.value as TipoConta })}>
-                {TIPOS.map((t) => <option key={t.value} value={t.value}>{t.label}</option>)}
+              <Select
+                value={form.tipo}
+                onChange={(e) => setForm({ ...form, tipo: e.target.value as TipoConta })}
+              >
+                {TIPOS.map((t) => (
+                  <option key={t.value} value={t.value}>
+                    {t.label}
+                  </option>
+                ))}
               </Select>
             </div>
             <div>
               <Label>Cor</Label>
-              <Input type="color" className="h-10 p-1" value={form.cor} onChange={(e) => setForm({ ...form, cor: e.target.value })} />
+              <Input
+                type="color"
+                className="h-10 p-1"
+                value={form.cor}
+                onChange={(e) => setForm({ ...form, cor: e.target.value })}
+              />
             </div>
           </div>
           <div>
             <Label>Saldo inicial</Label>
-            <MoneyInput value={form.saldo_inicial} onChange={(v) => setForm({ ...form, saldo_inicial: v })} />
+            <MoneyInput
+              value={form.saldo_inicial}
+              onChange={(v) => setForm({ ...form, saldo_inicial: v })}
+            />
           </div>
           <div className="border-t border-border pt-3 space-y-2.5">
-            <div className="text-xs font-medium text-text-3 uppercase tracking-wide">Características</div>
+            <div className="text-xs font-medium text-text-3 uppercase tracking-wide">
+              Características
+            </div>
             <label className="flex items-start gap-2 text-sm text-text-2 cursor-pointer">
               <input
                 type="checkbox"
@@ -215,7 +265,9 @@ export function BankAccountsPage() {
               />
               <span>
                 Conta padrão
-                <span className="block text-xs text-text-3">Será pré-selecionada em novas transações</span>
+                <span className="block text-xs text-text-3">
+                  Será pré-selecionada em novas transações
+                </span>
               </span>
             </label>
             <label className="flex items-start gap-2 text-sm text-text-2 cursor-pointer">
@@ -227,7 +279,9 @@ export function BankAccountsPage() {
               />
               <span>
                 Exibir no resumo
-                <span className="block text-xs text-text-3">Aparece no widget "Minhas contas" do dashboard</span>
+                <span className="block text-xs text-text-3">
+                  Aparece no widget "Minhas contas" do dashboard
+                </span>
               </span>
             </label>
             <label className="flex items-start gap-2 text-sm text-text-2 cursor-pointer">
@@ -239,12 +293,16 @@ export function BankAccountsPage() {
               />
               <span>
                 Ignorar nos totais
-                <span className="block text-xs text-text-3">Saldo não conta no saldo total nem na evolução</span>
+                <span className="block text-xs text-text-3">
+                  Saldo não conta no saldo total nem na evolução
+                </span>
               </span>
             </label>
           </div>
           <div className="flex justify-end gap-2 pt-2">
-            <Button type="button" variant="secondary" onClick={() => setModalOpen(false)}>Cancelar</Button>
+            <Button type="button" variant="secondary" onClick={() => setModalOpen(false)}>
+              Cancelar
+            </Button>
             <Button type="submit">{editing ? "Salvar" : "Criar"}</Button>
           </div>
         </form>

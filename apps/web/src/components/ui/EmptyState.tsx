@@ -24,9 +24,7 @@ export function EmptyState({ icon: Icon, title, description, action, className }
         </div>
       )}
       <h3 className="text-h2 text-text">{title}</h3>
-      {description && (
-        <p className="mt-1 text-sm text-text-3">{description}</p>
-      )}
+      {description && <p className="mt-1 text-sm text-text-3">{description}</p>}
       {action && <div className="mt-4 flex justify-center">{action}</div>}
     </div>
   );

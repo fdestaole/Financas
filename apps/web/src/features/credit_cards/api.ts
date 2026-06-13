@@ -48,7 +48,8 @@ export const useCard = (id: string | undefined) =>
 export const useCreateCard = () => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (data: CreditCardIn) => api.post<CreditCard>("/credit-cards", data).then((r) => r.data),
+    mutationFn: (data: CreditCardIn) =>
+      api.post<CreditCard>("/credit-cards", data).then((r) => r.data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["credit-cards"] }),
   });
 };

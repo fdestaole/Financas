@@ -23,7 +23,8 @@ export function DonutChart({
   outerRadius = 80,
 }: Props) {
   const t = useChartTheme();
-  const fmt = format ?? ((v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }));
+  const fmt =
+    format ?? ((v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }));
   const bg = t.isDark ? "#0a0a0b" : "#ffffff";
 
   return (

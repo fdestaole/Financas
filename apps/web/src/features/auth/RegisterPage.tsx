@@ -50,11 +50,7 @@ export function RegisterPage() {
           <form onSubmit={submit} className="space-y-4">
             <div>
               <Label>Nome</Label>
-              <Input
-                required
-                value={nome}
-                onChange={(e) => setNome(e.target.value)}
-              />
+              <Input required value={nome} onChange={(e) => setNome(e.target.value)} />
             </div>
             <div>
               <Label>E-mail</Label>

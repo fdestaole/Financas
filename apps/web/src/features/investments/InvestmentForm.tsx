@@ -56,25 +56,51 @@ export function InvestmentForm({ onSuccess }: Props) {
       <div className="grid grid-cols-2 gap-3">
         <div>
           <Label>Ticker</Label>
-          <Input className="uppercase" required value={form.ticker} onChange={(e) => setForm({ ...form, ticker: e.target.value })} placeholder="PETR4" />
+          <Input
+            className="uppercase"
+            required
+            value={form.ticker}
+            onChange={(e) => setForm({ ...form, ticker: e.target.value })}
+            placeholder="PETR4"
+          />
         </div>
         <div>
           <Label>Tipo do ativo</Label>
-          <Select value={form.tipo_ativo} onChange={(e) => setForm({ ...form, tipo_ativo: e.target.value as TipoAtivo })}>
-            {TIPOS.map((t) => <option key={t.v} value={t.v}>{t.label}</option>)}
+          <Select
+            value={form.tipo_ativo}
+            onChange={(e) => setForm({ ...form, tipo_ativo: e.target.value as TipoAtivo })}
+          >
+            {TIPOS.map((t) => (
+              <option key={t.v} value={t.v}>
+                {t.label}
+              </option>
+            ))}
           </Select>
         </div>
       </div>
       <div>
         <Label>Operação</Label>
-        <Select value={form.tipo} onChange={(e) => setForm({ ...form, tipo: e.target.value as TipoOperacao })}>
-          {OPS.map((o) => <option key={o.v} value={o.v}>{o.label}</option>)}
+        <Select
+          value={form.tipo}
+          onChange={(e) => setForm({ ...form, tipo: e.target.value as TipoOperacao })}
+        >
+          {OPS.map((o) => (
+            <option key={o.v} value={o.v}>
+              {o.label}
+            </option>
+          ))}
         </Select>
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div>
           <Label>Quantidade</Label>
-          <Input type="number" step="any" required value={form.quantidade} onChange={(e) => setForm({ ...form, quantidade: Number(e.target.value) })} />
+          <Input
+            type="number"
+            step="any"
+            required
+            value={form.quantidade}
+            onChange={(e) => setForm({ ...form, quantidade: Number(e.target.value) })}
+          />
         </div>
         <div>
           <Label>Preço unitário</Label>
@@ -88,12 +114,19 @@ export function InvestmentForm({ onSuccess }: Props) {
         </div>
         <div>
           <Label>Data</Label>
-          <Input type="date" value={form.data} onChange={(e) => setForm({ ...form, data: e.target.value })} />
+          <Input
+            type="date"
+            value={form.data}
+            onChange={(e) => setForm({ ...form, data: e.target.value })}
+          />
         </div>
       </div>
       <div>
         <Label>Corretora</Label>
-        <Input value={form.corretora} onChange={(e) => setForm({ ...form, corretora: e.target.value })} />
+        <Input
+          value={form.corretora}
+          onChange={(e) => setForm({ ...form, corretora: e.target.value })}
+        />
       </div>
       <div className="flex justify-end gap-2 pt-2">
         <Button type="submit">Registrar</Button>

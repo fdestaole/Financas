@@ -35,20 +35,9 @@ export function DashboardPage() {
           spark={evolucaoSpark.length > 1 ? evolucaoSpark : undefined}
           featured
         />
-        <KpiCard
-          label="Receitas (mês)"
-          value={formatBRL(resumo?.receitas_mes)}
-          tone="pos"
-        />
-        <KpiCard
-          label="Despesas (mês)"
-          value={formatBRL(resumo?.despesas_mes)}
-          tone="neg"
-        />
-        <KpiCard
-          label="Faturas em aberto"
-          value={formatBRL(resumo?.faturas_em_aberto)}
-        />
+        <KpiCard label="Receitas (mês)" value={formatBRL(resumo?.receitas_mes)} tone="pos" />
+        <KpiCard label="Despesas (mês)" value={formatBRL(resumo?.despesas_mes)} tone="neg" />
+        <KpiCard label="Faturas em aberto" value={formatBRL(resumo?.faturas_em_aberto)} />
       </div>
 
       {resumo?.contas_resumo && resumo.contas_resumo.length > 0 && (
@@ -88,7 +77,11 @@ export function DashboardPage() {
                   <span className="text-text-2">{g.nome}</span>
                   <span className="tnum text-text">{formatBRL(g.total)}</span>
                 </div>
-                <ProgressBar value={Number(g.total)} max={totalGastos || 1} color={g.cor ?? undefined} />
+                <ProgressBar
+                  value={Number(g.total)}
+                  max={totalGastos || 1}
+                  color={g.cor ?? undefined}
+                />
               </div>
             )) ?? <span className="text-sm text-text-3">Sem dados</span>}
           </CardBody>

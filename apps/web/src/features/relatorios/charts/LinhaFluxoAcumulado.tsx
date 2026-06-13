@@ -59,7 +59,13 @@ export function LinhaFluxoAcumulado({ data, granularidade, onGranularidadeChange
                 </linearGradient>
               </defs>
               <CartesianGrid strokeDasharray="3 3" stroke={t.gridStroke} />
-              <XAxis dataKey="data" fontSize={t.axisFontSize} stroke={t.axisColor} tickLine={false} axisLine={false} />
+              <XAxis
+                dataKey="data"
+                fontSize={t.axisFontSize}
+                stroke={t.axisColor}
+                tickLine={false}
+                axisLine={false}
+              />
               <YAxis
                 fontSize={t.axisFontSize}
                 stroke={t.axisColor}

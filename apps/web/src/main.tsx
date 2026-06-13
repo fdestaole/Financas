@@ -6,6 +6,7 @@ import { Toaster } from "sonner";
 
 import "./styles/globals.css";
 import App from "./App";
+import { ConfirmProvider } from "@/components/ui/ConfirmDialog";
 import { applyTheme, useThemeStore } from "@/lib/theme";
 
 applyTheme(useThemeStore.getState().theme);
@@ -22,13 +23,20 @@ function ThemedToaster() {
   return <Toaster richColors position="top-right" theme={theme} />;
 }
 
-ReactDOM.createRoot(document.getElementById("root")!).render(
+const rootElement = document.getElementById("root");
+if (!rootElement) {
+  throw new Error("Elemento #root não encontrado no index.html");
+}
+
+ReactDOM.createRoot(rootElement).render(
   <React.StrictMode>
     <QueryClientProvider client={queryClient}>
       <BrowserRouter>
-        <App />
-        <ThemedToaster />
+        <ConfirmProvider>
+          <App />
+          <ThemedToaster />
+        </ConfirmProvider>
       </BrowserRouter>
     </QueryClientProvider>
-  </React.StrictMode>
+  </React.StrictMode>,
 );

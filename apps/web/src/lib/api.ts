@@ -51,11 +51,7 @@ api.interceptors.response.use(
       original._retry = true;
       isRefreshing = true;
       try {
-        const { data } = await axios.post(
-          `${baseURL}/auth/refresh`,
-          {},
-          { withCredentials: true }
-        );
+        const { data } = await axios.post(`${baseURL}/auth/refresh`, {}, { withCredentials: true });
         useAuthStore.getState().setSession(data.access_token, data.user);
         flushQueue(data.access_token);
         original.headers.Authorization = `Bearer ${data.access_token}`;
@@ -69,7 +65,7 @@ api.interceptors.response.use(
       }
     }
     return Promise.reject(error);
-  }
+  },
 );
 
 export const errorMessage = (err: unknown, fallback = "Erro inesperado"): string => {

@@ -6,6 +6,7 @@ import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/Button";
 import { Card } from "@/components/ui/Card";
 import { Modal } from "@/components/ui/Modal";
+import { useConfirm } from "@/components/ui/ConfirmDialog";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { errorMessage } from "@/lib/api";
 import { Input, Select, Label } from "@/components/ui/Input";
@@ -21,6 +22,7 @@ export function CategoriesPage() {
   const { data, isLoading } = useCategories();
   const create = useCreateCategory();
   const remove = useDeleteCategory();
+  const confirm = useConfirm();
 
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({ nome: "", tipo: "DESPESA" as TipoCategoria, cor: "#a78bfa" });
@@ -38,7 +40,12 @@ export function CategoriesPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Excluir categoria?")) return;
+    const ok = await confirm({
+      title: "Excluir categoria?",
+      confirmLabel: "Excluir",
+      danger: true,
+    });
+    if (!ok) return;
     try {
       await remove.mutateAsync(id);
       toast.success("Excluída");
@@ -87,23 +94,37 @@ export function CategoriesPage() {
         <form onSubmit={submit} className="space-y-4">
           <div>
             <Label>Nome</Label>
-            <Input required value={form.nome} onChange={(e) => setForm({ ...form, nome: e.target.value })} />
+            <Input
+              required
+              value={form.nome}
+              onChange={(e) => setForm({ ...form, nome: e.target.value })}
+            />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <Label>Tipo</Label>
-              <Select value={form.tipo} onChange={(e) => setForm({ ...form, tipo: e.target.value as TipoCategoria })}>
+              <Select
+                value={form.tipo}
+                onChange={(e) => setForm({ ...form, tipo: e.target.value as TipoCategoria })}
+              >
                 <option value="RECEITA">Receita</option>
                 <option value="DESPESA">Despesa</option>
               </Select>
             </div>
             <div>
               <Label>Cor</Label>
-              <Input type="color" className="h-10 p-1" value={form.cor} onChange={(e) => setForm({ ...form, cor: e.target.value })} />
+              <Input
+                type="color"
+                className="h-10 p-1"
+                value={form.cor}
+                onChange={(e) => setForm({ ...form, cor: e.target.value })}
+              />
             </div>
           </div>
           <div className="flex justify-end gap-2">
-            <Button type="button" variant="secondary" onClick={() => setOpen(false)}>Cancelar</Button>
+            <Button type="button" variant="secondary" onClick={() => setOpen(false)}>
+              Cancelar
+            </Button>
             <Button type="submit">Criar</Button>
           </div>
         </form>

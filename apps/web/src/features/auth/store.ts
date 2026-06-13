@@ -27,6 +27,6 @@ export const useAuthStore = create<AuthState>()(
       // Access token fica apenas em memória — só o perfil do usuário é persistido.
       // Isso impede roubo do token por XSS via localStorage.
       partialize: (state) => ({ user: state.user }),
-    }
-  )
+    },
+  ),
 );
