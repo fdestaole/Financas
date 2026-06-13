@@ -17,7 +17,18 @@ Aplicativo web de controle de finanças pessoais e investimentos.
 
 ## Setup local
 
-Pré-requisitos: Docker, Python 3.12+, Node 20+, pnpm 9+.
+Pré-requisitos: Docker, Python 3.12+, Node 20+.
+
+### Opção A — Docker (tudo de uma vez)
+
+```bash
+cp apps/api/.env.example apps/api/.env
+docker compose up --build
+```
+
+Sobe Postgres, API (com `alembic upgrade head` automático) e o frontend.
+
+### Opção B — manual
 
 ```bash
 # 1. Subir o banco
@@ -29,16 +40,24 @@ python -m venv .venv && source .venv/bin/activate
 pip install -r requirements.txt
 cp .env.example .env
 alembic upgrade head
-python -m app.db.seed              # categorias padrão (opcional)
 uvicorn app.main:app --reload --port 3333
 
 # 3. Frontend (em outro terminal)
 cd apps/web
 cp .env.example .env
-pnpm install
-pnpm dev
+npm install
+npm run dev
 ```
 
-- API: http://localhost:3333 (docs interativas em `/docs`)
+- API: http://localhost:3333 (docs interativas em `/docs`, health em `/health`)
 - Web: http://localhost:5173
 - Adminer: http://localhost:8080
+
+> As categorias padrão são criadas automaticamente no cadastro de cada usuário.
+> Para popular dados de demonstração, rode `python seed_test_data.py` em `apps/api`.
+
+### Banco de dados
+
+O alvo oficial é **Postgres** (ver `.env.example`). Para testes e desenvolvimento
+rápido também há suporte a **SQLite** — basta apontar `DATABASE_URL` para
+`sqlite:///./financas.db`. A suíte de testes usa SQLite em memória.
