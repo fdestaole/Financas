@@ -1,7 +1,7 @@
 from datetime import date
 from decimal import Decimal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 from app.db.enums import TipoAtivo, TipoOperacaoInvest
 
@@ -16,6 +16,12 @@ class OperacaoIn(BaseModel):
     data: date
     corretora: str | None = None
     observacao: str | None = None
+
+    @model_validator(mode="after")
+    def _preco_positivo_em_compra_venda(self) -> "OperacaoIn":
+        if self.tipo in (TipoOperacaoInvest.COMPRA, TipoOperacaoInvest.VENDA) and self.preco <= 0:
+            raise ValueError("preço deve ser maior que zero em operações de COMPRA/VENDA")
+        return self
 
 
 class OperacaoOut(BaseModel):

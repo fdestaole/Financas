@@ -3,11 +3,12 @@ from decimal import ROUND_HALF_UP, Decimal
 
 from dateutil.relativedelta import relativedelta
 from sqlalchemy import func, or_, select
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from app.core.errors import BusinessRuleError, NotFoundError
 from app.db.enums import SentidoTransferencia, StatusTransacao, TipoTransacao
-from app.db.models import BankAccount, Category, CreditCard, Transaction
+from app.db.models import BankAccount, Category, CreditCard, IdempotencyKey, Transaction
 from app.modules.invoices.service import upsert_invoice
 from app.modules.transactions.schemas import (
     CompraCartaoIn,
@@ -176,7 +177,7 @@ def criar_compra_cartao(db: Session, user_id: str, data: CompraCartaoIn) -> list
     return criadas
 
 
-def criar_transacao(db: Session, user_id: str, data: TransactionIn) -> list[Transaction]:
+def _dispatch_criar(db: Session, user_id: str, data: TransactionIn) -> list[Transaction]:
     if isinstance(data, ReceitaIn):
         return criar_receita(db, user_id, data)
     if isinstance(data, DespesaIn):
@@ -186,6 +187,73 @@ def criar_transacao(db: Session, user_id: str, data: TransactionIn) -> list[Tran
     if isinstance(data, CompraCartaoIn):
         return criar_compra_cartao(db, user_id, data)
     raise BusinessRuleError("Tipo de transação inválido")
+
+
+_IDEMPOTENCY_ENDPOINT = "transactions"
+
+
+def _buscar_resultado_idempotente(
+    db: Session, rec: IdempotencyKey, user_id: str
+) -> list[Transaction]:
+    ids = [i for i in rec.resultado_ids.split(",") if i]
+    if not ids:
+        return []
+    encontradas = list(
+        db.scalars(
+            select(Transaction).where(
+                Transaction.id.in_(ids), Transaction.user_id == user_id
+            )
+        )
+    )
+    ordem = {id_: n for n, id_ in enumerate(ids)}
+    encontradas.sort(key=lambda t: ordem.get(t.id, 0))
+    return encontradas
+
+
+def criar_transacao(
+    db: Session, user_id: str, data: TransactionIn, *, idempotency_key: str | None = None
+) -> list[Transaction]:
+    """Cria transação(ões). Com `idempotency_key`, um POST repetido devolve o
+    mesmo resultado em vez de duplicar (protege contra duplo-clique / retry).
+    """
+    if not idempotency_key:
+        return _dispatch_criar(db, user_id, data)
+
+    existente = db.scalar(
+        select(IdempotencyKey).where(
+            IdempotencyKey.user_id == user_id,
+            IdempotencyKey.endpoint == _IDEMPOTENCY_ENDPOINT,
+            IdempotencyKey.key == idempotency_key,
+        )
+    )
+    if existente is not None:
+        return _buscar_resultado_idempotente(db, existente, user_id)
+
+    txs = _dispatch_criar(db, user_id, data)
+    db.add(
+        IdempotencyKey(
+            user_id=user_id,
+            endpoint=_IDEMPOTENCY_ENDPOINT,
+            key=idempotency_key,
+            resultado_ids=",".join(t.id for t in txs),
+        )
+    )
+    try:
+        db.commit()
+    except IntegrityError:
+        # Corrida: outra requisição registrou a mesma chave. Devolve o
+        # resultado já persistido por ela.
+        db.rollback()
+        outra = db.scalar(
+            select(IdempotencyKey).where(
+                IdempotencyKey.user_id == user_id,
+                IdempotencyKey.endpoint == _IDEMPOTENCY_ENDPOINT,
+                IdempotencyKey.key == idempotency_key,
+            )
+        )
+        if outra is not None:
+            return _buscar_resultado_idempotente(db, outra, user_id)
+    return txs
 
 
 def listar_transacoes(
@@ -202,6 +270,8 @@ def listar_transacoes(
     page: int = 1,
     page_size: int = 50,
 ) -> tuple[list[Transaction], int]:
+    if data_inicio and data_fim and data_inicio > data_fim:
+        raise BusinessRuleError("data_inicio não pode ser maior que data_fim")
     base = select(Transaction).where(Transaction.user_id == user_id)
     if bank_account_id:
         base = base.where(Transaction.bank_account_id == bank_account_id)

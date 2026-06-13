@@ -1,7 +1,7 @@
 from datetime import date
 from typing import Annotated
 
-from fastapi import APIRouter, Body, Query, Response
+from fastapi import APIRouter, Body, Header, Query, Response
 
 from app.core.deps import CurrentUser, DbSession
 from app.db.enums import TipoTransacao
@@ -60,8 +60,13 @@ def list_(
 
 
 @router.post("", response_model=list[TransactionOut], status_code=201)
-def create(data: TxIn, user: CurrentUser, db: DbSession):
-    txs = service.criar_transacao(db, user.id, data)
+def create(
+    data: TxIn,
+    user: CurrentUser,
+    db: DbSession,
+    idempotency_key: Annotated[str | None, Header(alias="Idempotency-Key")] = None,
+):
+    txs = service.criar_transacao(db, user.id, data, idempotency_key=idempotency_key)
     return [TransactionOut.model_validate(t) for t in txs]
 
 
