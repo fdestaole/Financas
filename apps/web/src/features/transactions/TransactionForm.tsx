@@ -14,6 +14,8 @@ import { useCreateTransaction, type TipoTransacao, type TxIn } from "./api";
 interface Props {
   onSuccess: () => void;
   initialTipo?: TipoTransacao;
+  initialValor?: number;
+  initialDescricao?: string;
 }
 
 const TIPOS: { value: TipoTransacao; label: string }[] = [
@@ -23,15 +25,15 @@ const TIPOS: { value: TipoTransacao; label: string }[] = [
   { value: "COMPRA_CARTAO", label: "Compra no cartão" },
 ];
 
-export function TransactionForm({ onSuccess, initialTipo }: Props) {
+export function TransactionForm({ onSuccess, initialTipo, initialValor, initialDescricao }: Props) {
   const { data: accounts } = useBankAccounts();
   const { data: cards } = useCreditCards();
   const { data: categories } = useCategories();
   const create = useCreateTransaction();
 
   const [tipo, setTipo] = useState<TipoTransacao>(initialTipo ?? "DESPESA");
-  const [descricao, setDescricao] = useState("");
-  const [valor, setValor] = useState(0);
+  const [descricao, setDescricao] = useState(initialDescricao ?? "");
+  const [valor, setValor] = useState(initialValor ?? 0);
   const [data, setData] = useState(todayISO());
   const [bankAccountId, setBankAccountId] = useState("");
   const [origemId, setOrigemId] = useState("");

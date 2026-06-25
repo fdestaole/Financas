@@ -67,6 +67,12 @@
 
   input, select, textarea, button { font: inherit; }
 
+  /* Capacitor / Android safe-area support */
+  :root {
+    --safe-area-inset-top: env(safe-area-inset-top, 0px);
+    --safe-area-inset-bottom: env(safe-area-inset-bottom, 0px);
+  }
+
   input[type="date"]::-webkit-calendar-picker-indicator,
   input[type="time"]::-webkit-calendar-picker-indicator {
     @apply dark:invert dark:opacity-80;

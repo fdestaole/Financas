@@ -15,8 +15,8 @@ from app.db.enums import (
     StatusFatura,
     StatusTransacao,
     TipoAtivo,
-    TipoOperacaoInvest,
     TipoConta,
+    TipoOperacaoInvest,
     TipoTransacao,
 )
 from app.db.models import (

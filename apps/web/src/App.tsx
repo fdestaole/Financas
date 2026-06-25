@@ -13,6 +13,7 @@ import { TransactionsPage } from "@/features/transactions/TransactionsPage";
 import { InvestmentsPage } from "@/features/investments/InvestmentsPage";
 import { RelatoriosPage } from "@/features/relatorios/RelatoriosPage";
 import { DevAutoLogin } from "@/features/dev/DevAutoLogin";
+import { NotificacoesPage } from "@/features/notifications/NotificacoesPage";
 
 function Protected({ children }: { children: React.ReactNode }) {
   const token = useAuthStore((s) => s.accessToken);
@@ -35,6 +36,7 @@ export default function App() {
           <Route path="transacoes" element={<TransactionsPage />} />
           <Route path="relatorios" element={<RelatoriosPage />} />
           <Route path="investimentos" element={<InvestmentsPage />} />
+          <Route path="notificacoes" element={<NotificacoesPage />} />
         </Route>
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>

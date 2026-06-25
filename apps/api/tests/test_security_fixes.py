@@ -14,20 +14,19 @@ from decimal import Decimal
 from unittest.mock import patch
 
 import pytest
+from pydantic import ValidationError
 
 from app.core.errors import BusinessRuleError, UnauthorizedError
-from app.db.enums import BandeiraCartao, IndexadorRF, TipoConta, TipoOperacaoRF, TipoProdutoRF
+from app.db.enums import BandeiraCartao, IndexadorRF, TipoConta, TipoOperacaoRF
 from app.modules.auth.schemas import RegisterIn
 from app.modules.auth.service import issue_tokens, register_user, rotate_refresh_token
 from app.modules.bank_accounts.schemas import BankAccountIn
 from app.modules.bank_accounts.service import create_account
-from app.modules.fixed_income.calc import ResultadoRF, calcular_posicao
+from app.modules.fixed_income.calc import calcular_posicao
 from app.modules.fixed_income.schemas import OperacaoRFIn
 from app.modules.invoices.service import pagar_fatura
-from app.modules.transactions.schemas import DespesaIn, ReceitaIn
+from app.modules.transactions.schemas import DespesaIn, ReceitaIn, TransactionUpdate
 from app.modules.transactions.service import atualizar, criar_transacao, listar_transacoes
-from app.modules.transactions.schemas import TransactionUpdate
-
 
 # ---------------------------------------------------------------------------
 # FIX 1 – JWT sub ausente/falsy deve ser rejeitado sem fallback para DB
@@ -45,7 +44,8 @@ def test_rotate_rejects_token_with_missing_sub(db, user):
 def test_rotate_rejects_token_with_empty_sub(db, user):
     """sub='' (string vazia) também deve ser rejeitado."""
     _, refresh = issue_tokens(db, user)
-    with patch("app.modules.auth.service.decode_token", return_value={"sub": "", "type": "refresh"}):
+    patch_target = "app.modules.auth.service.decode_token"
+    with patch(patch_target, return_value={"sub": "", "type": "refresh"}):
         with pytest.raises(UnauthorizedError):
             rotate_refresh_token(db, refresh)
 
@@ -101,7 +101,6 @@ def test_bank_account_out_includes_new_fields(conta):
 
 def test_pagar_fatura_preserva_primeiro_pagamento_transaction_id(db, user, conta):
     """pagamento_transaction_id deve permanecer apontando para o primeiro pagamento."""
-    from app.db.enums import BandeiraCartao
     from app.modules.credit_cards.schemas import CreditCardIn
     from app.modules.credit_cards.service import create_card
     from app.modules.transactions.schemas import CompraCartaoIn
@@ -214,11 +213,11 @@ def test_ajuste_saldo_aceita_valor_zero():
 
 def test_aporte_rejeita_valor_zero():
     """APORTE com valor=0 deve falhar na validação."""
-    with pytest.raises(Exception):
+    with pytest.raises(ValidationError):
         OperacaoRFIn(tipo=TipoOperacaoRF.APORTE, valor=Decimal("0"), data=date(2026, 1, 1))
 
 
 def test_resgate_rejeita_valor_zero():
     """RESGATE com valor=0 deve falhar na validação."""
-    with pytest.raises(Exception):
+    with pytest.raises(ValidationError):
         OperacaoRFIn(tipo=TipoOperacaoRF.RESGATE, valor=Decimal("0"), data=date(2026, 1, 1))

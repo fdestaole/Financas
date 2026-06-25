@@ -5,6 +5,10 @@ build/
 .cache/
 coverage/
 
+# Capacitor Android generated project (regenerated via: npx cap add android)
+apps/web/android/
+apps/web/.gradle/
+
 # tsc -b artifacts in TypeScript-only src trees
 apps/web/src/**/*.js
 

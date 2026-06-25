@@ -3,6 +3,8 @@ import ReactDOM from "react-dom/client";
 import { BrowserRouter } from "react-router-dom";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "sonner";
+import { Capacitor } from "@capacitor/core";
+import { App as CapApp } from "@capacitor/app";
 
 import "./styles/globals.css";
 import App from "./App";
@@ -10,6 +12,16 @@ import { applyTheme, useThemeStore } from "@/lib/theme";
 
 applyTheme(useThemeStore.getState().theme);
 useThemeStore.subscribe((state) => applyTheme(state.theme));
+
+if (Capacitor.isNativePlatform()) {
+  CapApp.addListener("backButton", ({ canGoBack }) => {
+    if (canGoBack) {
+      window.history.back();
+    } else {
+      CapApp.exitApp();
+    }
+  });
+}
 
 const queryClient = new QueryClient({
   defaultOptions: {
