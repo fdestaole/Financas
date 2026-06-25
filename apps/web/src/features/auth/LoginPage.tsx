@@ -33,11 +33,17 @@ export function LoginPage() {
   const loginTeste = async () => {
     setLoading(true);
     try {
-      const res = await authApi.login("teste@financas.com", "Teste@123");
+      let res = await authApi
+        .login("teste@financas.com", "Teste@123")
+        .catch(() =>
+          authApi
+            .register("teste@financas.com", "Usuário Teste", "Teste@123")
+            .then(() => authApi.login("teste@financas.com", "Teste@123"))
+        );
       setSession(res.access_token, res.user);
       navigate("/");
-    } catch {
-      toast.error("Conta de teste não encontrada. Rode seed_test_data.py primeiro.");
+    } catch (err) {
+      toast.error(errorMessage(err, "Erro ao acessar conta de teste"));
     } finally {
       setLoading(false);
     }

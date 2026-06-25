@@ -12,7 +12,6 @@ mais completos. Hoje o módulo `investments` cobre só renda variável
 (ações/FIIs/ETFs/BDRs via brapi).
 
 ## Decisões fechadas
-
 1. **Escopo:** renda fixa completa — caixinhas, CDB, LCI/LCA, Tesouro Direto,
    indexadores pré/pós/IPCA+, vencimento, IR regressivo. Modelar pensando em
    estender; não precisa entregar tudo de uma vez.
