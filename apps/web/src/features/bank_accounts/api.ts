@@ -50,7 +50,10 @@ export const useCreateBankAccount = () => {
 export const useUpdateBankAccount = () => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, ...data }: { id: string } & Partial<BankAccountIn> & { arquivada?: boolean }) =>
+    mutationFn: ({
+      id,
+      ...data
+    }: { id: string } & Partial<BankAccountIn> & { arquivada?: boolean }) =>
       api.put<BankAccount>(`/bank-accounts/${id}`, data).then((r) => r.data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["bank-accounts"] }),
   });

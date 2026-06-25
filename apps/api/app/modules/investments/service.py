@@ -53,13 +53,17 @@ def _recalcular_posicao(operations: list[InvestmentOperation]) -> tuple[Decimal,
             qtd += op.quantidade
             custo_total += custo
         elif op.tipo == TipoOperacaoInvest.VENDA:
-            if qtd <= 0:
-                continue
+            if op.quantidade > qtd:
+                raise BusinessRuleError(
+                    "Venda maior que a posição disponível para o ativo"
+                )
             pm = (custo_total / qtd) if qtd else Decimal("0")
+            # Baixa o custo proporcional à quantidade vendida (método do preço
+            # médio). Taxas de venda não alteram o PM das ações remanescentes;
+            # impactam o resultado/IR da venda, calculado à parte.
             custo_total -= pm * op.quantidade
             qtd -= op.quantidade
-            if qtd <= 0:
-                qtd = Decimal("0")
+            if qtd == 0:
                 custo_total = Decimal("0")
         elif op.tipo == TipoOperacaoInvest.DESDOBRAMENTO:
             qtd *= op.preco if op.preco > 0 else Decimal("1")

@@ -26,6 +26,10 @@ class Settings(BaseSettings):
     TZ: str = "America/Sao_Paulo"
     LOG_LEVEL: str = "INFO"
 
+    # Rate limiting (auth). Desligável em testes via RATE_LIMIT_ENABLED=false.
+    RATE_LIMIT_ENABLED: bool = True
+    RATE_LIMIT_AUTH: str = "10/minute"
+
     @field_validator("CORS_ORIGINS", mode="before")
     @classmethod
     def split_cors(cls, v):

@@ -17,8 +17,8 @@ export const useThemeStore = create<ThemeState>()(
       setTheme: (theme) => set({ theme }),
       toggle: () => set({ theme: get().theme === "light" ? "dark" : "light" }),
     }),
-    { name: "financas-theme" }
-  )
+    { name: "financas-theme" },
+  ),
 );
 
 export function applyTheme(theme: Theme) {

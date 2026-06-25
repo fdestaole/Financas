@@ -8,8 +8,14 @@ interface Props {
 }
 
 const COLORS = [
-  "#a78bfa", "#4ade80", "#22d3ee", "#fbbf24",
-  "#fb923c", "#f472b6", "#818cf8", "#34d399",
+  "#a78bfa",
+  "#4ade80",
+  "#22d3ee",
+  "#fbbf24",
+  "#fb923c",
+  "#f472b6",
+  "#818cf8",
+  "#34d399",
 ];
 
 function hashString(s: string): number {

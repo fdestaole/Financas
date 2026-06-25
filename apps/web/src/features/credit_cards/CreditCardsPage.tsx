@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { PageHeader } from "@/components/layout/PageHeader";
 import { Button } from "@/components/ui/Button";
 import { Modal } from "@/components/ui/Modal";
+import { useConfirm } from "@/components/ui/ConfirmDialog";
 import { EmptyState } from "@/components/ui/EmptyState";
 import { errorMessage } from "@/lib/api";
 import { useBankAccounts } from "@/features/bank_accounts/api";
@@ -17,6 +18,7 @@ export function CreditCardsPage() {
   const { data: accounts } = useBankAccounts();
   const create = useCreateCard();
   const remove = useDeleteCard();
+  const confirm = useConfirm();
 
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState<CardFormState>(initialCardForm);
@@ -41,7 +43,12 @@ export function CreditCardsPage() {
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Arquivar cartão?")) return;
+    const ok = await confirm({
+      title: "Arquivar cartão?",
+      confirmLabel: "Arquivar",
+      danger: true,
+    });
+    if (!ok) return;
     try {
       await remove.mutateAsync(id);
       toast.success("Arquivado");
@@ -78,7 +85,11 @@ export function CreditCardsPage() {
           icon={CardIcon}
           title="Nenhum cartão cadastrado"
           description="Adicione seu primeiro cartão de crédito para acompanhar faturas."
-          action={<Button onClick={openModal}><Plus size={14} /> Novo cartão</Button>}
+          action={
+            <Button onClick={openModal}>
+              <Plus size={14} /> Novo cartão
+            </Button>
+          }
         />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

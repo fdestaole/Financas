@@ -13,45 +13,45 @@ Os itens marcados com ✅ já foram corrigidos.
 4. ✅ **Despesas do mês contam parcelas de cartão *e* pagamentos de fatura** — duplicação econômica. Escolher entre visão caixa (`DESPESA + PAGAMENTO_FATURA`) ou competência (`DESPESA + COMPRA_CARTAO`), nunca os três.
 5. ✅ **Bug em `listar_transacoes` — query duplicada/morta** — `apps/api/app/modules/transactions/service.py` atribuía `total` com query mal-formada (`base.whereclause` perde filtros compostos com `or_`) e logo sobrescrevia. Removida; agora só o `count` correto via `select(func.count()).select_from(base.subquery())`.
 6. ✅ **Email de usuário não normalizado** — `unique=True` é case-sensitive; `Joao@x.com` e `joao@x.com` são contas distintas. Normalizar com `.lower()` antes de salvar/consultar.
-7. **Sem rate limit em `/auth/register` e `/auth/login`** — Argon2 atenua brute force mas DoS continua trivial. Adicionar `slowapi` ou middleware similar.
+7. ✅ **Sem rate limit em `/auth/register` e `/auth/login`** — adicionado `slowapi` (`app/core/ratelimit.py`), limite configurável via `RATE_LIMIT_AUTH` e desligável em testes. Handler 429 no formato de erro padrão.
 
 ## Altos (qualidade / consistência)
 
-8. **`.env` real diverge do `.env.example`** — usa SQLite enquanto README e example apontam Postgres. Decidir: suporte oficial a SQLite (testes/dev) ou só Postgres.
+8. ✅ **`.env` real diverge do `.env.example`** — decidido: Postgres é o alvo oficial; SQLite suportado oficialmente para dev/testes. Documentado no README.
 9. **Migração inicial duplica colunas e *server_default*** que já estão no modelo via `TimestampMixin`. Mudanças no mixin não se refletem.
 10. ✅ **Rotação de refresh sem detecção de reuso** — `apps/api/app/modules/auth/service.py`. Se atacante usa refresh antigo e vítima rotaciona, ambos seguem ativos. Padrão moderno: ao receber refresh já revogado, revogar toda a família.
 11. ✅ **`token_hash` é SHA-256 sem segredo** — vulnerável a ataque offline se a tabela vazar. Usar `hmac(secret, token)`.
 12. ✅ **Dependências mortas**: `apscheduler` e `python-multipart` em `requirements.txt` sem nenhum import.
 13. ✅ **`python-jose==3.3.0`** sem manutenção há ~3 anos com CVEs em circulação. Migrar para `PyJWT`.
-14. **README menciona `python -m app.db.seed`** que não existe.
+14. ✅ **README menciona `python -m app.db.seed`** que não existe — corrigido: documenta que categorias são criadas no registro e aponta `seed_test_data.py` para dados de demo.
 15. ✅ **`evolucao_saldo` era N+1 ao quadrado** — chamava `calcular_saldo` por conta × mês. Reescrito: 1 query busca os deltas assinados e acumula por mês em Python. Lógica movida para `dashboard/service.py`. `resumo` também passou a usar `calcular_saldos` (batch) em vez de 2×N queries.
-16. **TransactionForm não usa `react-hook-form`** — controla 11 useState manualmente apesar de `react-hook-form` + `zod` estarem em `package.json`.
-17. **`accessToken` em localStorage via `persist`** — eliminar `persist` e fazer "bootstrap auth" via `/auth/refresh` no `App` mount.
-18. **`Modal` sem foco-trap, sem trava de scroll, sem `aria-modal`**.
-19. **Confirmação destrutiva via `window.confirm`** — inconsistente com o resto do design e ruim em mobile.
+16. ✅ **TransactionForm não usa `react-hook-form`** — migrado para `react-hook-form` + `zod` (schema com `superRefine` por tipo, erros por campo).
+17. ✅ **`accessToken` em localStorage via `persist`** — token já era só memória; adicionado `AuthBootstrap` que restaura a sessão via `/auth/refresh` no mount.
+18. ✅ **`Modal` sem foco-trap, sem trava de scroll, sem `aria-modal`** — adicionados focus-trap (Tab/Shift+Tab), scroll-lock e `role="dialog"`/`aria-modal`/`aria-labelledby`.
+19. ✅ **Confirmação destrutiva via `window.confirm`** — substituído por `ConfirmDialog`/`useConfirm` (promise-based, consistente com o design) nas 4 telas.
 
 ## Médios (manutenibilidade)
 
 20. ✅ **`pyproject.toml` com `ruff` / `mypy` / `pytest`** adicionado em `apps/api`. Suíte pytest real em `tests/` (`conftest.py` + `test_saldo_dashboard.py`); `test_e2e.py` permanece como script de smoke.
-21. **Sem ESLint / Prettier** no frontend.
+21. ✅ **Sem ESLint / Prettier** no frontend — adicionado ESLint (flat config: typescript-eslint + react-hooks + react-refresh) e Prettier; CI roda `lint` + `format:check`; scripts `npm run lint/format`.
 22. ✅ **CI** adicionado em `.github/workflows/ci.yml`: job `api` (ruff + pytest) e job `web` (tsc `--noEmit`).
 23. ✅ **`requirements.txt` único** — separado: `requirements-dev.txt` (`-r requirements.txt` + pytest/ruff/mypy).
-24. **`models.py` quase sem `relationship()`/`back_populates`** — só `CreditCard.bank_account`. Causará N+1 conforme UI crescer.
-25. **`apps/web/tsconfig.json`** com `noUnusedLocals: false` e `noUnusedParameters: false` — relaxa demais.
-26. **`OperacaoIn` permite preço `0`** em qualquer operação. Para `COMPRA`/`VENDA` deveria ser `> 0`.
-27. **`_recalcular_posicao` ignora taxa em vendas** e zera completamente a posição se `qtd <= 0`. Caso de borda perigoso para IR.
+24. ✅ **`models.py` quase sem `relationship()`/`back_populates`** — adicionados: `CreditCard.invoices`/`Invoice.credit_card`, `Investment.operations`, `FixedIncomeProduct.operations`, e `Transaction.category`/`bank_account`/`credit_card`.
+25. ✅ **`apps/web/tsconfig.json`** com `noUnusedLocals`/`noUnusedParameters` — ligados (`true`); build e ESLint passam.
+26. ✅ **`OperacaoIn` permite preço `0`** — `model_validator` exige `preco > 0` em `COMPRA`/`VENDA` (BONIFICACAO etc. seguem aceitando 0).
+27. ✅ **`_recalcular_posicao` ignora taxa em vendas** e zerava a posição — agora rejeita venda maior que a posição (`BusinessRuleError`) em vez de zerar silenciosamente; taxa de venda documentada como não afetando o PM.
 28. **`fatura_atual` em credit_cards** busca `status == ABERTA` mas `transicionar_status` só roda quando o usuário abre a página de invoices. Pode mostrar valor obsoleto.
-29. **Idempotência ausente** em `POST /transactions`. Duplo clique cria duas transações.
-30. **Falta validação `data_inicio <= data_fim`** em filtros de transações.
+29. ✅ **Idempotência ausente** em `POST /transactions` — header `Idempotency-Key` + tabela `idempotency_keys`; POST repetido devolve o mesmo resultado.
+30. ✅ **Falta validação `data_inicio <= data_fim`** — validado em `listar_transacoes` (`BusinessRuleError`).
 
 ## Pequenos / *quick wins*
 
-31. **`lifespan` vazio em `main.py`** — remover.
-32. **`docker-compose.yml`** sem serviço API/web — adicionar facilita onboarding.
+31. ✅ **`lifespan` vazio em `main.py`** — removido; logging configurado no import.
+32. ✅ **`docker-compose.yml`** sem serviço API/web — adicionados serviços `api` (Dockerfile py3.12, roda migração) e `web` (Dockerfile node20).
 33. **Strings de cor** validadas como `String(20)` mas sem regex `#rrggbb`.
 34. ✅ **`dashboard.py` ordem de imports** — resolvido ao reescrever as rotas (camada fina) e mover a lógica para `dashboard/service.py`; imports organizados pelo `ruff`.
 35. **`MoneyInput` força `floatValue`** — perde precisão acima de 2^53.
-36. **`apps/web/src/main.tsx`** usa `document.getElementById("root")!` sem fallback.
+36. ✅ **`apps/web/src/main.tsx`** usava `getElementById("root")!` sem fallback — agora lança erro explícito se `#root` não existir.
 
 ---
 
@@ -75,10 +75,21 @@ Itens fora da lista numerada, feitos nesta passagem:
 
 ### Ainda pendente (avaliado e adiado de propósito)
 
-- **#16 `TransactionForm` → react-hook-form**: refactor grande e arriscado de
-  verificar; melhor numa passagem dedicada.
-- **#21 ESLint / Prettier**: exige `npm install` para gerar o lockfile, evitado
-  aqui pelo risco conhecido de corromper `node_modules` no OneDrive. CI cobre o
-  `tsc --noEmit`; ESLint deve ser adicionado num momento com `npm install` seguro.
-- **#25 `tsconfig` `noUnusedLocals`/`noUnusedParameters`**: ligar pode quebrar o
-  build; deixar para quando o ESLint cobrir `no-unused-vars`.
+- **#9 Migração inicial duplica colunas/`server_default`** do `TimestampMixin`.
+- **#28 `fatura_atual` pode mostrar valor obsoleto** (transição de status preguiçosa).
+- **#33 Strings de cor sem regex `#rrggbb`**.
+- **#35 `MoneyInput` força `floatValue`** (perda de precisão > 2^53).
+
+## Passagem 2026-06-13
+
+Resolvidos #7, #8, #14, #16, #17, #18, #19, #21, #24, #25, #26, #27, #29, #30,
+#31, #32, #36 (ver detalhes acima). Itens adicionais desta passagem:
+
+- ✅ **Observabilidade**: `/health` agora verifica a conexão com o banco
+  (`SELECT 1`, retorna 503 se cair) e o logging é configurado no startup.
+- ✅ **CI**: job da API roda em matriz Python 3.11 + 3.12 (antes só 3.11, apesar
+  de o README pedir 3.12+); job web ganhou `lint` + `format:check`.
+- ✅ **Cobertura de testes**: novos testes de service e HTTP para idempotência,
+  rate limit, health, validações de investimento e faturas (incluindo a
+  autorização da conta de pagamento — trava de regressão do #1).
+- ✅ **`tsconfig.tsbuildinfo`** deixou de ser versionado (artefato de build).

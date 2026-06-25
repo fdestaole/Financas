@@ -75,7 +75,10 @@ export function MultiSelect({
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className={cn(FIELD_BASE, "w-full flex items-center gap-1 flex-wrap min-h-[2.5rem] text-left cursor-pointer")}
+        className={cn(
+          FIELD_BASE,
+          "w-full flex items-center gap-1 flex-wrap min-h-[2.5rem] text-left cursor-pointer",
+        )}
       >
         {selecionadas.length === 0 ? (
           <span className="text-text-3 text-sm">{placeholder}</span>
@@ -126,9 +129,7 @@ export function MultiSelect({
             />
           </div>
           {filtradas.length === 0 ? (
-            <div className="p-3 text-sm text-text-3 text-center">
-              {emptyLabel}
-            </div>
+            <div className="p-3 text-sm text-text-3 text-center">{emptyLabel}</div>
           ) : (
             <ul className="py-1">
               {filtradas.map((opt) => {
@@ -146,17 +147,13 @@ export function MultiSelect({
                       <span
                         className={cn(
                           "w-4 h-4 rounded border flex items-center justify-center",
-                          selected
-                            ? "bg-accent border-accent text-white"
-                            : "border-border-strong",
+                          selected ? "bg-accent border-accent text-white" : "border-border-strong",
                         )}
                       >
                         {selected && <Check size={12} />}
                       </span>
                       <span className="flex-1">{opt.label}</span>
-                      {opt.hint && (
-                        <span className="text-xs text-text-3">{opt.hint}</span>
-                      )}
+                      {opt.hint && <span className="text-xs text-text-3">{opt.hint}</span>}
                     </button>
                   </li>
                 );

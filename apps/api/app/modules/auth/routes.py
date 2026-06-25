@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, Request, Response
 
 from app.core.config import settings
 from app.core.deps import CurrentUser, DbSession, get_refresh_cookie
+from app.core.ratelimit import auth_rate_limit
 from app.modules.auth import service
 from app.modules.auth.schemas import LoginIn, RegisterIn, TokenOut, UserOut
 
@@ -31,6 +32,7 @@ def _clear_refresh_cookie(response: Response) -> None:
 
 
 @router.post("/register", response_model=TokenOut)
+@auth_rate_limit()
 def register(data: RegisterIn, request: Request, response: Response, db: DbSession) -> TokenOut:
     user = service.register_user(db, data)
     ip = request.client.host if request.client else None
@@ -42,6 +44,7 @@ def register(data: RegisterIn, request: Request, response: Response, db: DbSessi
 
 
 @router.post("/login", response_model=TokenOut)
+@auth_rate_limit()
 def login(data: LoginIn, request: Request, response: Response, db: DbSession) -> TokenOut:
     user = service.authenticate(db, data)
     ip = request.client.host if request.client else None

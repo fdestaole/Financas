@@ -52,13 +52,17 @@ export function InvestmentsPage() {
         header: () => <div className="text-right">Qtd</div>,
         accessorKey: "quantidade",
         cell: ({ row }) => (
-          <div className="tnum text-right text-text">{Number(row.original.quantidade).toLocaleString("pt-BR")}</div>
+          <div className="tnum text-right text-text">
+            {Number(row.original.quantidade).toLocaleString("pt-BR")}
+          </div>
         ),
       },
       {
         header: () => <div className="text-right">PM</div>,
         accessorKey: "preco_medio",
-        cell: ({ row }) => <div className="tnum text-right text-text">{formatBRL(row.original.preco_medio)}</div>,
+        cell: ({ row }) => (
+          <div className="tnum text-right text-text">{formatBRL(row.original.preco_medio)}</div>
+        ),
       },
       {
         header: () => <div className="text-right">Cotação</div>,
@@ -72,7 +76,9 @@ export function InvestmentsPage() {
       {
         header: () => <div className="text-right">Investido</div>,
         accessorKey: "valor_investido",
-        cell: ({ row }) => <div className="tnum text-right text-text">{formatBRL(row.original.valor_investido)}</div>,
+        cell: ({ row }) => (
+          <div className="tnum text-right text-text">{formatBRL(row.original.valor_investido)}</div>
+        ),
       },
       {
         header: () => <div className="text-right">Atual</div>,
@@ -87,7 +93,9 @@ export function InvestmentsPage() {
         header: () => <div className="text-right">%</div>,
         id: "variacao",
         cell: ({ row }) => {
-          const v = row.original.variacao_percentual ? Number(row.original.variacao_percentual) : null;
+          const v = row.original.variacao_percentual
+            ? Number(row.original.variacao_percentual)
+            : null;
           return (
             <div
               className={cn(
@@ -111,8 +119,13 @@ export function InvestmentsPage() {
         description="Carteira de ações e FIIs com cotação em tempo real"
         actions={
           <div className="flex gap-2">
-            <Button variant="secondary" onClick={() => refresh.mutate()} disabled={refresh.isPending}>
-              <RefreshCw size={14} className={refresh.isPending ? "animate-spin" : ""} /> Atualizar cotações
+            <Button
+              variant="secondary"
+              onClick={() => refresh.mutate()}
+              disabled={refresh.isPending}
+            >
+              <RefreshCw size={14} className={refresh.isPending ? "animate-spin" : ""} /> Atualizar
+              cotações
             </Button>
             <Button onClick={() => setOpen(true)}>
               <Plus size={14} /> Nova operação
@@ -147,7 +160,11 @@ export function InvestmentsPage() {
                 icon={TrendingUp}
                 title="Nenhum ativo"
                 description="Adicione sua primeira operação para começar a acompanhar."
-                action={<Button onClick={() => setOpen(true)}><Plus size={14} /> Nova operação</Button>}
+                action={
+                  <Button onClick={() => setOpen(true)}>
+                    <Plus size={14} /> Nova operação
+                  </Button>
+                }
               />
             }
           />

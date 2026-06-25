@@ -1,10 +1,6 @@
 import { CSSProperties } from "react";
 import { useThemeStore } from "@/lib/theme";
-import {
-  SERIES_PALETTE_DARK,
-  SERIES_PALETTE_LIGHT,
-  tickCurrencyShort,
-} from "@/lib/tokens";
+import { SERIES_PALETTE_DARK, SERIES_PALETTE_LIGHT, tickCurrencyShort } from "@/lib/tokens";
 
 export interface ChartTheme {
   isDark: boolean;

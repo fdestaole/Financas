@@ -46,7 +46,8 @@ function buildInitialFiltros(searchParams: URLSearchParams): {
   }
   const categoryIds = searchParams.getAll("category_ids");
   if (categoryIds.length > 0) filtros.category_ids = categoryIds;
-  const preset = (searchParams.get("preset") as PresetKey | null) ??
+  const preset =
+    (searchParams.get("preset") as PresetKey | null) ??
     (typeof window !== "undefined"
       ? ((localStorage.getItem(STORAGE_KEY) as PresetKey | null) ?? "3-meses")
       : "3-meses");
@@ -139,12 +140,7 @@ export function RelatoriosPage() {
           title="Relatórios"
           description="Filtre receitas, despesas e transferências por período, categoria, conta ou descrição."
         />
-        <Button
-          type="button"
-          variant="secondary"
-          onClick={exportarPdf}
-          disabled={exportando}
-        >
+        <Button type="button" variant="secondary" onClick={exportarPdf} disabled={exportando}>
           <Download size={16} />
           {exportando ? "Gerando PDF..." : "Exportar PDF"}
         </Button>

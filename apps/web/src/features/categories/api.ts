@@ -23,16 +23,13 @@ export const useCategories = (tipo?: TipoCategoria) =>
   useQuery({
     queryKey: ["categories", tipo],
     queryFn: () =>
-      api
-        .get<Category[]>("/categories", { params: tipo ? { tipo } : {} })
-        .then((r) => r.data),
+      api.get<Category[]>("/categories", { params: tipo ? { tipo } : {} }).then((r) => r.data),
   });
 
 export const useCreateCategory = () => {
   const qc = useQueryClient();
   return useMutation({
-    mutationFn: (data: CategoryIn) =>
-      api.post<Category>("/categories", data).then((r) => r.data),
+    mutationFn: (data: CategoryIn) => api.post<Category>("/categories", data).then((r) => r.data),
     onSuccess: () => qc.invalidateQueries({ queryKey: ["categories"] }),
   });
 };

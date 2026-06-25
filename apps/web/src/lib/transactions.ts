@@ -15,14 +15,22 @@ export function tipoToBadgeVariant(
   tipo: TipoTransacao,
 ): "pos" | "neg" | "info" | "accent" | "neutral" | "warn" {
   switch (tipo) {
-    case "RECEITA": return "pos";
-    case "DESPESA": return "neg";
-    case "TRANSFERENCIA": return "info";
-    case "COMPRA_CARTAO": return "accent";
-    case "PAGAMENTO_FATURA": return "neutral";
-    case "AJUSTE": return "warn";
-    case "APLICACAO_RF": return "info";
-    case "RESGATE_RF": return "pos";
+    case "RECEITA":
+      return "pos";
+    case "DESPESA":
+      return "neg";
+    case "TRANSFERENCIA":
+      return "info";
+    case "COMPRA_CARTAO":
+      return "accent";
+    case "PAGAMENTO_FATURA":
+      return "neutral";
+    case "AJUSTE":
+      return "warn";
+    case "APLICACAO_RF":
+      return "info";
+    case "RESGATE_RF":
+      return "pos";
   }
 }
 

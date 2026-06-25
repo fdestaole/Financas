@@ -1,5 +1,4 @@
 import { Star, Wallet } from "lucide-react";
-import { Badge } from "@/components/ui/Badge";
 import { Card } from "@/components/ui/Card";
 import { formatBRL } from "@/lib/utils";
 import type { TipoConta } from "./api";
@@ -39,7 +38,11 @@ export function MiniAccountCard({ account }: Props) {
         <div className="flex items-center gap-1.5">
           <div className="font-medium text-text truncate">{account.nome}</div>
           {account.padrao && (
-            <Star size={12} className="text-accent fill-current shrink-0" aria-label="Conta padrão" />
+            <Star
+              size={12}
+              className="text-accent fill-current shrink-0"
+              aria-label="Conta padrão"
+            />
           )}
         </div>
         <div className="text-xs text-text-3 truncate">

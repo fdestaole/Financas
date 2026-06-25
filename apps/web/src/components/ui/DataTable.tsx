@@ -1,10 +1,5 @@
 import { ReactNode } from "react";
-import {
-  ColumnDef,
-  flexRender,
-  getCoreRowModel,
-  useReactTable,
-} from "@tanstack/react-table";
+import { ColumnDef, flexRender, getCoreRowModel, useReactTable } from "@tanstack/react-table";
 import { cn } from "@/lib/cn";
 
 interface Props<T> {
@@ -22,7 +17,9 @@ export function DataTable<T>({ columns, data, empty, loading, className }: Props
     return <div className="px-5 py-8 text-sm text-text-3">Carregando…</div>;
   }
   if (!data.length) {
-    return <>{empty ?? <div className="px-5 py-12 text-center text-sm text-text-3">Sem dados</div>}</>;
+    return (
+      <>{empty ?? <div className="px-5 py-12 text-center text-sm text-text-3">Sem dados</div>}</>
+    );
   }
 
   return (

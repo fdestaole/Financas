@@ -34,13 +34,7 @@ export function BarrasReceitaDespesa({ data }: Props) {
             Sem dados no período filtrado.
           </div>
         ) : (
-          <BarChart
-            data={chartData}
-            xKey="mes"
-            series={series}
-            height={288}
-            format={formatBRL}
-          />
+          <BarChart data={chartData} xKey="mes" series={series} height={288} format={formatBRL} />
         )}
       </div>
     </Card>

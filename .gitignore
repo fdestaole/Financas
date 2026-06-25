@@ -7,6 +7,7 @@ coverage/
 
 # tsc -b artifacts in TypeScript-only src trees
 apps/web/src/**/*.js
+*.tsbuildinfo
 
 __pycache__/
 *.py[cod]

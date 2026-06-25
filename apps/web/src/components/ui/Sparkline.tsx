@@ -3,9 +3,9 @@ import { cn } from "@/lib/cn";
 
 interface Props {
   data: number[];
-  color?: string;        // CSS color, default var(--color-accent)
+  color?: string; // CSS color, default var(--color-accent)
   height?: number;
-  width?: number;        // viewBox width — default 100, escala via CSS
+  width?: number; // viewBox width — default 100, escala via CSS
   gradient?: boolean;
   strokeWidth?: number;
   className?: string;

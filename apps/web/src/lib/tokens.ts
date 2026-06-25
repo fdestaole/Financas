@@ -25,8 +25,16 @@ export const SERIES_PALETTE_LIGHT = [
 ];
 
 export const CATEGORY_DEFAULT_COLORS = [
-  "#a78bfa", "#4ade80", "#f87171", "#22d3ee", "#fbbf24",
-  "#fb923c", "#f472b6", "#818cf8", "#34d399", "#facc15",
+  "#a78bfa",
+  "#4ade80",
+  "#f87171",
+  "#22d3ee",
+  "#fbbf24",
+  "#fb923c",
+  "#f472b6",
+  "#818cf8",
+  "#34d399",
+  "#facc15",
 ];
 
 export function tickCurrencyShort(v: number): string {

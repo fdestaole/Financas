@@ -13,7 +13,8 @@ export const formatBRL = (value: number | string | null | undefined): string => 
 };
 
 export const formatDate = (date: string | Date): string => {
-  const d = typeof date === "string" ? new Date(date + (date.length === 10 ? "T12:00:00" : "")) : date;
+  const d =
+    typeof date === "string" ? new Date(date + (date.length === 10 ? "T12:00:00" : "")) : date;
   return d.toLocaleDateString("pt-BR");
 };
 

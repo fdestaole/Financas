@@ -1,10 +1,15 @@
-from contextlib import asynccontextmanager
+import logging
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, status
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
+from slowapi.errors import RateLimitExceeded
+from sqlalchemy import text
 
 from app.core.config import settings
 from app.core.errors import register_error_handlers
+from app.core.ratelimit import limiter
+from app.db.session import engine
 from app.modules.auth.routes import router as auth_router
 from app.modules.bank_accounts.routes import router as bank_accounts_router
 from app.modules.categories.routes import router as categories_router
@@ -15,17 +20,32 @@ from app.modules.investments.routes import router as investments_router
 from app.modules.invoices.routes import router as invoices_router
 from app.modules.transactions.routes import router as transactions_router
 
-
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    yield
-
+logging.basicConfig(
+    level=getattr(logging, settings.LOG_LEVEL.upper(), logging.INFO),
+    format="%(asctime)s %(levelname)s %(name)s %(message)s",
+)
+logger = logging.getLogger("financas")
 
 app = FastAPI(
     title="Finanças API",
     version="0.1.0",
-    lifespan=lifespan,
 )
+
+app.state.limiter = limiter
+
+
+@app.exception_handler(RateLimitExceeded)
+async def rate_limit_handler(request: Request, exc: RateLimitExceeded) -> JSONResponse:
+    return JSONResponse(
+        status_code=status.HTTP_429_TOO_MANY_REQUESTS,
+        content={
+            "error": {
+                "code": "rate_limited",
+                "message": "Muitas requisições. Tente novamente em instantes.",
+            }
+        },
+    )
+
 
 app.add_middleware(
     CORSMiddleware,
@@ -39,8 +59,18 @@ register_error_handlers(app)
 
 
 @app.get("/health", tags=["health"])
-def health() -> dict[str, str]:
-    return {"status": "ok"}
+def health() -> JSONResponse:
+    """Liveness + readiness: verifica conexão com o banco."""
+    try:
+        with engine.connect() as conn:
+            conn.execute(text("SELECT 1"))
+    except Exception:  # noqa: BLE001
+        logger.exception("health check: banco indisponível")
+        return JSONResponse(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            content={"status": "error", "database": "down"},
+        )
+    return JSONResponse(content={"status": "ok", "database": "up"})
 
 
 API_PREFIX = "/api/v1"

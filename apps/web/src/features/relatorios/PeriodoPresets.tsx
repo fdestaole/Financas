@@ -32,7 +32,9 @@ const order: PresetKey[] = [
   "personalizado",
 ];
 
-export function computePresetRange(preset: PresetKey): { data_inicio: string; data_fim: string } | null {
+export function computePresetRange(
+  preset: PresetKey,
+): { data_inicio: string; data_fim: string } | null {
   if (preset === "personalizado") return null;
   const hoje = new Date();
   const iso = (d: Date) => d.toISOString().slice(0, 10);

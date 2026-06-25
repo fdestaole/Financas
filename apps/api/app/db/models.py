@@ -93,6 +93,11 @@ class CreditCard(Base, IdMixin, TimestampMixin):
     arquivado: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
 
     bank_account: Mapped[BankAccount] = relationship()
+    invoices: Mapped[list["CreditCardInvoice"]] = relationship(
+        back_populates="credit_card",
+        cascade="all, delete-orphan",
+        foreign_keys="CreditCardInvoice.credit_card_id",
+    )
 
 
 class Category(Base, IdMixin, TimestampMixin):
@@ -156,6 +161,10 @@ class Transaction(Base, IdMixin, TimestampMixin):
 
     observacao: Mapped[str | None] = mapped_column(String(500), nullable=True)
 
+    category: Mapped["Category | None"] = relationship()
+    bank_account: Mapped["BankAccount | None"] = relationship()
+    credit_card: Mapped["CreditCard | None"] = relationship()
+
 
 class CreditCardInvoice(Base, IdMixin, TimestampMixin):
     __tablename__ = "credit_card_invoices"
@@ -181,6 +190,11 @@ class CreditCardInvoice(Base, IdMixin, TimestampMixin):
         ForeignKey("transactions.id", ondelete="SET NULL"), nullable=True
     )
 
+    credit_card: Mapped["CreditCard"] = relationship(
+        back_populates="invoices",
+        foreign_keys=[credit_card_id],
+    )
+
 
 class Investment(Base, IdMixin, TimestampMixin):
     __tablename__ = "investments"
@@ -192,6 +206,11 @@ class Investment(Base, IdMixin, TimestampMixin):
     quantidade: Mapped[Decimal] = mapped_column(QtyT, nullable=False, default=Decimal("0"))
     preco_medio: Mapped[Decimal] = mapped_column(PriceT, nullable=False, default=Decimal("0"))
     corretora: Mapped[str | None] = mapped_column(String(80), nullable=True)
+
+    operations: Mapped[list["InvestmentOperation"]] = relationship(
+        back_populates="investment",
+        cascade="all, delete-orphan",
+    )
 
 
 class InvestmentOperation(Base, IdMixin, TimestampMixin):
@@ -209,6 +228,8 @@ class InvestmentOperation(Base, IdMixin, TimestampMixin):
     taxas: Mapped[Decimal] = mapped_column(MoneyT, nullable=False, default=Decimal("0"))
     data: Mapped[date] = mapped_column(Date, nullable=False, index=True)
     observacao: Mapped[str | None] = mapped_column(String(500), nullable=True)
+
+    investment: Mapped["Investment"] = relationship(back_populates="operations")
 
 
 class QuoteCache(Base, TimestampMixin):
@@ -243,6 +264,11 @@ class FixedIncomeProduct(Base, IdMixin, TimestampMixin):
     arquivado: Mapped[bool] = mapped_column(Boolean, default=False, nullable=False)
     observacao: Mapped[str | None] = mapped_column(String(500), nullable=True)
 
+    operations: Mapped[list["FixedIncomeOperation"]] = relationship(
+        back_populates="product",
+        cascade="all, delete-orphan",
+    )
+
 
 class FixedIncomeOperation(Base, IdMixin, TimestampMixin):
     __tablename__ = "fixed_income_operations"
@@ -261,6 +287,8 @@ class FixedIncomeOperation(Base, IdMixin, TimestampMixin):
     )
     observacao: Mapped[str | None] = mapped_column(String(500), nullable=True)
 
+    product: Mapped["FixedIncomeProduct"] = relationship(back_populates="operations")
+
 
 class UserSettings(Base, TimestampMixin):
     __tablename__ = "user_settings"
@@ -269,3 +297,22 @@ class UserSettings(Base, TimestampMixin):
         ForeignKey("users.id", ondelete="CASCADE"), primary_key=True
     )
     cdi_mensal: Mapped[Decimal] = mapped_column(Numeric(8, 4), nullable=False, default=Decimal("0"))
+
+
+class IdempotencyKey(Base, IdMixin, TimestampMixin):
+    """Garante que um POST repetido (mesmo Idempotency-Key) não duplique efeitos.
+
+    Armazena os ids das transações criadas para devolver o mesmo resultado
+    em retries / duplo-clique.
+    """
+
+    __tablename__ = "idempotency_keys"
+    __table_args__ = (
+        UniqueConstraint("user_id", "endpoint", "key", name="uq_idempotency_user_endpoint_key"),
+    )
+
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"), index=True)
+    endpoint: Mapped[str] = mapped_column(String(80), nullable=False)
+    key: Mapped[str] = mapped_column(String(255), nullable=False)
+    # ids das transações resultantes, separados por vírgula
+    resultado_ids: Mapped[str] = mapped_column(String(2000), nullable=False, default="")

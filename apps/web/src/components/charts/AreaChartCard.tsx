@@ -21,7 +21,8 @@ interface Props {
 export function AreaChartCard({ data, xKey, yKey, height = 220, format }: Props) {
   const t = useChartTheme();
   const gradId = useId();
-  const fmt = format ?? ((v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }));
+  const fmt =
+    format ?? ((v: number) => v.toLocaleString("pt-BR", { style: "currency", currency: "BRL" }));
 
   return (
     <div style={{ height }}>
@@ -34,10 +35,32 @@ export function AreaChartCard({ data, xKey, yKey, height = 220, format }: Props)
             </linearGradient>
           </defs>
           <CartesianGrid strokeDasharray="3 3" stroke={t.gridStroke} />
-          <XAxis dataKey={xKey} fontSize={t.axisFontSize} stroke={t.axisColor} tickLine={false} axisLine={false} />
-          <YAxis fontSize={t.axisFontSize} stroke={t.axisColor} tickFormatter={t.tickFormatter} tickLine={false} axisLine={false} />
-          <Tooltip formatter={(v: number) => fmt(v)} contentStyle={t.tooltipStyle} cursor={{ stroke: t.accent, strokeOpacity: 0.3 }} />
-          <Area type="monotone" dataKey={yKey} stroke={t.accent} strokeWidth={2} fill={`url(#${gradId})`} />
+          <XAxis
+            dataKey={xKey}
+            fontSize={t.axisFontSize}
+            stroke={t.axisColor}
+            tickLine={false}
+            axisLine={false}
+          />
+          <YAxis
+            fontSize={t.axisFontSize}
+            stroke={t.axisColor}
+            tickFormatter={t.tickFormatter}
+            tickLine={false}
+            axisLine={false}
+          />
+          <Tooltip
+            formatter={(v: number) => fmt(v)}
+            contentStyle={t.tooltipStyle}
+            cursor={{ stroke: t.accent, strokeOpacity: 0.3 }}
+          />
+          <Area
+            type="monotone"
+            dataKey={yKey}
+            stroke={t.accent}
+            strokeWidth={2}
+            fill={`url(#${gradId})`}
+          />
         </RAreaChart>
       </ResponsiveContainer>
     </div>

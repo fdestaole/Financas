@@ -83,14 +83,7 @@ export async function exportarRelatorioPdf({ element, filename, title, subtitle 
       const img = sliceCanvas.toDataURL("image/jpeg", 0.92);
       const headerY = primeira ? MARGIN_PT + headerOffset : MARGIN_PT;
       if (!primeira) pdf.addPage();
-      pdf.addImage(
-        img,
-        "JPEG",
-        MARGIN_PT,
-        headerY,
-        pageContentWidth,
-        sliceCanvas.height * ratio,
-      );
+      pdf.addImage(img, "JPEG", MARGIN_PT, headerY, pageContentWidth, sliceCanvas.height * ratio);
       offsetPx += sliceCanvas.height;
       primeira = false;
     }
@@ -103,12 +96,9 @@ export async function exportarRelatorioPdf({ element, filename, title, subtitle 
     pdf.setFont("helvetica", "normal");
     pdf.setFontSize(8);
     pdf.setTextColor(140);
-    pdf.text(
-      `Página ${p} de ${totalPaginas} • Finanças`,
-      A4_WIDTH_PT / 2,
-      A4_HEIGHT_PT - 12,
-      { align: "center" },
-    );
+    pdf.text(`Página ${p} de ${totalPaginas} • Finanças`, A4_WIDTH_PT / 2, A4_HEIGHT_PT - 12, {
+      align: "center",
+    });
   }
 
   pdf.save(filename);

@@ -74,9 +74,7 @@ export function CreditCardVisual({ card, to, onDelete }: Props) {
               <div className="font-semibold">{card.dia_vencimento}</div>
             </div>
           </div>
-          {limite > 0 && (
-            <ProgressBar value={fatura} max={limite} color="rgba(255,255,255,0.85)" />
-          )}
+          {limite > 0 && <ProgressBar value={fatura} max={limite} color="rgba(255,255,255,0.85)" />}
         </div>
       </div>
     </div>

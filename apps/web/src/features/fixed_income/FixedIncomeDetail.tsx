@@ -78,7 +78,10 @@ export function FixedIncomeDetail({ productId, onClose }: Props) {
           <Linha label="Rendimento bruto" value={formatBRL(product.rendimento_bruto)} />
           <Linha label="Saldo bruto" value={formatBRL(product.saldo_bruto)} strong />
           <div className="my-1 border-t border-border" />
-          <Linha label={`IR (${Number(product.aliquota_ir)}%)`} value={`- ${formatBRL(product.imposto)}`} />
+          <Linha
+            label={`IR (${Number(product.aliquota_ir)}%)`}
+            value={`- ${formatBRL(product.imposto)}`}
+          />
           <Linha label="Saldo líquido" value={formatBRL(product.saldo_liquido)} strong />
         </div>
       </div>

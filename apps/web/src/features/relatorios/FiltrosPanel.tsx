@@ -26,7 +26,13 @@ const TIPOS = [
   { value: "COMPRA_CARTAO", label: "Compra no cartão" },
 ];
 
-export function FiltrosPanel({ filtros, preset, onPresetChange, onFiltrosChange, onLimpar }: Props) {
+export function FiltrosPanel({
+  filtros,
+  preset,
+  onPresetChange,
+  onFiltrosChange,
+  onLimpar,
+}: Props) {
   const { data: categorias } = useCategories();
   const { data: contas } = useBankAccounts();
   const { data: cartoes } = useCreditCards();
@@ -100,9 +106,7 @@ export function FiltrosPanel({ filtros, preset, onPresetChange, onFiltrosChange,
           />
         </div>
         <div className="md:col-span-2">
-          <label className="block text-xs text-text-3 mb-1">
-            Buscar por nome/observação
-          </label>
+          <label className="block text-xs text-text-3 mb-1">Buscar por nome/observação</label>
           <Input
             type="text"
             placeholder="Ex.: Mercado, Uber, Salário..."
@@ -126,9 +130,7 @@ export function FiltrosPanel({ filtros, preset, onPresetChange, onFiltrosChange,
         </div>
 
         <div>
-          <label className="block text-xs text-text-3 mb-1">
-            Categorias
-          </label>
+          <label className="block text-xs text-text-3 mb-1">Categorias</label>
           <MultiSelect
             options={categoriaOptions}
             value={filtros.category_ids ?? []}

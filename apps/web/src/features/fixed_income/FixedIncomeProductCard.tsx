@@ -27,7 +27,8 @@ export function FixedIncomeProductCard({ product, onClick }: Props) {
           <div className="truncate font-medium text-text">{product.nome}</div>
           <div className="truncate text-xs text-text-3">
             {TIPO_LABEL[product.tipo]}
-            {product.emissor ? ` · ${product.emissor}` : ""} · {taxaLabel(product.indexador, product.taxa)}
+            {product.emissor ? ` · ${product.emissor}` : ""} ·{" "}
+            {taxaLabel(product.indexador, product.taxa)}
           </div>
         </div>
         {product.liquidez_diaria && (
@@ -38,7 +39,9 @@ export function FixedIncomeProductCard({ product, onClick }: Props) {
       <div className="mt-3 flex items-end justify-between">
         <div>
           <div className="text-xs text-text-3">Saldo bruto</div>
-          <div className="tnum text-h2 font-semibold text-text">{formatBRL(product.saldo_bruto)}</div>
+          <div className="tnum text-h2 font-semibold text-text">
+            {formatBRL(product.saldo_bruto)}
+          </div>
           <div className="tnum text-xs text-text-3">líquido {formatBRL(product.saldo_liquido)}</div>
         </div>
         {venc && (

@@ -133,7 +133,8 @@ export function CardDetailPage() {
   };
 
   const compras = useMemo(
-    () => (txData?.items ?? []).filter((t) => t.tipo === "COMPRA_CARTAO" && t.status !== "CANCELADA"),
+    () =>
+      (txData?.items ?? []).filter((t) => t.tipo === "COMPRA_CARTAO" && t.status !== "CANCELADA"),
     [txData],
   );
 
@@ -166,7 +167,13 @@ export function CardDetailPage() {
   const proximoVencimento = useMemo(() => {
     if (!invoices?.length) return undefined;
     const aberta = invoices
-      .filter((i) => i.status === "ABERTA" || i.status === "FECHADA" || i.status === "PAGA_PARCIAL" || i.status === "VENCIDA")
+      .filter(
+        (i) =>
+          i.status === "ABERTA" ||
+          i.status === "FECHADA" ||
+          i.status === "PAGA_PARCIAL" ||
+          i.status === "VENCIDA",
+      )
       .sort((a, b) => a.data_vencimento.localeCompare(b.data_vencimento))[0];
     return aberta?.data_vencimento;
   }, [invoices]);
@@ -193,14 +200,18 @@ export function CardDetailPage() {
         header: "Fechamento",
         accessorKey: "data_fechamento",
         cell: ({ row }) => (
-          <span className="text-text-2 whitespace-nowrap">{formatDate(row.original.data_fechamento)}</span>
+          <span className="text-text-2 whitespace-nowrap">
+            {formatDate(row.original.data_fechamento)}
+          </span>
         ),
       },
       {
         header: "Vencimento",
         accessorKey: "data_vencimento",
         cell: ({ row }) => (
-          <span className="text-text-2 whitespace-nowrap">{formatDate(row.original.data_vencimento)}</span>
+          <span className="text-text-2 whitespace-nowrap">
+            {formatDate(row.original.data_vencimento)}
+          </span>
         ),
       },
       {
@@ -214,13 +225,17 @@ export function CardDetailPage() {
         header: () => <div className="text-right">Aberto</div>,
         accessorKey: "valor_aberto",
         cell: ({ row }) => (
-          <div className="tnum text-right font-semibold text-text">{formatBRL(row.original.valor_aberto)}</div>
+          <div className="tnum text-right font-semibold text-text">
+            {formatBRL(row.original.valor_aberto)}
+          </div>
         ),
       },
       {
         header: "Status",
         accessorKey: "status",
-        cell: ({ row }) => <Badge variant={STATUS_BADGE[row.original.status]}>{row.original.status}</Badge>,
+        cell: ({ row }) => (
+          <Badge variant={STATUS_BADGE[row.original.status]}>{row.original.status}</Badge>
+        ),
       },
       {
         id: "actions",
@@ -255,7 +270,9 @@ export function CardDetailPage() {
         header: "Data",
         accessorKey: "data_competencia",
         cell: ({ row }) => (
-          <span className="text-text-2 whitespace-nowrap">{formatDate(row.original.data_competencia)}</span>
+          <span className="text-text-2 whitespace-nowrap">
+            {formatDate(row.original.data_competencia)}
+          </span>
         ),
       },
       {
@@ -270,7 +287,9 @@ export function CardDetailPage() {
         header: () => <div className="text-right">Valor</div>,
         accessorKey: "valor",
         cell: ({ row }) => (
-          <div className="tnum text-right font-semibold text-text">{formatBRL(row.original.valor)}</div>
+          <div className="tnum text-right font-semibold text-text">
+            {formatBRL(row.original.valor)}
+          </div>
         ),
       },
     ],
@@ -281,7 +300,11 @@ export function CardDetailPage() {
     <div className="p-6 md:p-8 max-w-7xl mx-auto">
       <PageHeader
         title={card?.nome ?? "Cartão"}
-        description={card ? `${card.bandeira} · Fecha dia ${card.dia_fechamento} · Vence dia ${card.dia_vencimento}` : ""}
+        description={
+          card
+            ? `${card.bandeira} · Fecha dia ${card.dia_fechamento} · Vence dia ${card.dia_vencimento}`
+            : ""
+        }
         actions={
           <Button variant="secondary" onClick={openEdit} disabled={!card}>
             <Pencil size={14} /> Editar
@@ -328,7 +351,10 @@ export function CardDetailPage() {
                     <DonutChart data={donutData} height={180} />
                     <div className="mt-3 space-y-1.5">
                       {donutData.map((d) => (
-                        <div key={d.name} className="flex items-center justify-between gap-3 text-sm">
+                        <div
+                          key={d.name}
+                          className="flex items-center justify-between gap-3 text-sm"
+                        >
                           <span className="flex items-center gap-2">
                             <span
                               className="w-2.5 h-2.5 rounded-sm"
@@ -386,7 +412,11 @@ export function CardDetailPage() {
       <Modal
         open={!!openInvoice}
         onClose={() => setOpenInvoice(null)}
-        title={openInvoice ? `Fatura ${MESES[openInvoice.mes_referencia - 1]}/${openInvoice.ano_referencia}` : ""}
+        title={
+          openInvoice
+            ? `Fatura ${MESES[openInvoice.mes_referencia - 1]}/${openInvoice.ano_referencia}`
+            : ""
+        }
         maxWidth="max-w-2xl"
       >
         {!txs?.length ? (
@@ -410,11 +440,18 @@ export function CardDetailPage() {
         <form onSubmit={submitPay} className="space-y-4">
           <div>
             <Label>Valor</Label>
-            <MoneyInput value={payForm.valor} onChange={(v) => setPayForm({ ...payForm, valor: v })} />
+            <MoneyInput
+              value={payForm.valor}
+              onChange={(v) => setPayForm({ ...payForm, valor: v })}
+            />
           </div>
           <div>
             <Label>Data</Label>
-            <Input type="date" value={payForm.data} onChange={(e) => setPayForm({ ...payForm, data: e.target.value })} />
+            <Input
+              type="date"
+              value={payForm.data}
+              onChange={(e) => setPayForm({ ...payForm, data: e.target.value })}
+            />
           </div>
           <div>
             <Label>Pagar com</Label>

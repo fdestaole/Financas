@@ -16,7 +16,9 @@ import { FixedIncomeForm } from "./FixedIncomeForm";
 import { FixedIncomeProductCard } from "./FixedIncomeProductCard";
 
 /** Soma o saldo bruto dos produtos de renda fixa, para os KPIs do topo. */
-export function somaRendaFixa(products: Pick<FixedIncomeProduct, "saldo_bruto">[] | undefined): number {
+export function somaRendaFixa(
+  products: Pick<FixedIncomeProduct, "saldo_bruto">[] | undefined,
+): number {
   return products?.reduce((s, p) => s + Number(p.saldo_bruto), 0) ?? 0;
 }
 

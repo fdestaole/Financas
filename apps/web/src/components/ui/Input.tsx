@@ -34,9 +34,6 @@ export const Textarea = forwardRef<
 
 export function Label({ className, ...rest }: LabelHTMLAttributes<HTMLLabelElement>) {
   return (
-    <label
-      className={cn("mb-1 block text-sm font-medium text-text-2", className)}
-      {...rest}
-    />
+    <label className={cn("mb-1 block text-sm font-medium text-text-2", className)} {...rest} />
   );
 }
