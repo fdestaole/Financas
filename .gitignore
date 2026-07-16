@@ -38,6 +38,7 @@ pgdata/
 .superpowers/
 .playwright-mcp/
 *.db
+*.db.bak*
 *.sqlite
 *.sqlite3
 /*.png
