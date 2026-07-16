@@ -23,7 +23,7 @@ jobs:
       - name: Lint (ruff)
         run: ruff check app tests
       - name: Tests (pytest)
-        run: pytest
+        run: PYTHONPATH=. pytest
 
   web:
     name: Web (typecheck)
